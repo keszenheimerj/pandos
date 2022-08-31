@@ -1,38 +1,82 @@
-/* Return TRUE if the queue whose tail is pointed to by tp is empty.
-Return FALSE otherwise. */
+
+
+
+
 int	emptyProcQ(pcb_t *tp){
+	/* Return TRUE if the queue whose tail is pointed to by tp is empty.
+	Return FALSE otherwise. */
 	if(tp == Null)
 		return true;
 	return false;
 }
 
-/* Return a pointer to the first pcb from the process queue whose tail
-is pointed to by tp. Do not remove this pcbfrom the process queue.
-Return NULL if the process queue is empty. */
+int	singleProcQ(pcb_t *tp){
+	/* Return TRUE if the queue has one element.
+	Return FALSE otherwise. */
+	if(tp -> p_next == tp)
+		return true;
+	return false;
+}
+
+
 pcb.t	*headProcQ(pcb.t *tp){
+	/* Return a pointer to the first pcb from the process queue whose tail
+	is pointed to by tp. Do not remove this pcbfrom the process queue.
+	Return NULL if the process queue is empty. */
 	if(emptyProQ(tp)){
 		return Null;
 	}
 	return (tp -> p_next);
 }
 
-/* This method is used to initialize a variable to be tail pointer to a
-process queue.
-Return a pointer to the tail of an empty process queue; i.e. NULL. */
+
 pcb_t	*mkEmptyProcQ(){
+	/* This method is used to initialize a variable to be tail pointer to a
+	process queue.
+	Return a pointer to the tail of an empty process queue; i.e. NULL. */
 	return Null;
 }
 
-/* Insert the pcb pointed to by p into the process queue whose tail-
-pointer is pointed to by tp. Note the double indirection through tp
-to allow for the possible updating of the tail pointer as well. */
-insertProcQ(pcb t **tp, pcb t *p)
+
+insertProcQ(pcb_PTR *tp, pcb t *p){
+	/* Insert the pcb pointed to by p into the process queue whose tail-
+	pointer is pointed to by tp. Note the double indirection through tp
+	to allow for the possible updating of the tail pointer as well. */
+	/* empty queue case*/
+	if(emptyProc(tp){
+		*(tp) = p;
+		p -> p_next = p;
+		p -> p_prev = p;
+		return;
+	/* n queue case*/
+	p  -> p_prev = tp;
+	p  -> p_next = tp -> p_next;
+	tp -> p_next = p;
+	*(tp) = p;
+	return;
+}
 
 /* Remove the first (i.e. head) element from the process queue whose
 tail-pointer is pointed to by tp. Return NULL if the process queue
 was initially empty; otherwise return the pointer to the removed ele-
 ment. Update the process queue’s tail pointer if necessary. */
-pcb t *removeProcQ(pcb t **tp)
+pcb t *removeProcQ(pcb t **tp){
+	/* empty queue case*/
+	if(emptyProc(tp){
+		return Null;
+	}
+	
+	/*save head*/
+	*head = tp ->t_next;
+	p -> p_next = p -> p_next -> p_next;
+	(head -> p_next) -> p_prev = tp;
+	head -> p_next = head -> p_prev = Null;
+	/*if head was the last element we make the tailPointer null*/
+	if(singleProcQ(tp){
+		tp = Null;
+	}
+	return head;
+}
 
 /* Remove the pcb pointed to by p from the process queue whose tail-
 pointer is pointed to by tp. Update the process queue’s tail pointer if
