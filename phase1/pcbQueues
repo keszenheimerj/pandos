@@ -1,4 +1,18 @@
-
+/*H***************************************************************************************************
+* FILENAME :	pcbQueues.c
+*
+* DESCRIPTION :	
+*	PcbQueues file management of queues of structures: pcb’s
+*
+* PUBLIC FUNCTIONS : 
+*	void	freePCB(pcb_t *p)	inset element pointed to by p onto the pcbFree list
+*	pcb_t	*allocPcb()		return Null if pcbFree list is empty or remove an element from the 
+*					list, provide initial values for ALL of the pcbs field and return 
+*					pointer to removed element
+*	initPcbs()			initialize the pcbFree list
+* AUTHORS :	James Keszenheimer, Evan Hanson		START DATE : 31 Aug 22
+*
+*H*/
 
 
 
@@ -60,7 +74,7 @@ insertProcQ(pcb_PTR *tp, pcb t *p){
 tail-pointer is pointed to by tp. Return NULL if the process queue
 was initially empty; otherwise return the pointer to the removed ele-
 ment. Update the process queue’s tail pointer if necessary. */
-pcb t *removeProcQ(pcb t **tp){
+pcb t *removeProcQ(pcb_PTR *tp){
 	/* empty queue case*/
 	if(emptyProc(tp){
 		return Null;
@@ -83,7 +97,91 @@ pointer is pointed to by tp. Update the process queue’s tail pointer if
 necessary. If the desired entry is not in the indicated queue (an error
 condition), return NULL; otherwise, return p. Note that p can point
 to any element of the process queue. */
-pcb t *outProcQ(pcb t **tp, pcb t *p)
+pcb t *outProcQ(pcb_PTR *tp, pcb t *p){
+	pcb_PTR curN = tp -> p_prev;
+	
+	while(*tp != curN && curN != p){
+		curN = curN -> p_prev;
+	}
+	if(curN==p){
+		if(tp == p){
+			*tp = tp -> p_prev;
+		}
+		p -> p_next -> p_prev = p -> p_prev;
+		p -> p_prev -> p_next = p -> p_next;
+		p -> p_next = p -> p_prev = Null;
+		return p;
+	}else{
+		return Null;
+	}
+	
+}
 
+/******************START*OF*GLOBAL*FUNCTIONS*************************************/
+void	freePCB(pcb_t *p){	
+	/*inset element pointed to by p onto the pcbFree list*/
+}
+pcb_t	*allocPcb(){		
+	/*return Null if pcbFree list is empty or remove an element from the 
+	* list, provide initial values for ALL of the pcbs field and return 
+	*pointer to removed element
+	*/
+}
+				
+initPcbs(){	
+	/*nitialize the pcbFree list*/
+}
 
+int emptyChild(pcb_t *p){
+	/* Return TRUE if the pcb pointed to by p has no children. Return
+	FALSE otherwise. */
+	return (p -> p_child == Null);
+}
+	
+insertChild(pcb_t *prnt, pcb_t *p){
+	/* Make the pcb pointed to by p a child of the pcb pointed to by prnt.
+	*/
+	prnt -> p_child = p;
+}
 
+pcb_t *removeChild(pcb_t *p){
+	/* Make the first child of the pcb pointed to by p no longer a child of
+	p. Return NULL if initially there were no children of p. Otherwise,
+	return a pointer to this removed first child pcb. */
+	if(emptyChild(p)){
+		return Null;
+	}
+	*youngest = p -> p_child;
+	if(youngest_sib == youngest){
+		p -> p_child = Null;
+	}else{
+		p -> p_child = youngest -> p_sib;
+		youngest -> p_sib_next -> p_sib = youngest -> p_sib;
+		youngest -> p_sib -> p_sub_next = youngest -> p_sib_next;
+	}
+	youngest -> p_prnt = youngest -> p_sib = youngest -> p_sib_next = Null;
+	return youngest;
+}
+
+pcb_t *outChild(pcb_t *p){
+	/* Make the pcb pointed to by p no longer the child of its parent. If
+	the pcb pointed to by p has no parent, return NULL; otherwise, return
+	p. Note that the element pointed to by p need not be the first child of
+	its parent. */
+	if(p -> p_prnt == Null){
+		return Null;
+	}
+	if(p -> p_prnt -> p_child == p){
+		return *removeChild(*p);
+	}
+	if(p -> p_sib == p){
+		p -> p_prnt -> p_child == Null;
+		return *p;
+	}
+	p -> p_prnt -> p_child = p -> p_sib;
+	p -> p_sib_next -> p_sib = p -> p_sib;
+	p -> p_sib -> p_sub_next = p -> p_sib_next;
+	return *p;
+	
+}
+/*******************END*OF*GLOBAL*FUNCTIONS*************************************/
