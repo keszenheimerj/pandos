@@ -10,6 +10,8 @@
 /* Hardware & software constants */
 #define PAGESIZE		  4096			/* page size in bytes	*/
 #define WORDLEN			  4				  /* word size in bytes	*/
+#define MAXPROC			  20			/* pandos can only support this pool of concurrent*/
+							/* processes */
 
 
 /* timer, timescale, TOD-LO and other bus regs */
