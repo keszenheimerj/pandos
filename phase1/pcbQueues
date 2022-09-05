@@ -14,7 +14,7 @@
 *
 *H*/
 
-
+static int MAXPCBCNT = 20;
 
 int	emptyProcQ(pcb_t *tp){
 	/* Return TRUE if the queue whose tail is pointed to by tp is empty.
@@ -120,31 +120,48 @@ pcb t *outProcQ(pcb_PTR *tp, pcb t *p){
 /******************START*OF*GLOBAL*FUNCTIONS*************************************/
 void	freePCB(pcb_t *p){	
 	/*inset element pointed to by p onto the pcbFree list*/
+	for(int i=0; i<= MAXPCBCNT && (i==0 || pool[i-1] == *p); i ++){
+		if(pool[i] == Null){
+			pool[i] = *p;
+		}
+	}
 }
 pcb_t	*allocPcb(){		
 	/*return Null if pcbFree list is empty or remove an element from the 
 	* list, provide initial values for ALL of the pcbs field and return 
 	*pointer to removed element
 	*/
+	pcb_t	allocPCB = Null;
+	for(int i=0; i<= MAXPCBCNT && allocPCB == Null; i ++){
+		if(pool[i] != Null){
+			allocPCB = pool[i];
+			pool[i] = Null;
+		}
+	}
+	return allocPCB;
 }
 				
-initPcbs(){	
-	/*nitialize the pcbFree list*/
+void	initPcbs(){	
+	/*initialize the pcbFree list*/
+	static	pcb_t	pool[MAXPCBCNT];
+	for(int i=0; i<= MAXPCBCNT; i ++){
+		allocPCB(&pool[i]);
+	}
 }
 
-int emptyChild(pcb_t *p){
+int	emptyChild(pcb_t *p){
 	/* Return TRUE if the pcb pointed to by p has no children. Return
 	FALSE otherwise. */
 	return (p -> p_child == Null);
 }
 	
-insertChild(pcb_t *prnt, pcb_t *p){
+void	insertChild(pcb_t *prnt, pcb_t *p){
 	/* Make the pcb pointed to by p a child of the pcb pointed to by prnt.
 	*/
 	prnt -> p_child = p;
 }
 
-pcb_t *removeChild(pcb_t *p){
+pcb_t	*removeChild(pcb_t *p){
 	/* Make the first child of the pcb pointed to by p no longer a child of
 	p. Return NULL if initially there were no children of p. Otherwise,
 	return a pointer to this removed first child pcb. */
@@ -163,7 +180,7 @@ pcb_t *removeChild(pcb_t *p){
 	return youngest;
 }
 
-pcb_t *outChild(pcb_t *p){
+pcb_t	*outChild(pcb_t *p){
 	/* Make the pcb pointed to by p no longer the child of its parent. If
 	the pcb pointed to by p has no parent, return NULL; otherwise, return
 	p. Note that the element pointed to by p need not be the first child of
