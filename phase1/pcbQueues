@@ -14,12 +14,14 @@
 *
 *H*/
 
+#include "./../h/.";
+
 static int MAXPCBCNT = 20;
 
 int	emptyProcQ(pcb_t *tp){
 	/* Return TRUE if the queue whose tail is pointed to by tp is empty.
 	Return FALSE otherwise. */
-	if(tp == Null)
+	if(tp == NULL)
 		return true;
 	return false;
 }
@@ -33,12 +35,12 @@ int	singleProcQ(pcb_t *tp){
 }
 
 
-pcb.t	*headProcQ(pcb.t *tp){
+pcb_t	*headProcQ(pcb_t *tp){
 	/* Return a pointer to the first pcb from the process queue whose tail
 	is pointed to by tp. Do not remove this pcbfrom the process queue.
 	Return NULL if the process queue is empty. */
 	if(emptyProQ(tp)){
-		return Null;
+		return NULL;
 	}
 	return (tp -> p_next);
 }
@@ -48,7 +50,7 @@ pcb_t	*mkEmptyProcQ(){
 	/* This method is used to initialize a variable to be tail pointer to a
 	process queue.
 	Return a pointer to the tail of an empty process queue; i.e. NULL. */
-	return Null;
+	return NULL;
 }
 
 
@@ -74,10 +76,10 @@ insertProcQ(pcb_PTR *tp, pcb t *p){
 tail-pointer is pointed to by tp. Return NULL if the process queue
 was initially empty; otherwise return the pointer to the removed ele-
 ment. Update the process queue’s tail pointer if necessary. */
-pcb t *removeProcQ(pcb_PTR *tp){
+pcb_t *removeProcQ(pcb_PTR *tp){
 	/* empty queue case*/
 	if(emptyProc(tp){
-		return Null;
+		return NULL;
 	}
 	
 	/*save head*/
@@ -87,7 +89,7 @@ pcb t *removeProcQ(pcb_PTR *tp){
 	head -> p_next = head -> p_prev = Null;
 	/*if head was the last element we make the tailPointer null*/
 	if(singleProcQ(tp){
-		tp = Null;
+		tp = NULL;
 	}
 	return head;
 }
@@ -97,7 +99,7 @@ pointer is pointed to by tp. Update the process queue’s tail pointer if
 necessary. If the desired entry is not in the indicated queue (an error
 condition), return NULL; otherwise, return p. Note that p can point
 to any element of the process queue. */
-pcb t *outProcQ(pcb_PTR *tp, pcb t *p){
+pcb_t *outProcQ(pcb_PTR *tp, pcb t *p){
 	pcb_PTR curN = tp -> p_prev;
 	
 	while(*tp != curN && curN != p){
@@ -112,7 +114,7 @@ pcb t *outProcQ(pcb_PTR *tp, pcb t *p){
 		p -> p_next = p -> p_prev = Null;
 		return p;
 	}else{
-		return Null;
+		return NULL;
 	}
 	
 }
@@ -131,11 +133,11 @@ pcb_t	*allocPcb(){
 	* list, provide initial values for ALL of the pcbs field and return 
 	*pointer to removed element
 	*/
-	pcb_t	allocPCB = Null;
-	for(int i=0; i<= MAXPCBCNT && allocPCB == Null; i ++){
-		if(pool[i] != Null){
+	pcb_t	allocPCB = NULL;
+	for(int i=0; i<= MAXPCBCNT && allocPCB == NULL; i ++){
+		if(pool[i] != NULL){
 			allocPCB = pool[i];
-			pool[i] = Null;
+			pool[i] = NULL;
 		}
 	}
 	return allocPCB;
@@ -152,7 +154,7 @@ void	initPcbs(){
 int	emptyChild(pcb_t *p){
 	/* Return TRUE if the pcb pointed to by p has no children. Return
 	FALSE otherwise. */
-	return (p -> p_child == Null);
+	return (p -> p_child == NULL);
 }
 	
 void	insertChild(pcb_t *prnt, pcb_t *p){
@@ -166,17 +168,17 @@ pcb_t	*removeChild(pcb_t *p){
 	p. Return NULL if initially there were no children of p. Otherwise,
 	return a pointer to this removed first child pcb. */
 	if(emptyChild(p)){
-		return Null;
+		return NULL;
 	}
 	*youngest = p -> p_child;
 	if(youngest_sib == youngest){
-		p -> p_child = Null;
+		p -> p_child = NULL;
 	}else{
 		p -> p_child = youngest -> p_sib;
 		youngest -> p_sib_next -> p_sib = youngest -> p_sib;
 		youngest -> p_sib -> p_sub_next = youngest -> p_sib_next;
 	}
-	youngest -> p_prnt = youngest -> p_sib = youngest -> p_sib_next = Null;
+	youngest -> p_prnt = youngest -> p_sib = youngest -> p_sib_next = NULL;
 	return youngest;
 }
 
@@ -185,14 +187,14 @@ pcb_t	*outChild(pcb_t *p){
 	the pcb pointed to by p has no parent, return NULL; otherwise, return
 	p. Note that the element pointed to by p need not be the first child of
 	its parent. */
-	if(p -> p_prnt == Null){
-		return Null;
+	if(p -> p_prnt == NULL){
+		return NULL;
 	}
 	if(p -> p_prnt -> p_child == p){
 		return *removeChild(*p);
 	}
 	if(p -> p_sib == p){
-		p -> p_prnt -> p_child == Null;
+		p -> p_prnt -> p_child == NULL;
 		return *p;
 	}
 	p -> p_prnt -> p_child = p -> p_sib;
