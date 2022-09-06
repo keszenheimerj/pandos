@@ -12,6 +12,12 @@ int insertBlocked(int *semAdd, pcb_t *p){
 	above. If a new semaphore descriptor needs to be allocated and the
 	semdFree list is empty, return TRUE. In all other cases return FALSE.
 	*/
+	search active semd list for node with semad
+		found
+			insertProcQ(p, tailpointer found in semd
+		notfound
+			allocate a new semd from free list and init its fields and put a value in semAdd, init tailpointer with make empty proc and insert new node into active list
+			have to find right location for insert because it is sorted then perform same opperation as if it was found
 	if(emptyProcQ(semAdd -> s_procQ)){ /*testing inactive*/
 		semdAdd -> s_procQ = mkEmptyProcQ();
 	}
@@ -25,6 +31,17 @@ pcb_t *removeBlocked(int *semAdd){
 	pointer to it. If the process queue for this semaphore becomes empty
 	(emptyProcQ(s procq) is TRUE), remove the semaphore de-
 	scriptor from the ASL and return it to the semdFree list. */
+	/*removeProcQ(){
+		search active sem list for matching semAdd
+		case
+			not found
+				errorcase
+			found
+				perform a remove procQ on processQ associated with node just found in active sem list
+				this is value returned
+				process queue is not empty after removal ---done
+				process queue is empty--deallocate and take node out of active list and put back on free list
+	}*/
 	
 }
 pcb_t *outBlocked(pcb_t *p){
@@ -33,7 +50,10 @@ pcb_t *outBlocked(pcb_t *p){
 	to by p does not appear in the process queue associated with p’s
 	semaphore, which is an error condition, return NULL; otherwise, re-
 	turn p. */
-	
+	/*outProcQ(){
+		identical to remove blocked but instead of remove process queue call outproQ
+		accesser
+	}*/
 }
 pcb_t *headBlocked(int *semAdd){
 	/* Return a pointer to the pcb that is at the head of the process queue
