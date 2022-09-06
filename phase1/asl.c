@@ -47,5 +47,12 @@ initASL(){
 	static semd t semdTable[MAXPROC]
 	This method will be only called once during data structure initializa-
 	tion. */
-	static semd_t semdTablepMAXPROC];
+	static semd_t semdPool[MAXPROC];
+	for(int i = 0; i <=MAXPROC; i++){
+		if(i==0){
+			semdPool[i] -> s_next = Null;
+		}else{
+			semdPool[i] -> s_next = semdPool[i] -> s_semAdd;
+		}
+	}
 }
