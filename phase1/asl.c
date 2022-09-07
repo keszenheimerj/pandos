@@ -1,10 +1,10 @@
 #include "./../pcb.h";
 
 /*2.4*/
-HIDDEN	semd_t *semd_h, *semdFree_h;
+HIDDEN	semd_t *semdActive_h, *semdFree_h;
 
 *semd_h	semdFreeListPTR;
-*semd_h	semdActiveListPTR; /*sorted in acending order with 2 dummys on either side*/
+*semd_h	semdActiveListPTR; /*active sorted in acending order with 2 dummys on either side*/
 
 search(*semd_h){
 	/*loop return parent of node if there
@@ -83,7 +83,7 @@ initASL(){
 	static semd t semdTable[MAXPROC]
 	This method will be only called once during data structure initializa-
 	tion. */
-	static semd_t semdPool[MAXPROC];
+	static semd_t semdPool[MAXPROC+2];
 	*semd_t	currentsemd_ptr;
 	for(int i = 0; i < MAXPROC; i++){
 		
@@ -98,7 +98,7 @@ initASL(){
 		}else{
 			currentsemd_ptr -> s_next = semdPool[i];
 			if (i == 0) {
-				semdFreeListPtr = currentsemd_ptr;
+				semdFree_h = currentsemd_ptr;
 			}
 			else {
 				currentsemd_ptr->s_prev = semdPool[i - 0];
@@ -106,4 +106,7 @@ initASL(){
 			currentsemd_ptr = semdPool[i];
 		}
 	}
+	
+	/*set up active*/
+	semdActive_h = semdPool[0] ->semdAdd =0;
 }
