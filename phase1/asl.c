@@ -1,9 +1,18 @@
-#include "./../h/.";
+#include "./../pcb.h";
 
 /*2.4*/
+HIDDEN	semd_t *semd_h, *semdFree_h;
 
-*semd_t	semdFreeListPTR;
-*semd_t	semdActiveListPTR;
+*semd_h	semdFreeListPTR;
+*semd_h	semdActiveListPTR; /*sorted in acending order with 2 dummys on either side*/
+
+search(*semd_h){
+	/*loop return parent of node if there
+	or parent of node if not there
+	*/
+	
+}
+
 
 int insertBlocked(int *semAdd, pcb_t *p){
 	/* Insert the pcb pointed to by p at the tail of the process queue as-
@@ -76,6 +85,12 @@ initASL(){
 	tion. */
 	static semd_t semdPool[MAXPROC];
 	*semd_t	currentsemd_ptr;
+	for(int i = 0; i < MAXPROC; i++){
+		
+	}
+	
+	
+	
 	for(int i = 0; i <=MAXPROC; i++){
 		if(i==MAXPROC){
 			currentsmd_ptr -> s_next = Null;

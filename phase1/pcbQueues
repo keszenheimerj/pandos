@@ -16,18 +16,22 @@
 
 #include "./../h/.";
 
-HIDDEN pcb_t	*pcbFree_h;
+
 
 int	emptyProcQ(pcb_t *tp){
 	/* Return TRUE if the queue whose tail is pointed to by tp is empty.
 	Return FALSE otherwise. */
-	return (tp == NULL);
+	if(tp == NULL)
+		return true;
+	return false;
 }
 
 int	singleProcQ(pcb_t *tp){
 	/* Return TRUE if the queue has one element.
 	Return FALSE otherwise. */
-	return (tp->p_next == tp);
+	if(tp -> p_next == tp)
+		return true;
+	return false;
 }
 
 
@@ -55,7 +59,7 @@ insertProcQ(pcb_PTR *tp, pcb t *p){
 	pointer is pointed to by tp. Note the double indirection through tp
 	to allow for the possible updating of the tail pointer as well. */
 	/* empty queue case*/
-	if(emptyProc(*tp){
+	if(emptyProc(tp){
 		*(tp) = p;
 		p -> p_next = p;
 		p -> p_prev = p;
@@ -116,40 +120,36 @@ pcb_t *outProcQ(pcb_PTR *tp, pcb t *p){
 }
 
 /******************START*OF*GLOBAL*FUNCTIONS*************************************/
-/*pcb_PTR	freePCBList[MAXPROC];*/
+pcb_PTR	freePCBList[MAXPROC];
 
 void	freePCB(pcb_t *p){	
 	/*inset element pointed to by p onto the pcbFree list*/
-	if(temp != Null){
-		p -> p_next = pcbFree_h -> p_next;
-		p -> p_prev = pcbFree_h;
-		pcbFree_h -> p_next = pcbFree_h;
+	for(int i=0; i<= MAXPROC && (i==0 || freePCBList[i-1] == *p); i ++){
+		if(freePCBList[i] == Null){
+			freePCBList[i] = *p;
+		}
 	}
-	*pcbFree_h = p;
 }
 pcb_t	*allocPcb(){		
 	/*return Null if pcbFree list is empty or remove an element from the 
 	* list, provide initial values for ALL of the pcbs field and return 
 	*pointer to removed element
 	*/
-	if(freePCB_h == Null){
-		return Null;
+	pcb_t	allocPCB = NULL;
+	for(int i=0; i<= MAXPROC && allocPCB == NULL; i ++){
+		if(freePCBList[i] != NULL){
+			allocPCB = pool[i];
+			freePCBList[i] = NULL;
+		}
 	}
-	
-	pcb_t	*allocPCB = freePCB_h;
-	pcbFree_h = allocPCB -> p_prev;
-	pcbFree_h -> p_next = allocPCB -> p_next;
-	allocPCB -> p_next -> p_prev = prcbFree_h;
 	return allocPCB;
 }
 				
 void	initPcbs(){	
 	/*initialize the pcbFree list*/
 	static	pcb_t	pool[MAXPROC];
-	pcbFree_h = mkEmptyProcQ();
-	
 	for(int i=0; i<= MAXPROC; i ++){
-		insertProcQ(&pcbFree_h, &pool[i]);
+		freePCB(&pool[i]);
 	}
 }
 
