@@ -1,6 +1,10 @@
 #include "./../h/.";
 
 /*2.4*/
+
+*semd_t	semdFreeListPTR;
+*semd_t	semdActiveListPTR;
+
 int insertBlocked(int *semAdd, pcb_t *p){
 	/* Insert the pcb pointed to by p at the tail of the process queue as-
 	sociated with the semaphore whose physical address is semAdd and
@@ -12,12 +16,15 @@ int insertBlocked(int *semAdd, pcb_t *p){
 	above. If a new semaphore descriptor needs to be allocated and the
 	semdFree list is empty, return TRUE. In all other cases return FALSE.
 	*/
+	/*
 	search active semd list for node with semad
 		found
 			insertProcQ(p, tailpointer found in semd
 		notfound
 			allocate a new semd from free list and init its fields and put a value in semAdd, init tailpointer with make empty proc and insert new node into active list
 			have to find right location for insert because it is sorted then perform same opperation as if it was found
+	
+	*/
 	if(emptyProcQ(semAdd -> s_procQ)){ /*testing inactive*/
 		semdAdd -> s_procQ = mkEmptyProcQ();
 	}
@@ -68,11 +75,20 @@ initASL(){
 	This method will be only called once during data structure initializa-
 	tion. */
 	static semd_t semdPool[MAXPROC];
+	*semd_t	currentsemd_ptr;
 	for(int i = 0; i <=MAXPROC; i++){
-		if(i==0){
-			semdPool[i] -> s_next = Null;
+		if(i==MAXPROC){
+			currentsmd_ptr -> s_next = Null;
+			currentsmd_ptr -> s_prev = semdPool[i-1];
 		}else{
-			semdPool[i] -> s_next = semdPool[i] -> s_semAdd;
+			currentsemd_ptr -> s_next = semdPool[i];
+			if (i == 0) {
+				semdFreeListPtr = currentsemd_ptr;
+			}
+			else {
+				currentsemd_ptr->s_prev = semdPool[i - 0];
+			}
+			currentsemd_ptr = semdPool[i];
 		}
 	}
 }
