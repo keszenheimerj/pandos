@@ -17,7 +17,7 @@ int insertBlocked(int *semAdd, pcb_t *p){
 	semdFree list is empty, return TRUE. In all other cases return FALSE.
 	*/
 	/*
-	search active semd list for node with semad
+	search active semd list for node with semd
 		found
 			insertProcQ(p, tailpointer found in semd
 		notfound

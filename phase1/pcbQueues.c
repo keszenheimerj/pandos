@@ -116,15 +116,6 @@ pcb_t *outProcQ(pcb_PTR *tp, pcb t *p){
 }
 
 /******************START*OF*GLOBAL*FUNCTIONS*************************************/
-<<<<<<< HEAD
-pcb_PTR	pbcList_h;
-
-void	freePCB(pcb_t *p){	
-	/*inset element pointed to by p onto the pcbFree list*/
-	for(int i=0; i<= MAXPROC && (i==0 || pool[i-1] == *p); i ++){
-		if(pool[i] == Null){
-			pool[i] = *p;
-=======
 pcb_PTR	freePCBList[MAXPROC];
 
 void	freePCB(pcb_t *p){	
@@ -132,7 +123,6 @@ void	freePCB(pcb_t *p){
 	for(int i=0; i<= MAXPROC && (i==0 || freePCBList[i-1] == *p); i ++){
 		if(freePCBList[i] == Null){
 			freePCBList[i] = *p;
->>>>>>> f2f1b0303e741911df38dae416d5f6cb7bc9ff11
 		}
 	}
 }
@@ -143,15 +133,9 @@ pcb_t	*allocPcb(){
 	*/
 	pcb_t	allocPCB = NULL;
 	for(int i=0; i<= MAXPROC && allocPCB == NULL; i ++){
-<<<<<<< HEAD
-		if(pool[i] != NULL){
-			allocPCB = pool[i];
-			pool[i] = NULL;
-=======
 		if(freePCBList[i] != NULL){
 			allocPCB = pool[i];
 			freePCBList[i] = NULL;
->>>>>>> f2f1b0303e741911df38dae416d5f6cb7bc9ff11
 		}
 	}
 	return allocPCB;
@@ -160,10 +144,6 @@ pcb_t	*allocPcb(){
 void	initPcbs(){	
 	/*initialize the pcbFree list*/
 	static	pcb_t	pool[MAXPROC];
-<<<<<<< HEAD
-	pbcList_h = *pcb_t;
-=======
->>>>>>> f2f1b0303e741911df38dae416d5f6cb7bc9ff11
 	for(int i=0; i<= MAXPROC; i ++){
 		freePCB(&pool[i]);
 	}
