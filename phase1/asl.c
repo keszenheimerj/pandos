@@ -108,5 +108,8 @@ initASL(){
 	}
 	
 	/*set up active*/
-	semdActive_h = semdPool[0] ->semdAdd =0;
+	semdActive_h = semdPool[0];
+	semdACtive ->semdAdd =0;
+	semdActive_h -> s_next = semdPool[21];
+	semdActive_h -> s_next -> semdAdd = INF;
 }

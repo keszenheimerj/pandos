@@ -120,7 +120,7 @@ pcb_t *outProcQ(pcb_PTR *tp, pcb t *p){
 
 void	freePCB(pcb_t *p){	
 	/*inset element pointed to by p onto the pcbFree list*/
-	if(temp != Null){
+	if(pcbFree_h != Null){
 		p -> p_next = pcbFree_h -> p_next;
 		p -> p_prev = pcbFree_h;
 		pcbFree_h -> p_next = pcbFree_h;
