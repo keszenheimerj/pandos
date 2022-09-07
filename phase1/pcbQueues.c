@@ -21,17 +21,13 @@
 int	emptyProcQ(pcb_t *tp){
 	/* Return TRUE if the queue whose tail is pointed to by tp is empty.
 	Return FALSE otherwise. */
-	if(tp == NULL)
-		return true;
-	return false;
+	return (tp == NULL);
 }
 
 int	singleProcQ(pcb_t *tp){
 	/* Return TRUE if the queue has one element.
 	Return FALSE otherwise. */
-	if(tp -> p_next == tp)
-		return true;
-	return false;
+	return (tp->p_next == tp);
 }
 
 
