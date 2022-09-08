@@ -76,7 +76,16 @@ pcb_t *headBlocked(int *semAdd){
 	associated with the semaphore semAdd. Return NULL if semAdd is
 	not found on the ASL or if the process queue associated with semAdd
 	is empty. */
-	
+
+	/*use search, which gives you the head and then you test of you have that child
+	if childed seached is not there, search will give you the parent, so you will have to 
+	check the parents next to see if the semAdd is actually there, if it is not there, return NULL.*/
+
+	/*You need to get the head of s_procQ.*/
+
+	/*return (headProc(search(child) -> s_ProcQ))*/
+
+	/* one more test, if s_procQ is empty, return NULL*/
 }
 initASL(){
 	/* Initialize the semdFree list to contain all the elements of the array
