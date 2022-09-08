@@ -6,11 +6,15 @@ HIDDEN	semd_t *semdActive_h, *semdFree_h;
 *semd_h	semdFreeListPTR;
 *semd_h	semdActiveListPTR; /*active sorted in acending order with 2 dummys on either side*/
 
-search(*semd_h){
+semd_t	search(semd_t *child){
 	/*loop return parent of node if there
 	or parent of node if not there
 	*/
-	
+	temp = *semdActive_h;
+	while(temp -> s_semAdd < child -> s_semAdd){
+		temp = temp -> s_next;
+	}
+	return temp -> s_prev;
 }
 
 
@@ -84,29 +88,22 @@ initASL(){
 	This method will be only called once during data structure initializa-
 	tion. */
 	static semd_t semdPool[MAXPROC+2];
-	*semd_t	currentsemd_ptr;
-	for(int i = 0; i < MAXPROC; i++){
-		
-	}
-	
-	
-	
-	for(int i = 0; i <=MAXPROC; i++){
-		if(i==MAXPROC){
-			currentsmd_ptr -> s_next = Null;
-			currentsmd_ptr -> s_prev = semdPool[i-1];
+	for(int i = 1; i <= MAXPROC; i++){
+		if(i == 1;){
+			semdFreeListPTR = semdPool[i];
+		}
+		semdPool[i] -> s_procQ = mkEmptyProcQ();
+		if(i==1){
+			semdPool[i] -> s_prev = Null;
 		}else{
-			currentsemd_ptr -> s_next = semdPool[i];
-			if (i == 0) {
-				semdFree_h = currentsemd_ptr;
-			}
-			else {
-				currentsemd_ptr->s_prev = semdPool[i - 0];
-			}
-			currentsemd_ptr = semdPool[i];
+			semdPool[i] -> s_prev = semdPool[i-1];
+		}
+		if(i==MAXPROC){
+			semdPool[i] -> s_next= Null;
+		}else{
+			semdPool[i] -> s_next = semdPool[i+1];
 		}
 	}
-	
 	/*set up active*/
 	semdActive_h = semdPool[0];
 	semdACtive ->semdAdd =0;
