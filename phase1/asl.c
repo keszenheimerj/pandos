@@ -90,7 +90,7 @@ pcb_t *headBlocked(int *semAdd){
 	/*return (headProc(search(child) -> s_ProcQ))*/
 
 	/* one more test, if s_procQ is empty, return NULL*/
-	temp = search(semAdd);
+	semd_t temp = search(semAdd);
 	if(temp -> s_next == semAdd){
 		if(s_procQ == NULL){
 		return (headProcQ(search(semAdd) -> s_procQ))
