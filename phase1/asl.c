@@ -38,9 +38,44 @@ int insertBlocked(int *semAdd, pcb_t *p){
 			have to find right location for insert because it is sorted then perform same opperation as if it was found
 	
 	*/
+	semd_t temp = search(semAdd); 	/*find parent of semAdd. temp = parent of semAdd*/
+	if(temp -> s_next == semAdd){ 	/*is semAdd already in the active list?*/
+		return NULL; -------
+	}else{
+		semd_t copy = semdFree_h;
+		semdFree_h = semdFree_h -> p_next;
+		copy -> p_next = NULL
+		copy -> p_prev = NULL
+
+		s_semAdd -> s_next = *temp -> s_next 	/*semAdd's next becomes it's parent's next*/
+		s_semAdd -> s_prev = *temp 				/*semAdd's prev points to it's parent*/
+		*temp -> s_next = s_semAdd 				/*parent's next points to semAdd*/
+	}
+
+
+
+
 	if(emptyProcQ(semAdd -> s_procQ)){ /*testing inactive*/
 		semdAdd -> s_procQ = mkEmptyProcQ();
 	}
+
+
+
+
+	if(emptyProc(*tp){
+		*(tp) = p;
+		p -> p_next = p;
+		p -> p_prev = p;
+		return;
+	/* n queue case*/
+		p  -> p_prev = tp;
+		p  -> p_next = tp -> p_next;
+		tp -> p_next = p;
+		*(tp) = p;
+		return;
+
+
+
 	
 }
 
