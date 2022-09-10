@@ -1,4 +1,4 @@
-#include "./../pcb.h";
+#include "../h/pcb.h"
 
 /*2.4*/
 HIDDEN	semd_t *semdActive_h, *semdFree_h;
@@ -43,7 +43,7 @@ int insertBlocked(int *semAdd, pcb_t *p){
 		return NULL; -------
 	}else{
 		semd_t copy = semdFree_h;
-		semdFree_h = semdFree_h -> p_next;
+		semdFree_h = semdFree_h -> s_next;
 		copy -> p_next = NULL
 		copy -> p_prev = NULL
 
