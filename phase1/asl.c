@@ -39,9 +39,9 @@ int insertBlocked(int *semAdd, pcb_t *p){
 	
 	*/
 	semd_t temp = search(semAdd); 	/*find parent of semAdd. temp = parent of semAdd*/
-	if(temp -> s_next == semAdd){ 	/*is semAdd already in the active list?*/
+	if(temp -> s_next == semAdd){ 	/*is semAdd already in the active list? If Found*/
 		return NULL; -------
-	}else{
+	}else{							/*semAdd is not in the active list. Not Found*/
 		semd_t copy = semdFree_h;
 		semdFree_h = semdFree_h -> s_next;
 		copy -> p_next = NULL

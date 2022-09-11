@@ -50,7 +50,7 @@ pcb_t	*mkEmptyProcQ(){
 }
 
 
-insertProcQ(pcb_PTR *tp, pcb_t *p){
+void insertProcQ(pcb_PTR *tp, pcb_t *p){
 	/* Insert the pcb pointed to by p into the process queue whose tail-
 	pointer is pointed to by tp. Note the double indirection through tp
 	to allow for the possible updating of the tail pointer as well. */
@@ -67,6 +67,7 @@ insertProcQ(pcb_PTR *tp, pcb_t *p){
 	*(tp) = p;
 	return;
 	}
+	return;
 }
 
 /* Remove the first (i.e. head) element from the process queue whose
