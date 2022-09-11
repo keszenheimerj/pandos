@@ -38,6 +38,11 @@ int insertBlocked(int *semAdd, pcb_t *p){
 			have to find right location for insert because it is sorted then perform same opperation as if it was found
 	
 	*/
+	search the list
+	(if found = insertProcQ(node, p ----- semd->proQptr)
+	else{
+		take one from free list 
+	}
 	if(emptyProcQ(semAdd -> s_procQ)){ /*testing inactive*/
 		semdAdd -> s_procQ = mkEmptyProcQ();
 	}
