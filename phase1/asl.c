@@ -3,20 +3,25 @@
 /*2.4*/
 HIDDEN	semd_t *semdActive_h, *semdFree_h;
 
-*semd_h	semdFreeListPTR;
-*semd_h	semdActiveListPTR; /*active sorted in acending order with 2 dummys on either side*/
 
-semd_t	search(semd_t *child){
+
+
+semd_t	searchAdd(int checkVal){
 	/*loop return parent of node if there
 	or parent of node if not there
 	*/
-	temp = *semdActive_h;
-	while(temp -> s_semAdd < child -> s_semAdd){
+	semd_t lstemp = *semdActive_h;
+	while(temp -> s_semAdd < checkVal){
 		temp = temp -> s_next;
 	}
 	return temp -> s_prev;
 }
 
+
+semd_t	search(semd_t *child){
+	
+	return searchAdd(child -> s_semAdd);
+}
 
 int insertBlocked(int *semAdd, pcb_t *p){
 	/* Insert the pcb pointed to by p at the tail of the process queue as-
@@ -38,6 +43,11 @@ int insertBlocked(int *semAdd, pcb_t *p){
 			have to find right location for insert because it is sorted then perform same opperation as if it was found
 	
 	*/
+	search the list
+	(if found = insertProcQ(node, p ----- semd->proQptr)
+	else{
+		take one from free list 
+	}
 	semd_t temp = search(semAdd); 	/*find parent of semAdd. temp = parent of semAdd*/
 	if(temp -> s_next == semAdd){ 	/*is semAdd already in the active list? If Found*/
 		return NULL; -------
@@ -51,7 +61,6 @@ int insertBlocked(int *semAdd, pcb_t *p){
 		s_semAdd -> s_prev = *temp 				/*semAdd's prev points to it's parent*/
 		*temp -> s_next = s_semAdd 				/*parent's next points to semAdd*/
 	}
-
 
 
 
@@ -97,6 +106,8 @@ pcb_t *removeBlocked(int *semAdd){
 				process queue is not empty after removal ---done
 				process queue is empty--deallocate and take node out of active list and put back on free list
 	}*/
+	
+	search(semAdd)
 	
 }
 pcb_t *outBlocked(pcb_t *p){
