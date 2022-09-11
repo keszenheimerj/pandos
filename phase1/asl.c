@@ -43,48 +43,35 @@ int insertBlocked(int *semAdd, pcb_t *p){
 			have to find right location for insert because it is sorted then perform same opperation as if it was found
 	
 	*/
-	search the list
+	/*search the list
 	(if found = insertProcQ(node, p ----- semd->proQptr)
 	else{
 		take one from free list 
-	}
+	}*/
 	semd_t temp = search(semAdd); 	/*find parent of semAdd. temp = parent of semAdd*/
 	if(temp -> s_next == semAdd){ 	/*is semAdd already in the active list? If Found*/
-		return NULL; -------
+		insertProcQ(temp -> s_next -> s_procQ, p); 
 	}else{							/*semAdd is not in the active list. Not Found*/
 		semd_t copy = semdFree_h;
-		semdFree_h = semdFree_h -> s_next;
-		copy -> p_next = NULL
-		copy -> p_prev = NULL
-
-		s_semAdd -> s_next = *temp -> s_next 	/*semAdd's next becomes it's parent's next*/
-		s_semAdd -> s_prev = *temp 				/*semAdd's prev points to it's parent*/
-		*temp -> s_next = s_semAdd 				/*parent's next points to semAdd*/
+		semdFree_h = semdFree_h -> s_prev;
+		copy -> s_next -> s_prev = semdFree_h;
+		copy -> s_next = NULL;
+		copy -> s_prev = NULL;
+		
+		
+		/*init fields*/
+		
+		*semd_t insertPoint = search(semAdd);
+		
+		copy -> s_prev = insertPoint;
+		copy -> s_next = insertPoint -> s_next;
+		insertPoint -> s_next -> s_prev = copy;
+		insertPoint -> s_next =copy;
+		
+		copy -> s_semdAdd = semdAdd;
+		copy -> s_procQ = mkEmptyProcQ();
+		insertProcQ(copy -> s_procQ, p);
 	}
-
-
-
-	if(emptyProcQ(semAdd -> s_procQ)){ /*testing inactive*/
-		semdAdd -> s_procQ = mkEmptyProcQ();
-	}
-
-
-
-
-	if(emptyProc(*tp){
-		*(tp) = p;
-		p -> p_next = p;
-		p -> p_prev = p;
-		return;
-	/* n queue case*/
-		p  -> p_prev = tp;
-		p  -> p_next = tp -> p_next;
-		tp -> p_next = p;
-		*(tp) = p;
-		return;
-
-
-
 	
 }
 
@@ -137,13 +124,10 @@ pcb_t *headBlocked(int *semAdd){
 
 	/* one more test, if s_procQ is empty, return NULL*/
 	semd_t temp = search(semAdd);
-	if(temp -> s_next == semAdd){
-		if(s_procQ == NULL){
-		return (headProcQ(search(semAdd) -> s_procQ))
-		}
-	}else{
-		return NULL;
+	if(temp -> s_next == semAdd && s_procQ == NULL){
+		return (headProcQ(temp -> s_procQ));
 	}
+	return NULL;
 }
 initASL(){
 	/* Initialize the semdFree list to contain all the elements of the array
