@@ -28,13 +28,13 @@
 
 HIDDEN pcb_t	*pcbFree_h;
 
-int	emptyProcQ(pcb_t *tp){
+int		emptyProcQ(pcb_t *tp){
 	/* Return TRUE if the queue whose tail is pointed to by tp is empty.
 	Return FALSE otherwise. */
 	return (tp == NULL);
 }
 
-int	singleProcQ(pcb_t *tp){
+int		singleProcQ(pcb_t *tp){
 	/* Return TRUE if the queue has one element.
 	Return FALSE otherwise. */
 	return (tp->p_next == tp);
@@ -45,7 +45,7 @@ pcb_t	*headProcQ(pcb_t *tp){
 	/* Return a pointer to the first pcb from the process queue whose tail
 	is pointed to by tp. Do not remove this pcbfrom the process queue.
 	Return NULL if the process queue is empty. */
-	if(emptyProQ(tp)){
+	if(emptyProcQ(tp)){
 		return NULL;
 	}
 	return (tp -> p_next);
@@ -60,47 +60,48 @@ pcb_t	*mkEmptyProcQ(){
 }
 
 
-void insertProcQ(pcb_PTR *tp, pcb_t *p){
+void 	insertProcQ(pcb_PTR *tp, pcb_t *p){
 	/* Insert the pcb pointed to by p into the process queue whose tail-
 	pointer is pointed to by tp. Note the double indirection through tp
 	to allow for the possible updating of the tail pointer as well. */
 	/* empty queue case*/
-	if(emptyProc(*tp){
+	if(emptyProcQ(*tp)){
 		*(tp) = p;
 		p -> p_next = p;
 		p -> p_prev = p;
 		return;
 	}
 	/* n queue case*/
-	p  -> p_prev = tp;
+	p  -> p_prev = *(tp);
 	p  -> p_next = tp -> p_next;
 	tp -> p_next = p;
 	*(tp) = p;
 	return;
 }
 
-pcb_t *removeProcQ(pcb_PTR *tp){
+pcb_t 	*removeProcQ(pcb_PTR *tp){
 	/* Remove the first (i.e. head) element from the process queue whose
 	tail-pointer is pointed to by tp. Return NULL if the process queue
 	was initially empty; otherwise return the pointer to the removed ele-
 	ment. Update the process queue’s tail pointer if necessary. */
 	/* empty queue case*/
-	if(emptyProc(tp){
+	if(emptyProcQ(*tp)){
 		return NULL;
 	}
 	
 	/*save head*/
-	*head = tp ->t_next;
+	*head = tp -> p_next;
 	p -> p_next = p -> p_next -> p_next;
 	(head -> p_next) -> p_prev = tp;
-	head -> p_next = head -> p_prev = Null;
+	head -> p_next = head -> p_prev = NULL;
 	/*if head was the last element we make the tailPointer null*/
-	if(singleProcQ(tp){
+	if(singleProcQ(*tp)){
 		tp = NULL;
 	}
 	return head;
+}
 
-pcb_t *outProcQ(pcb_PTR *tp, pcb t *p){
+pcb_t 	*outProcQ(pcb_PTR *tp, pcb_t *p){
 	/* Remove the pcb pointed to by p from the process queue whose tail-
 	pointer is pointed to by tp. Update the process queue’s tail pointer if
 	necessary. If the desired entry is not in the indicated queue (an error
@@ -111,13 +112,13 @@ pcb_t *outProcQ(pcb_PTR *tp, pcb t *p){
 	while(*tp != curN && curN != p){
 		curN = curN -> p_prev;
 	}
-	if(curN==p){
+	if(curN ==p ){
 		if(tp == p){
 			*tp = tp -> p_prev;
 		}
 		p -> p_next -> p_prev = p -> p_prev;
 		p -> p_prev -> p_next = p -> p_next;
-		p -> p_next = p -> p_prev = Null;
+		p -> p_next = p -> p_prev = NULL;
 		return p;
 	}else{
 		return NULL;
@@ -130,26 +131,26 @@ pcb_t *outProcQ(pcb_PTR *tp, pcb t *p){
 
 void	freePCB(pcb_t *p){	
 	/*inset element pointed to by p onto the pcbFree list*/
-	if(pcbFree_h != Null){
+	if(pcbFree_h != NULL){
 		p -> p_next = pcbFree_h -> p_next;
 		p -> p_prev = pcbFree_h;
 		pcbFree_h -> p_next = pcbFree_h;
 	}
-	*pcbFree_h = p;
+	*pcbFree_h = *p;
 }
 pcb_t	*allocPcb(){		
-	/*return Null if pcbFree list is empty or remove an element from the 
+	/*return NULL if pcbFree list is empty or remove an element from the 
 	* list, provide initial values for ALL of the pcbs field and return 
 	*pointer to removed element
 	*/
-	if(freePCB_h == Null){
-		return Null;
+	if(pcbFree_h == NULL){
+		return NULL;
 	}
 	
-	pcb_t	*allocPCB = freePCB_h;
+	pcb_t	*allocPCB = pcbFree_h;
 	pcbFree_h = allocPCB -> p_prev;
 	pcbFree_h -> p_next = allocPCB -> p_next;
-	allocPCB -> p_next -> p_prev = prcbFree_h;
+	allocPCB -> p_next -> p_prev = pcbFree_h;
 	return allocPCB;
 }
 				

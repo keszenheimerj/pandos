@@ -118,7 +118,7 @@ pcb_t 	*removeBlocked(int *semAdd){
 	*semd_t temp = search(semAdd) -> s_next;
 	if(temp -> s_semAdd == semAdd){
 		/*error case*/
-		return Null;
+		return NULL;
 	}
 	*pcb_t outP = removeProcQ(temp -> s_procQ);
 	if(emptyProcQ(temp -> s_procQ)){/*if list is empty we have to move semd to free list*/
@@ -148,7 +148,7 @@ pcb_t 	*outBlocked(pcb_t *p){
 	*semd_t temp = search(semAdd) -> s_next;
 	if(temp -> s_semAdd == semAdd){
 		/*error case*/
-		return Null;
+		return NULL;
 	}
 	*pcb_t outP = outProcQ(temp -> s_procQ, p*);
 	if(emptyProcQ(temp -> s_procQ)){/*if list is empty we have to move semd to free list*/
@@ -181,7 +181,7 @@ pcb_t 	*headBlocked(int *semAdd){
 	if(temp -> s_next == semAdd && s_procQ == NULL){
 		return (headProcQ(temp -> s_procQ));
 	}
-	
+
 	return NULL;
 }
 void 	initASL(){
@@ -196,12 +196,12 @@ void 	initASL(){
 		}
 		semdPool[i] -> s_procQ = mkEmptyProcQ();
 		if(i==1){
-			semdPool[i] -> s_prev = Null;
+			semdPool[i] -> s_prev = NULL;
 		}else{
 			semdPool[i] -> s_prev = semdPool[i-1];
 		}
 		if(i==MAXPROC){
-			semdPool[i] -> s_next= Null;
+			semdPool[i] -> s_next= NULL;
 		}else{
 			semdPool[i] -> s_next = semdPool[i+1];
 		}
