@@ -1,15 +1,25 @@
 /*H***************************************************************************************************
-* FILENAME :	pcbQueues.c
+* FILENAME :	pcb.c
 *
 * DESCRIPTION :	
-*	PcbQueues file management of queues of structures: pcb’s
+*	PcbQueues file management of queues of structures: pcb’s.
 *
 * PUBLIC FUNCTIONS : 
-*	void	freePCB(pcb_t *p)	inset element pointed to by p onto the pcbFree list
-*	pcb_t	*allocPcb()		return Null if pcbFree list is empty or remove an element from the 
-*					list, provide initial values for ALL of the pcbs field and return 
-*					pointer to removed element
-*	initPcbs()			initialize the pcbFree list
+*	void	freePCB(pcb_t *p)	- Insert element pointed to by p onto the pcbFree list.
+*	pcb_t	*allocPcb()			- Return Null if pcbFree list is empty or remove an element from the 
+*								list, provide initial values for ALL of the pcbs field and return 
+*								pointer to removed element.
+*	void	initPcbs()			- Initialize the pcbFree list.
+*	int 	emptyChild()		- Return TRUE if the pcb pointed to by p has no children. Return
+*								FALSE otherwise.
+*	void 	insertChild()		- Make the pcb pointed to by p a child of the pcb pointed to by prnt.
+*	pcb_t 	removeChild()		- Make the first child of the pcb pointed to by p no longer a child of
+*								p. Return NULL if initially there were no children of p. Otherwise,
+*								return a pointer to this removed first child pcb.
+*	pcb_t 	outChild()			- Make the pcb pointed to by p no longer the child of its parent. If
+*								the pcb pointed to by p has no parent, return NULL; otherwise, return
+*								p. Note that the element pointed to by p need not be the first child of
+*								its parent.
 * AUTHORS :	James Keszenheimer, Evan Hanson		START DATE : 31 Aug 22
 *
 *H*/
@@ -69,11 +79,11 @@ void insertProcQ(pcb_PTR *tp, pcb_t *p){
 	return;
 }
 
-/* Remove the first (i.e. head) element from the process queue whose
-tail-pointer is pointed to by tp. Return NULL if the process queue
-was initially empty; otherwise return the pointer to the removed ele-
-ment. Update the process queue’s tail pointer if necessary. */
 pcb_t *removeProcQ(pcb_PTR *tp){
+	/* Remove the first (i.e. head) element from the process queue whose
+	tail-pointer is pointed to by tp. Return NULL if the process queue
+	was initially empty; otherwise return the pointer to the removed ele-
+	ment. Update the process queue’s tail pointer if necessary. */
 	/* empty queue case*/
 	if(emptyProc(tp){
 		return NULL;
@@ -89,14 +99,13 @@ pcb_t *removeProcQ(pcb_PTR *tp){
 		tp = NULL;
 	}
 	return head;
-}
 
-/* Remove the pcb pointed to by p from the process queue whose tail-
-pointer is pointed to by tp. Update the process queue’s tail pointer if
-necessary. If the desired entry is not in the indicated queue (an error
-condition), return NULL; otherwise, return p. Note that p can point
-to any element of the process queue. */
 pcb_t *outProcQ(pcb_PTR *tp, pcb t *p){
+	/* Remove the pcb pointed to by p from the process queue whose tail-
+	pointer is pointed to by tp. Update the process queue’s tail pointer if
+	necessary. If the desired entry is not in the indicated queue (an error
+	condition), return NULL; otherwise, return p. Note that p can point
+	to any element of the process queue. */
 	pcb_PTR curN = tp -> p_prev;
 	
 	while(*tp != curN && curN != p){
@@ -154,15 +163,14 @@ void	initPcbs(){
 	}
 }
 
-int	emptyChild(pcb_t *p){
+int		emptyChild(pcb_t *p){
 	/* Return TRUE if the pcb pointed to by p has no children. Return
 	FALSE otherwise. */
 	return (p -> p_child == NULL);
 }
 	
 void	insertChild(pcb_t *prnt, pcb_t *p){
-	/* Make the pcb pointed to by p a child of the pcb pointed to by prnt.
-	*/
+	/* Make the pcb pointed to by p a child of the pcb pointed to by prnt.*/
 	prnt -> p_child = p;
 }
 

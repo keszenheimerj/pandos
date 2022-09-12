@@ -1,29 +1,58 @@
+/*H***************************************************************************************************
+* FILENAME :	asl.c
+*
+* DESCRIPTION :	
+*	The Active Semaphore list management of structures: semd_t.
+*
+* PUBLIC FUNCTIONS : 
+*	semd_t	searchAdd()			- Loop return parent of node if there or parent of node if not there.
+*	semd_t	search()			- ...
+*	int 	insertBlocked()		- Insert the pcb pointed to by p at the tail of the process queue as-
+*								sociated with the semaphore whose physical address is semAdd and
+*								set the semaphore address of p to semAdd.
+*	pcb_t 	removeBlocked()		- Search the ASL for a descriptor of this semaphore. If none is
+*								found, return NULL; otherwise, remove the first (i.e. head) pcb from
+*								the process queue of the found semaphore descriptor and return a
+*								pointer to it.
+* 	pcb_t 	outBlocked()		- Remove the pcb pointed to by p from the process queue associated
+*								with p’s semaphore (p→ p semAdd) on the ASL. If pcb pointed
+*								to by p does not appear in the process queue associated with p’s
+*								semaphore, which is an error condition, return NULL; otherwise, re-
+*								turn p.
+* 	pcb_t 	headBlocked()		- Return a pointer to the pcb that is at the head of the process queue
+*								associated with the semaphore semAdd. Return NULL if semAdd is
+*								not found on the ASL or if the process queue associated with semAdd
+*								is empty.
+*	void	initASL()			- Initialize the semdFree list to contain all the elements of the array
+*								static semd t semdTable[MAXPROC].
+* 	
+* AUTHORS :	James Keszenheimer, Evan Hanson		START DATE : 5 Sept 22
+*
+*H*/
+
 #include "../h/pcb.h"
 
 /*2.4*/
 HIDDEN	semd_t *semdActive_h, *semdFree_h;
 
-
-
-
 semd_t	searchAdd(int* checkVal){
 	/*loop return parent of node if there
-	or parent of node if not there
-	*/
+	or parent of node if not there*/
 	semd_t *temp = semdActive_h;
 	while(((int)*(temp -> s_semAdd)) < checkVal){
 		temp = temp -> s_next;
 	}
+
 	return *(temp -> s_prev);
 }
 
 
-semd_t	search(semd_t *child){
+semd_t 	search(semd_t *child){
 	
 	return searchAdd((int) (child -> s_semAdd));
 }
 
-int insertBlocked(int *semAdd, pcb_t *p){
+int 	insertBlocked(int *semAdd, pcb_t *p){
 	/* Insert the pcb pointed to by p at the tail of the process queue as-
 	sociated with the semaphore whose physical address is semAdd and
 	set the semaphore address of p to semAdd. If the semaphore is cur-
@@ -37,17 +66,11 @@ int insertBlocked(int *semAdd, pcb_t *p){
 	/*
 	search active semd list for node with semd
 		found
-			insertProcQ(p, tailpointer found in semd
+			insertProcQ(p), tailpointer found in semd
 		notfound
 			allocate a new semd from free list and init its fields and put a value in semAdd, init tailpointer with make empty proc and insert new node into active list
-			have to find right location for insert because it is sorted then perform same opperation as if it was found
+			have to find right location for insert because it is sorted then perform same opperation as if it was found*/
 	
-	*/
-	/*search the list
-	(if found = insertProcQ(node, p ----- semd->proQptr)
-	else{
-		take one from free list 
-	}*/
 	semd_t temp = searchAdd((int)semAdd); 	/*find parent of semAdd. temp = parent of semAdd*/
 	if(temp -> s_next == semAdd){ 	/*is semAdd already in the active list? If Found*/
 		insertProcQ(temp -> s_next -> s_procQ, p); 
@@ -57,7 +80,6 @@ int insertBlocked(int *semAdd, pcb_t *p){
 		copy -> s_next -> s_prev = semdFree_h;
 		copy -> s_next = NULL;
 		copy -> s_prev = NULL;
-		
 		
 		/*init fields*/
 		
@@ -75,7 +97,7 @@ int insertBlocked(int *semAdd, pcb_t *p){
 	
 }
 
-pcb_t *removeBlocked(int *semAdd){
+pcb_t 	*removeBlocked(int *semAdd){
 	/* Search the ASL for a descriptor of this semaphore. If none is
 	found, return NULL; otherwise, remove the first (i.e. head) pcb from
 	the process queue of the found semaphore descriptor and return a
@@ -113,7 +135,7 @@ pcb_t *removeBlocked(int *semAdd){
 	
 	return outP;
 }
-pcb_t *outBlocked(pcb_t *p){
+pcb_t 	*outBlocked(pcb_t *p){
 	/* Remove the pcb pointed to by p from the process queue associated
 	with p’s semaphore (p→ p semAdd) on the ASL. If pcb pointed
 	to by p does not appear in the process queue associated with p’s
@@ -143,7 +165,7 @@ pcb_t *outBlocked(pcb_t *p){
 	
 	return outP;
 }
-pcb_t *headBlocked(int *semAdd){
+pcb_t 	*headBlocked(int *semAdd){
 	/* Return a pointer to the pcb that is at the head of the process queue
 	associated with the semaphore semAdd. Return NULL if semAdd is
 	not found on the ASL or if the process queue associated with semAdd
@@ -152,19 +174,17 @@ pcb_t *headBlocked(int *semAdd){
 	/*use search, which gives you the head and then you test of you have that child*/
 	/*if childed seached is not there, search will give you the parent, so you will have to 
 	check the parents next to see if the semAdd is actually there, if it is not there, return NULL.*/
-
-	/*You need to get the head of s_procQ.*/
-
-	/*return (headProc(search(child) -> s_ProcQ))*/
-
-	/* one more test, if s_procQ is empty, return NULL*/
+	/*You need to get the head of s_procQ.
+	return (headProc(search(child) -> s_ProcQ))
+	one more test, if s_procQ is empty, return NULL*/
 	semd_t temp = search(semAdd);
 	if(temp -> s_next == semAdd && s_procQ == NULL){
 		return (headProcQ(temp -> s_procQ));
 	}
+	
 	return NULL;
 }
-initASL(){
+void 	initASL(){
 	/* Initialize the semdFree list to contain all the elements of the array
 	static semd t semdTable[MAXPROC]
 	This method will be only called once during data structure initializa-
