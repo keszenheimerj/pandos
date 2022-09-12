@@ -6,21 +6,21 @@ HIDDEN	semd_t *semdActive_h, *semdFree_h;
 
 
 
-semd_t	searchAdd(int checkVal){
+semd_t	searchAdd(int* checkVal){
 	/*loop return parent of node if there
 	or parent of node if not there
 	*/
-	semd_t lstemp = *semdActive_h;
-	while(temp -> s_semAdd < checkVal){
+	semd_t *temp = semdActive_h;
+	while(((int)*(temp -> s_semAdd)) < checkVal){
 		temp = temp -> s_next;
 	}
-	return temp -> s_prev;
+	return *(temp -> s_prev);
 }
 
 
 semd_t	search(semd_t *child){
 	
-	return searchAdd(child -> s_semAdd);
+	return searchAdd((int) (child -> s_semAdd));
 }
 
 int insertBlocked(int *semAdd, pcb_t *p){
@@ -48,7 +48,7 @@ int insertBlocked(int *semAdd, pcb_t *p){
 	else{
 		take one from free list 
 	}*/
-	semd_t temp = search(semAdd); 	/*find parent of semAdd. temp = parent of semAdd*/
+	semd_t temp = searchAdd((int)semAdd); 	/*find parent of semAdd. temp = parent of semAdd*/
 	if(temp -> s_next == semAdd){ 	/*is semAdd already in the active list? If Found*/
 		insertProcQ(temp -> s_next -> s_procQ, p); 
 	}else{							/*semAdd is not in the active list. Not Found*/
