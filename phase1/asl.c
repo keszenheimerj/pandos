@@ -93,9 +93,25 @@ pcb_t *removeBlocked(int *semAdd){
 				process queue is not empty after removal ---done
 				process queue is empty--deallocate and take node out of active list and put back on free list
 	}*/
+	*semd_t temp = search(semAdd) -> s_next;
+	if(temp -> s_semAdd == semAdd){
+		/*error case*/
+		return Null;
+	}
+	*pcb_t outP = removeProcQ(temp -> s_procQ);
+	if(temp -> s_procQ == Null){/*if list is empty we have to move semd to free list*/
+		/*remove from active*/
+		temp -> s_next -> s_prev = temp -> s_prev;
+		temp -> s_prev -> s_next = temp -> s_next;
+		/*add to free*/
+		semdFree_h -> s_next -> s_prev = temp;
+		semdFree_h -> s_next = temp;
+		temp -> s_prev = semdFree_h;
+		temo -> s_next = semdFree_h -> s_next;
+		semdFree_h -> temp;
+	}
 	
-	search(semAdd)
-	
+	return outP;
 }
 pcb_t *outBlocked(pcb_t *p){
 	/* Remove the pcb pointed to by p from the process queue associated
