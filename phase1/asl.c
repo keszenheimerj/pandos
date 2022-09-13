@@ -35,19 +35,18 @@
 /*2.4*/
 HIDDEN	semd_t *semdActive_h, *semdFree_h;
 
-semd_t	searchAdd(int* checkVal){
+semd_t*	searchAdd(int* checkVal){
 	/*loop return parent of node if there
 	or parent of node if not there*/
 	semd_t *temp = semdActive_h;
-	while(((int)*(temp -> s_semAdd)) < checkVal){
+	while((temp -> s_next -> s_semAdd) < checkVal){
 		temp = temp -> s_next;
 	}
-
-	return *(temp -> s_prev);
+	return temp;
 }
 
 
-semd_t 	search(semd_t *child){
+semd_t* search(semd_t *child){
 	
 	return searchAdd((int) (child -> s_semAdd));
 }
@@ -71,25 +70,18 @@ int 	insertBlocked(int *semAdd, pcb_t *p){
 			allocate a new semd from free list and init its fields and put a value in semAdd, init tailpointer with make empty proc and insert new node into active list
 			have to find right location for insert because it is sorted then perform same opperation as if it was found*/
 	
-	semd_t temp = searchAdd((int)semAdd); 	/*find parent of semAdd. temp = parent of semAdd*/
-	if(temp -> s_next == semAdd){ 	/*is semAdd already in the active list? If Found*/
-		insertProcQ(&temp -> s_next -> s_procQ, p); 
-	}else{							/*semAdd is not in the active list. Not Found*/
+	semd_t insertP = searchAdd(semAdd); 	/*find parent of semAdd. temp = parent of semAdd*/
+	if(insertP -> s_next == semAdd){ 	/*is semAdd already in the active list? If Found*/
+		insertProcQ(&insertP -> s_next -> s_procQ, p); 
+	}else{	
+							/*semAdd is not in the active list. Not Found*/
 		semd_t copy = semdFree_h;
-		semdFree_h = semdFree_h -> s_prev;
-		copy -> s_next -> s_prev = semdFree_h;
-		copy -> s_next = NULL;
-		copy -> s_prev = NULL;
+		semdFree_h = semdFree_h -> s_next;
 		
 		/*init fields*/
 		
-		semd_t insertPoint = search(semAdd);
-		
-		copy -> s_prev = insertPoint;
-		copy -> s_next = insertPoint -> s_next;
-		insertPoint -> s_next -> s_prev = &copy;
-		insertPoint -> s_next = copy;
-		
+		copy -> s_next = insertP -> s_next;
+		insertP -> s_next = &copy;		
 		copy -> s_semdAdd = semdAdd;
 		copy -> s_procQ = mkEmptyProcQ();
 		insertProcQ(copy -> s_procQ, p);
@@ -115,26 +107,24 @@ pcb_t 	*removeBlocked(int *semAdd){
 				process queue is not empty after removal ---done
 				process queue is empty--deallocate and take node out of active list and put back on free list
 	}*/
-	*semd_t temp = search(semAdd) -> s_next;
-	if(temp -> s_semAdd == semAdd){
+	*semd_t parent = search(semAdd);
+	*semd_t semAsemd = parent -> next;
+	if(semAsemd -> s_semAdd != semAdd){
 		/*error case*/
 		return NULL;
 	}
-	*pcb_t outP = removeProcQ(temp -> s_procQ);
-	if(emptyProcQ(temp -> s_procQ)){/*if list is empty we have to move semd to free list*/
+	*pcb_t outP = removeProcQ(semAsemd -> s_procQ);
+	if(emptyProcQ(psemAsemd -> s_procQ)){/*if list is empty we have to move semd to free list*/
 		/*remove from active*/
-		temp -> s_next -> s_prev = temp -> s_prev;
-		temp -> s_prev -> s_next = temp -> s_next;
+		parent -> s_next = parent -> s_next -> s_next;
 		/*add to free*/
-		semdFree_h -> s_next -> s_prev = temp;
-		semdFree_h -> s_next = temp;
-		temp -> s_prev = semdFree_h;
-		temo -> s_next = semdFree_h -> s_next;
-		semdFree_h -> temp;
+		semAsemd -> semdFree_h;
+		semdFree_h = semdAsemd;
 	}
 	
 	return outP;
 }
+
 pcb_t 	*outBlocked(pcb_t *p){
 	/* Remove the pcb pointed to by p from the process queue associated
 	with p’s semaphore (p→ p semAdd) on the ASL. If pcb pointed
@@ -145,22 +135,19 @@ pcb_t 	*outBlocked(pcb_t *p){
 		identical to remove blocked but instead of remove process queue call outproQ
 		accesser
 	}*/
-	*semd_t temp = search(semAdd) -> s_next;
-	if(temp -> s_semAdd == semAdd){
+	*semd_t parent = search(semAdd);
+	*semd_t semAsemd = parent -> next;
+	if(semAsemd -> s_semAdd != semAdd){
 		/*error case*/
 		return NULL;
 	}
-	*pcb_t outP = outProcQ(temp -> s_procQ, p*);
-	if(emptyProcQ(temp -> s_procQ)){/*if list is empty we have to move semd to free list*/
+	*pcb_t outP = outProcQ(semAsemd -> s_procQ);
+	if(emptyProcQ(psemAsemd -> s_procQ)){/*if list is empty we have to move semd to free list*/
 		/*remove from active*/
-		temp -> s_next -> s_prev = temp -> s_prev;
-		temp -> s_prev -> s_next = temp -> s_next;
+		parent -> s_next = parent -> s_next -> s_next;
 		/*add to free*/
-		semdFree_h -> s_next -> s_prev = temp;
-		semdFree_h -> s_next = temp;
-		temp -> s_prev = semdFree_h;
-		temo -> s_next = semdFree_h -> s_next;
-		semdFree_h -> temp;
+		semAsemd -> semdFree_h;
+		semdFree_h = semdAsemd;
 	}
 	
 	return outP;
@@ -190,16 +177,9 @@ void 	initASL(){
 	This method will be only called once during data structure initializa-
 	tion. */
 	static semd_t semdPool[MAXPROC+2];
+	semdFree_h = semdPool[1];
 	for(int i = 1; i <= MAXPROC; i++){
-		if(i == 1;){
-			semdFreeListPTR = semdPool[i];
-		}
 		semdPool[i] -> s_procQ = mkEmptyProcQ();
-		if(i==1){
-			semdPool[i] -> s_prev = NULL;
-		}else{
-			semdPool[i] -> s_prev = semdPool[i-1];
-		}
 		if(i==MAXPROC){
 			semdPool[i] -> s_next= NULL;
 		}else{
@@ -208,7 +188,7 @@ void 	initASL(){
 	}
 	/*set up active*/
 	semdActive_h = semdPool[0];
-	semdACtive ->semdAdd =0;
+	semdACtive ->semdAdd = 0;
 	semdActive_h -> s_next = semdPool[21];
 	semdActive_h -> s_next -> semdAdd = INF;
 }

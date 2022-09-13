@@ -71,7 +71,7 @@ typedef struct state_t {
 typedef struct pcb_t {
 	/* process queue fields */
 	struct pcb_t 	*p_next, 	/* pointer to next entry */
-					*p_prev, 	/* pointer to prev entry */
+			*p_prev, 	/* pointer to prev entry */
 			
 	/* process tree fields */
 			*p_prnt, 		/* pointer to parent */
@@ -92,7 +92,6 @@ typedef struct pcb_t {
 /* semaphore descriptor type */
 typedef struct semd_t {
 	struct semd_t *s_next; 		/* next element on the ASL */
-	struct semd_t* s_prev; 		/* prev element on the ASL */
 	int *s_semAdd; 				/* pointer to the semaphore*/
 	pcb_t *s_procQ; 			/* tail pointer to a */
 					/* process queue */
