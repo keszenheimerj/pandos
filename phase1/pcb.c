@@ -90,7 +90,7 @@ pcb_t 	*removeProcQ(pcb_PTR *tp){
 	}
 	
 	/*save head*/
-	*head = tp -> p_next;
+	pcb_t *head = tp -> p_next;
 	p -> p_next = p -> p_next -> p_next;
 	(head -> p_next) -> p_prev = tp;
 	head -> p_next = head -> p_prev = NULL;
@@ -203,7 +203,7 @@ pcb_t	*outChild(pcb_t *p){
 		return NULL;
 	}
 	if(p -> p_prnt -> p_child == p){
-		return *removeChild(p);
+		return removeChild(p);
 	}
 	if(p -> p_sib == p){
 		p -> p_prnt -> p_child = NULL;
@@ -212,7 +212,7 @@ pcb_t	*outChild(pcb_t *p){
 	p -> p_prnt -> p_child = p -> p_sib;
 	p -> p_sib_next -> p_sib = p -> p_sib;
 	p -> p_sib -> p_sib_next = p -> p_sib_next;
-	return *p;
+	return p;
 	
 }
 
