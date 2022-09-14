@@ -71,10 +71,11 @@ void 	insertProcQ(pcb_PTR *tp, pcb_t *p){
 		p -> p_prev = p;
 		return;
 	}
+	pcb_PTR temp = *tp;
 	/* n queue case*/
-	p  -> p_prev = *(tp);
-	p  -> p_next = tp -> p_next;
-	tp -> p_next = p;
+	p  -> p_prev = temp;
+	p  -> p_next = headProcQ(*tp);
+	temp -> p_next = p;
 	*(tp) = p;
 	return;
 }
@@ -88,11 +89,10 @@ pcb_t 	*removeProcQ(pcb_PTR *tp){
 	if(emptyProcQ(*tp)){
 		return NULL;
 	}
-	
 	/*save head*/
-	pcb_t *head = tp -> p_next;
-	p -> p_next = p -> p_next -> p_next;
-	(head -> p_next) -> p_prev = tp;
+	pcb_t *head = (*tp) -> p_next;
+	(*tp) -> p_next = (*tp) -> p_next -> p_next;
+	(head -> p_next) -> p_prev = *(tp);
 	head -> p_next = head -> p_prev = NULL;
 	/*if head was the last element we make the tailPointer null*/
 	if(singleProcQ(*tp)){
@@ -107,14 +107,14 @@ pcb_t 	*outProcQ(pcb_PTR *tp, pcb_t *p){
 	necessary. If the desired entry is not in the indicated queue (an error
 	condition), return NULL; otherwise, return p. Note that p can point
 	to any element of the process queue. */
-	pcb_PTR curN = tp -> p_prev;
+	pcb_PTR curN = (*tp) -> p_prev;
 	
 	while(*tp != curN && curN != p){
 		curN = curN -> p_prev;
 	}
 	if(curN ==p ){
-		if(tp == p){
-			*tp = tp -> p_prev;
+		if(*(tp) == p){
+			*tp = (*tp) -> p_prev;
 		}
 		p -> p_next -> p_prev = p -> p_prev;
 		p -> p_prev -> p_next = p -> p_next;
