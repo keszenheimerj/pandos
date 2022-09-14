@@ -71,7 +71,7 @@ int 	insertBlocked(int *semAdd, pcb_t *p){
 			have to find right location for insert because it is sorted then perform same opperation as if it was found*/
 	
 	semd_t *insertP = searchAdd(semAdd); 	/*find parent of semAdd. temp = parent of semAdd*/
-	if((insertP -> s_next -> semAdd) == semAdd){ 	/*is semAdd already in the active list? If Found*/
+	if((insertP -> s_next -> s_semAdd) == semAdd){ 	/*is semAdd already in the active list? If Found*/
 		insertProcQ((insertP -> s_next) -> s_procQ, p); 
 	}else{	
 							/*semAdd is not in the active list. Not Found*/
