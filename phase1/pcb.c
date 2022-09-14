@@ -203,15 +203,15 @@ pcb_t	*outChild(pcb_t *p){
 		return NULL;
 	}
 	if(p -> p_prnt -> p_child == p){
-		return *removeChild(*p);
+		return *removeChild(p);
 	}
 	if(p -> p_sib == p){
-		p -> p_prnt -> p_child == NULL;
-		return *p;
+		p -> p_prnt -> p_child = NULL;
+		return p;
 	}
 	p -> p_prnt -> p_child = p -> p_sib;
 	p -> p_sib_next -> p_sib = p -> p_sib;
-	p -> p_sib -> p_sub_next = p -> p_sib_next;
+	p -> p_sib -> p_sib_next = p -> p_sib_next;
 	return *p;
 	
 }
