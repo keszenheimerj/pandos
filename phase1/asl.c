@@ -74,19 +74,21 @@ int 	insertBlocked(int *semAdd, pcb_t *p){
 	if((insertP -> s_next -> s_semAdd) == semAdd){ 	/*is semAdd already in the active list? If Found*/
 		insertProcQ(&(insertP -> s_next) -> s_procQ, p); 
 	}else{	
-							/*semAdd is not in the active list. Not Found*/
+		if(semdFree_h == NULL){
+			return 1;
+		}					/*semAdd is not in the active list. Not Found*/
 		semd_t *copy = semdFree_h;
 		semdFree_h = semdFree_h -> s_next;
 		
 		/*init fields*/
 		
 		copy -> s_next = insertP -> s_next;
-		insertP -> s_next = &copy;		
+		(insertP) -> s_next = copy;		
 		copy -> s_semAdd = semAdd;
 		copy -> s_procQ = mkEmptyProcQ();
-		insertProcQ(copy -> s_procQ, p);
+		insertProcQ(&copy -> s_procQ, p);
 	}
-	
+	return 0;
 }
 
 pcb_t 	*removeBlocked(int *semAdd){
@@ -113,12 +115,12 @@ pcb_t 	*removeBlocked(int *semAdd){
 		/*error case*/
 		return NULL;
 	}
-	*pcb_t outP = removeProcQ(semAsemd -> s_procQ);
+	pcb_t *outP = removeProcQ(&(semAsemd) -> s_procQ);
 	if(emptyProcQ(semAsemd -> s_procQ)){/*if list is empty we have to move semd to free list*/
 		/*remove from active*/
 		parent -> s_next = parent -> s_next -> s_next;
 		/*add to free*/
-		semAsemd -> semdFree_h;
+		semAsemd -> s_next = semdFree_h;
 		semdFree_h = semAsemd;
 	}
 	
@@ -135,13 +137,13 @@ pcb_t 	*outBlocked(pcb_t *p){
 		identical to remove blocked but instead of remove process queue call outproQ
 		accesser
 	}*/
-	*semd_t parent = search(semAdd);
-	*semd_t semAsemd = parent -> next;
+	semd_t *parent = search(semAdd);
+	semd_t *semAsemd = parent -> next;
 	if(semAsemd -> s_semAdd != semAdd){
 		/*error case*/
 		return NULL;
 	}
-	*pcb_t outP = outProcQ(semAsemd -> s_procQ);
+	pcb_t *outP = outProcQ(semAsemd -> s_procQ);
 	if(emptyProcQ(semAsemd -> s_procQ)){/*if list is empty we have to move semd to free list*/
 		/*remove from active*/
 		parent -> s_next = parent -> s_next -> s_next;
