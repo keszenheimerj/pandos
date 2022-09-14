@@ -188,7 +188,7 @@ pcb_t	*removeChild(pcb_t *p){
 	}else{/*there is a sibiling*/
 		p -> p_child = youngest -> p_sib;
 		youngest -> p_sib_next -> p_sib = youngest -> p_sib;
-		youngest -> p_sib -> p_sub_next = youngest -> p_sib_next;
+		youngest -> p_sib -> p_sib_next = youngest -> p_sib_next;
 	}
 	youngest -> p_prnt = youngest -> p_sib = youngest -> p_sib_next = NULL;
 	return youngest;
