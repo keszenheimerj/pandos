@@ -82,7 +82,7 @@ int 	insertBlocked(int *semAdd, pcb_t *p){
 		
 		copy -> s_next = insertP -> s_next;
 		insertP -> s_next = &copy;		
-		copy -> s_semdAdd = semdAdd;
+		copy -> s_semAdd = semAdd;
 		copy -> s_procQ = mkEmptyProcQ();
 		insertProcQ(copy -> s_procQ, p);
 	}
@@ -107,19 +107,19 @@ pcb_t 	*removeBlocked(int *semAdd){
 				process queue is not empty after removal ---done
 				process queue is empty--deallocate and take node out of active list and put back on free list
 	}*/
-	*semd_t parent = search(semAdd);
-	*semd_t semAsemd = parent -> next;
+	semd_t *parent = searchAdd(semAdd);
+	semd_t *semAsemd = parent -> s_next;
 	if(semAsemd -> s_semAdd != semAdd){
 		/*error case*/
 		return NULL;
 	}
 	*pcb_t outP = removeProcQ(semAsemd -> s_procQ);
-	if(emptyProcQ(psemAsemd -> s_procQ)){/*if list is empty we have to move semd to free list*/
+	if(emptyProcQ(semAsemd -> s_procQ)){/*if list is empty we have to move semd to free list*/
 		/*remove from active*/
 		parent -> s_next = parent -> s_next -> s_next;
 		/*add to free*/
 		semAsemd -> semdFree_h;
-		semdFree_h = semdAsemd;
+		semdFree_h = semAsemd;
 	}
 	
 	return outP;
@@ -142,7 +142,7 @@ pcb_t 	*outBlocked(pcb_t *p){
 		return NULL;
 	}
 	*pcb_t outP = outProcQ(semAsemd -> s_procQ);
-	if(emptyProcQ(psemAsemd -> s_procQ)){/*if list is empty we have to move semd to free list*/
+	if(emptyProcQ(semAsemd -> s_procQ)){/*if list is empty we have to move semd to free list*/
 		/*remove from active*/
 		parent -> s_next = parent -> s_next -> s_next;
 		/*add to free*/
