@@ -25,6 +25,7 @@
 *H*/
 
 #include "../h/pcb.h"
+#include "../h/const.h"
 
 HIDDEN pcb_t	*pcbFree_h;
 
@@ -48,7 +49,7 @@ pcb_t	*headProcQ(pcb_t *tp){
 	if(emptyProcQ(tp)){
 		return NULL;
 	}
-	return (tp -> p_next);
+	return (tp -> p_next);	/*next is the head*/
 }
 
 
@@ -67,8 +68,7 @@ void 	insertProcQ(pcb_PTR *tp, pcb_t *p){
 	/* empty queue case*/
 	if(emptyProcQ(*tp)){
 		*(tp) = p;
-		p -> p_next = p;
-		p -> p_prev = p;
+		p -> p_next = p -> p_prev = p;
 		return;
 	}
 	pcb_PTR temp = *tp;
@@ -147,10 +147,14 @@ pcb_t	*allocPcb(){
 		return NULL;
 	}
 	
+	
 	pcb_t	*allocPCB = pcbFree_h;
 	pcbFree_h = allocPCB -> p_prev;
 	pcbFree_h -> p_next = allocPCB -> p_next;
 	allocPCB -> p_next -> p_prev = pcbFree_h;
+	if(singleProcQ(pcbFree_h)){
+		pcbFree_h = NULL;
+	}
 	return allocPCB;
 }
 				
