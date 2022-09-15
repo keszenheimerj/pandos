@@ -147,9 +147,8 @@ pcb_t	*allocPcb(){
 		return NULL;
 	}
 	
-	
 	pcb_t	*allocPCB = pcbFree_h;
-	pcbFree_h = allocPCB -> p_prev;
+	pcbFree_h = (pcbFree_h -> p_prev);
 	pcbFree_h -> p_next = allocPCB -> p_next;
 	allocPCB -> p_next -> p_prev = pcbFree_h;
 	if(singleProcQ(pcbFree_h)){
