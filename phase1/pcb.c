@@ -5,7 +5,7 @@
 *	PcbQueues file management of queues of structures: pcb’s.
 *
 * PUBLIC FUNCTIONS : 
-*	void	freePCB(pcb_t *p)	- Insert element pointed to by p onto the pcbFree list.
+*	void	freePcb(pcb_t *p)	- Insert element pointed to by p onto the pcbFree list.
 *	pcb_t	*allocPcb()			- Return Null if pcbFree list is empty or remove an element from the 
 *								list, provide initial values for ALL of the pcbs field and return 
 *								pointer to removed element.
@@ -129,14 +129,14 @@ pcb_t 	*outProcQ(pcb_PTR *tp, pcb_t *p){
 /******************START*OF*GLOBAL*FUNCTIONS*************************************/
 /*pcb_PTR	freePCBList[MAXPROC];*/
 
-void	freePCB(pcb_t *p){	
+void	freePcb(pcb_t *p){	
 	/*inset element pointed to by p onto the pcbFree list*/
 	if(pcbFree_h != NULL){
 		p -> p_next = pcbFree_h -> p_next;
 		p -> p_prev = pcbFree_h;
 		pcbFree_h -> p_next = pcbFree_h;
 	}
-	*pcbFree_h = *p;
+	pcbFree_h = p;
 }
 pcb_t	*allocPcb(){		
 	/*return NULL if pcbFree list is empty or remove an element from the 

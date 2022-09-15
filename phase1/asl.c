@@ -31,6 +31,8 @@
 *H*/
 
 #include "../h/pcb.h"
+#include "../h/asl.h"
+#include "../h/const.h"
 
 /*2.4*/
 HIDDEN	semd_t *semdActive_h, *semdFree_h;
