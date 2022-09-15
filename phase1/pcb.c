@@ -158,9 +158,10 @@ void	initPcbs(){
 	/*initialize the pcbFree list*/
 	static	pcb_t	pool[MAXPROC];
 	pcbFree_h = mkEmptyProcQ();
-	
-	for(int i=0; i<= MAXPROC; i ++){
+	int i=0;
+	while(i<= MAXPROC){
 		insertProcQ(&pcbFree_h, &pool[i]);
+		i++;
 	}
 }
 
