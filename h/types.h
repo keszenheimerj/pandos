@@ -7,7 +7,7 @@
  * 
  ****************************************************************************/
 
-#include "../h/const.h"
+#include "const.h"
 
 typedef signed int cpu_t;
 
