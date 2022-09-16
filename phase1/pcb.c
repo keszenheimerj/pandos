@@ -26,6 +26,7 @@
 
 #include "../h/pcb.h"
 #include "../h/const.h"
+#include "../h/types.h"
 
 HIDDEN pcb_t	*pcbFree_h;
 
