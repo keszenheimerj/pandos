@@ -167,7 +167,7 @@ void main() {
 		insertProcQ(&qa, q);
 	}
 	addokbuf("inserted 10 elements   \n");
-
+	(*lastproc) = *(headProcQ(qa));
 	if (emptyProcQ(qa)) adderrbuf("emptyProcQ: unexpected TRUE"   );
 
 	/* Check outProc and headProc */

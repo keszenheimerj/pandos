@@ -74,8 +74,9 @@ void 	insertProcQ(pcb_PTR *tp, pcb_t *p){
 	pcb_PTR temp = *tp;
 	/* n queue case*/
 	p  -> p_prev = temp;
-	p  -> p_next = (*tp) -> p_next;
+	p  -> p_next = temp -> p_next;
 	temp -> p_next = p;
+	p -> p_next -> p_prev = p;
 	(*tp) = p;
 	return;
 }
@@ -162,7 +163,7 @@ void	initPcbs(){
 	static	pcb_t	pool[MAXPROC];
 	pcbFree_h = mkEmptyProcQ();
 	int i=0;
-	while(i<= MAXPROC){
+	while(i< MAXPROC){
 		insertProcQ(&pcbFree_h, &pool[i]);
 		i++;
 	}
