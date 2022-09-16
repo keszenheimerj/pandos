@@ -74,7 +74,7 @@ void 	insertProcQ(pcb_PTR *tp, pcb_t *p){
 	pcb_PTR temp = *tp;
 	/* n queue case*/
 	p  -> p_prev = temp;
-	p  -> p_next = temp -> p_next;
+	p  -> p_next = (*tp) -> p_next;
 	temp -> p_next = p;
 	(*tp) = p;
 	return;
