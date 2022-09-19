@@ -5,18 +5,20 @@
 
 # Simplistic search for the umps3 installation prefix.
 # If you have umps3 installed on some weird location, set UMPS3_DIR_PREFIX by hand.
-ifneq ($(wildcard /usr/bin/umps3),)
-	UMPS3_DIR_PREFIX = /usr
-	LIBDIR = $(UMPS3_DIR_PREFIX)/lib/x86_64-linux-gnu/umps3
-	
-else
-	UMPS3_DIR_PREFIX = /usr/local
-	LIBDIR = $(UMPS3_DIR_PREFIX)/lib/umps3
-endif
+#ifneq ($(wildcard /usr/bin/umps3),)
+#	UMPS3_DIR_PREFIX = /usr
+#	LIBDIR = $(UMPS3_DIR_PREFIX)/lib/x86_64-linux-gnu/umps3
+#	
+#else
+#	UMPS3_DIR_PREFIX = /usr/local
+#	LIBDIR = $(UMPS3_DIR_PREFIX)/lib/umps3
+#endif
+UMPS3_DIR_PREFIX = /usr
+LIBDIR = $(UMPS3_DIR_PREFIX)/lib/x86_64-linux-gnu/umps3
 
 INCDIR = $(UMPS3_DIR_PREFIX)/umps3/umps
 SUPDIR = $(UMPS3_DIR_PREFIX)/share/umps3
-LIBDIR = $(UMPS3_DIR_PREFIX)/lib/umps3
+LIBDIR = $(UMPS3_DIR_PREFIX)/lib/x86_64-linux-gnu/umps3
 
 DEFS = ../h/const.h ../h/types.h ../h/asl.h ../h/pcb.h $(INCDIR)/libumps.h Makefile
 

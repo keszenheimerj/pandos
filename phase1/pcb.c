@@ -141,14 +141,14 @@ void 	insertProcQ(pcb_PTR *tp, pcb_t *p){
 
 
 
-pcb_t	*headProcQ(pcb_t *tp){
+pcb_t	*headProcQ(pcb_PTR *tp){
 	/* Return a pointer to the first pcb from the process queue whose tail
 	is pointed to by tp. Do not remove this pcbfrom the process queue.
 	Return NULL if the process queue is empty. */
-	if(emptyProcQ(tp)){
+	if(emptyProcQ(*tp)){
 		return NULL;
 	}
-	return (tp -> p_next);	/*next is the head*/
+	return ((*tp) -> p_next);	/*next is the head*/
 }
 
 
@@ -172,7 +172,7 @@ pcb_t 	*removeProcQ(pcb_PTR *tp){
 		return temp;
 	}
 	/*save head*/
-	pcb_PTR head = headProcQ(temp);
+	pcb_PTR head = headProcQ(&temp);
 	(head -> p_next) -> p_prev = *(tp);
 	temp -> p_next = head -> p_next;
 	
