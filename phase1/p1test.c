@@ -167,7 +167,7 @@ void main() {
 		insertProcQ(&qa, q);
 	}
 	addokbuf("inserted 10 elements   \n");
-	(*lastproc) = *(headProcQ(qa));
+
 	if (emptyProcQ(qa)) adderrbuf("emptyProcQ: unexpected TRUE"   );
 
 	/* Check outProc and headProc */
@@ -247,6 +247,7 @@ void main() {
 	for (i = 0; i < 10; i++) 
 		freePcb(procp[i]);
 
+
 	/* check ASL */
 	initASL();
 	addokbuf("Initialized active semaphore list   \n");
@@ -312,7 +313,6 @@ void main() {
 	addokbuf("headBlocked and outBlocked ok   \n");
 	addokbuf("ASL module ok   \n");
 	addokbuf("So Long and Thanks for All the Fish\n");
- 
 
 }
 
