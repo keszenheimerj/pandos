@@ -223,6 +223,11 @@ int		emptyChild(pcb_t *p){
 	
 void	insertChild(pcb_t *prnt, pcb_t *p){
 	/* Make the pcb pointed to by p a child of the pcb pointed to by prnt.*/
+	/*prnt -> p_child = p;*/
+	if(prnt -> p_child != NULL){
+		p -> p_sib = prnt -> p_child;
+	}
+	p -> p_prnt = prnt;
 	prnt -> p_child = p;
 }
 
