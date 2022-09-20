@@ -239,7 +239,7 @@ pcb_t	*removeChild(pcb_t *p){
 		return NULL;
 	}
 	pcb_t *youngest = p -> p_child;
-	if(youngest -> p_sib == youngest){
+	if(youngest -> p_sib == youngest){ /*there is no sibling, only child.*/
 		p -> p_child = NULL;
 	}else{/*there is a sibiling*/
 		p -> p_child = youngest -> p_sib;
