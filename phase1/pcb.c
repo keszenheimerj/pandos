@@ -65,6 +65,7 @@ void	freePcb(pcb_t *p){
 	(*pcbFree_h) = *p;*/
 	p -> p_prev = pcbFree_h;
 	pcbFree_h = p;
+	/*insertProcQ(&pcbFree_h, p);*/
 }
 
 void	initPcbs(){	
@@ -124,7 +125,7 @@ void 	insertProcQ(pcb_PTR *tp, pcb_t *p){
 		return;
 	}
 	pcb_PTR temp = *tp;
-	(*tp) = p;
+	
 	temp->p_next -> p_prev = p;
 	p->p_next = temp ->p_next;
 	p->p_prev = temp;
@@ -134,7 +135,7 @@ void 	insertProcQ(pcb_PTR *tp, pcb_t *p){
 	p  -> p_next = temp -> p_next;
 	temp -> p_next = p;
 	p -> p_next -> p_prev = p;*/
-	
+	(*tp) = p;
 	return;
 }
 
