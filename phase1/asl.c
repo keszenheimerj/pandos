@@ -74,10 +74,11 @@ int 	insertBlocked(int *semAdd, pcb_t *p){
 	
 	semd_t *insertP = searchAdd(semAdd); 	/*find parent of semAdd. temp = parent of semAdd*/
 	if((insertP -> s_next -> s_semAdd) == semAdd){ 	/*is semAdd already in the active list? If Found*/
-		insertProcQ(&(insertP -> s_next) -> s_procQ, p); 
+		p -> p_semAdd = semAdd;
+		insertProcQ(&(insertP -> s_next -> s_procQ), p); 
 	}else{	
 		if(semdFree_h == NULL){
-			return 1;
+			return TRUE;
 		}					/*semAdd is not in the active list. Not Found*/
 		semd_t *copy = semdFree_h;
 		semdFree_h = semdFree_h -> s_next;
@@ -85,12 +86,12 @@ int 	insertBlocked(int *semAdd, pcb_t *p){
 		/*init fields*/
 		
 		copy -> s_next = insertP -> s_next;
-		(insertP) -> s_next = copy;		
 		copy -> s_semAdd = semAdd;
 		copy -> s_procQ = mkEmptyProcQ();
-		insertProcQ(&copy -> s_procQ, p);
+		insertProcQ(&(copy -> s_procQ), p);
+		(insertP) -> s_next = copy;	
 	}
-	return 0;
+	return FALSE;
 }
 
 pcb_t 	*removeBlocked(int *semAdd){
@@ -170,31 +171,36 @@ pcb_t 	*headBlocked(int *semAdd){
 	one more test, if s_procQ is empty, return NULL*/
 	semd_t *temp = searchAdd(semAdd);
 	if(temp -> s_next -> s_semAdd == semAdd && emptyProcQ(temp -> s_next -> s_procQ)){
-		return (headProcQ(temp -> s_procQ));
+		return (headProcQ(&temp -> s_procQ));
 	}
 
 	return NULL;
 }
+
+
 void 	initASL(){
 	/* Initialize the semdFree list to contain all the elements of the array
 	static semd t semdTable[MAXPROC]
 	This method will be only called once during data structure initializa-
 	tion. */
 	static semd_t semdPool[MAXPROC+2];
-	semdFree_h = &semdPool[1];
 	int i = 1;
-	while(i <= MAXPROC){
-		semdPool[i].s_procQ = mkEmptyProcQ();
-		if(i==MAXPROC){
-			semdPool[i].s_next= NULL;
-		}else{
-			semdPool[i].s_next = &semdPool[i+1];
+	semd_t *current = NULL;;
+	semd_t *prev = NULL;;
+	while(i < MAXPROC){
+		current = &semdPool[i];
+		current -> s_semAdd = NULL;
+		if(i>1){
+			prev -> s_next = current;
 		}
+		prev = current;
 		i++;
 	}
+	semdFree_h = &semdPool[1];
 	/*set up active*/
 	semdActive_h = &semdPool[0];
 	semdActive_h -> s_semAdd = 0;
 	semdActive_h -> s_next = &semdPool[21];
 	*semdActive_h -> s_next -> s_semAdd = (signed int) INF;
+	return;
 }

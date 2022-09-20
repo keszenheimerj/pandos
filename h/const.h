@@ -12,7 +12,7 @@
 #define WORDLEN			  4				  /* word size in bytes	*/
 #define MAXPROC			  20			/* pandos can only support this pool of concurrent*/
 							/* processes */
-#define INF			  0xFFFFFFFF		/* infinity */
+#define INF			  0x7FFFFFFF		/* infinity */
 
 
 /* timer, timescale, TOD-LO and other bus regs */
