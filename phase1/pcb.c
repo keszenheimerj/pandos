@@ -215,7 +215,7 @@ pcb_t 	*outProcQ(pcb_PTR *tp, pcb_t *p){
 				
 
 
-int		emptyChild(pcb_t *p){
+int	emptyChild(pcb_t *p){
 	/* Return TRUE if the pcb pointed to by p has no children. Return
 	FALSE otherwise. */
 	return (p -> p_child == NULL);
@@ -238,15 +238,13 @@ pcb_t	*removeChild(pcb_t *p){
 	if(emptyChild(p)){
 		return NULL;
 	}
-	pcb_t *youngest = p -> p_child;
+	pcb_PTR youngest = p -> p_child;
 	if(youngest -> p_sib == youngest){ /*there is no sibling, only child.*/
 		p -> p_child = NULL;
 	}else{/*there is a sibiling*/
 		p -> p_child = youngest -> p_sib;
-		youngest -> p_sib_next -> p_sib = youngest -> p_sib;
-		youngest -> p_sib -> p_sib_next = youngest -> p_sib_next;
 	}
-	youngest -> p_prnt = youngest -> p_sib = youngest -> p_sib_next = NULL;
+	youngest -> p_prnt = youngest -> p_sib = NULL;
 	return youngest;
 }
 
@@ -261,14 +259,16 @@ pcb_t	*outChild(pcb_t *p){
 	if(p -> p_prnt -> p_child == p){
 		return removeChild(p);
 	}
-	if(p -> p_sib == p){
-		p -> p_prnt -> p_child = NULL;
-		return p;
+	pcb_PTR prev = p -> p_prnt -> p_child;
+	while(prev -> p_sib != NULL){
+		if(prev -> p_sib == p){
+			prev -> p_sib = p -> p_sib;
+			p -> p_prnt = NULL;
+			return p;
+		}
+		prev = prev -> p_sib;
 	}
-	p -> p_prnt -> p_child = p -> p_sib;
-	p -> p_sib_next -> p_sib = p -> p_sib;
-	p -> p_sib -> p_sib_next = p -> p_sib_next;
-	return p;
+	return NULL;
 	
 }
 
