@@ -248,6 +248,10 @@ void main() {
 		freePcb(procp[i]);
 
 
+	addokbuf("I am here)");
+
+
+
 	/* check ASL */
 	initASL();
 	addokbuf("Initialized active semaphore list   \n");
