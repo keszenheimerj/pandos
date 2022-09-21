@@ -246,11 +246,7 @@ void main() {
 
 	for (i = 0; i < 10; i++) 
 		freePcb(procp[i]);
-
-
-	addokbuf("I am here)");
-
-
+	
 
 	/* check ASL */
 	initASL();
