@@ -138,7 +138,7 @@ int 	insertBlocked(int *semAdd, pcb_t *p){
 		insertProcQ(&(insertP -> s_next -> s_procQ), p); 
 	}else{	
 		if(semdFree_h == NULL){
-			return TRUE;
+			return 1;
 		}					/*semAdd is not in the active list. Not Found*/
 		semd_t *copy = semdFree_h;
 		semdFree_h = semdFree_h -> s_next;
@@ -148,10 +148,10 @@ int 	insertBlocked(int *semAdd, pcb_t *p){
 		copy -> s_next = insertP -> s_next;
 		copy -> s_semAdd = semAdd;
 		copy -> s_procQ = mkEmptyProcQ();
+		insertP -> s_next = copy;	
 		insertProcQ(&(copy -> s_procQ), p);
-		(insertP) -> s_next = copy;	
 	}
-	return FALSE;
+	return 0;
 }
 
 pcb_t 	*removeBlocked(int *semAdd){
