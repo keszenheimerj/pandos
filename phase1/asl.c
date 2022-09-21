@@ -96,9 +96,17 @@ static void cleanSemd(semd_t *s) {
 * to be null; if its not empty
 */
 static void freeSemd(semd_t *s) {
-	s -> s_next = semdFree_h;
-	semdFree_h = s;
 	s -> s_semAdd = NULL;
+	s -> s_procQ = mkEmptyProcQ();
+	s-> s_next = NULL;
+	if(semdFree_h == NULL){
+		semdFree_h = s;
+		semdFree_h -> s_next = NULL;
+	}else{
+		
+		s -> s_next = semdFree_h;
+		semdFree_h = s;
+	}
 }
 
 int 	insertBlocked(int *semAdd, pcb_t *p){
@@ -254,8 +262,10 @@ void 	initASL(){
 	
 	/*set up active*/
 	semdActive_h = (&semdPool[0]);
+	semdActive_h -> s_procQ = mkEmptyProcQ();
 	semdActive_h -> s_semAdd = 0;
 	semdActive_h -> s_next = &semdPool[21];
+	semdActive_h -> s_next -> s_procQ = mkEmptyProcQ();
 	semdActive_h -> s_next -> s_semAdd = (int *)INF;
 	semdActive_h -> s_next -> s_next = NULL;
 	
