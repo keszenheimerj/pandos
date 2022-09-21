@@ -63,7 +63,7 @@ semd_t* search(semd_t *child){
 * should the send_t free list head is null,
 * then there are no free semd_t to allocate
 */
-static semd_t allocSemd(int *semAdd) {
+static semd_t* allocSemd(int *semAdd) {
 	if(semdFree_h == NULL){
 		return NULL;
 	}
@@ -72,7 +72,7 @@ static semd_t allocSemd(int *semAdd) {
 	asemd ->s_next = NULL;
 	asemd -> s_procQ = mkEmptyProcQ();
 	asemd -> s_semAdd = semAdd;
-	return (*asemd);
+	return (asemd);
 }
 
 /*
