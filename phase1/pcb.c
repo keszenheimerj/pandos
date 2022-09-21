@@ -64,7 +64,7 @@ void	freePcb(pcb_t *p){
 	pcbFree_h -> p_prev = p;
 	(*pcbFree_h) = *p;*/
 	p -> p_prev = pcbFree_h;
-	pcbFree_h = p;
+	(*pcbFree_h) = *p;
 	/*insertProcQ(&pcbFree_h, p);*/
 }
 

@@ -29,7 +29,7 @@
 * AUTHORS :	James Keszenheimer, Evan Hanson		START DATE : 5 Sept 22
 *
 *H*/
-
+/*#include "./pcb.c"*/
 #include "../h/pcb.h"
 #include "../h/asl.h"
 #include "../h/const.h"
@@ -185,22 +185,30 @@ void 	initASL(){
 	tion. */
 	static semd_t semdPool[MAXPROC+2];
 	int i = 1;
-	semd_t *current = NULL;;
-	semd_t *prev = NULL;;
-	while(i < MAXPROC){
-		current = &semdPool[i];
+	/*semd_t *current = NULL;*/
+	/*semd_t *prev = NULL;*/
+	/*semdFree_h = NULL;*/
+	semdFree_h = &semdPool[1];
+	for(;i <= MAXPROC; i++){
+		/*current = &semdPool[i];
 		current -> s_semAdd = NULL;
 		if(i>1){
 			prev -> s_next = current;
 		}
-		prev = current;
-		i++;
+		prev = current;*/
+		if(i>MAXPROC){
+			semdPool[i].s_next = NULL;
+		}else{
+			semdPool[i].s_next = &semdPool[i+1];
+		}
 	}
-	semdFree_h = &semdPool[1];
+	
 	/*set up active*/
 	semdActive_h = &semdPool[0];
 	semdActive_h -> s_semAdd = 0;
 	semdActive_h -> s_next = &semdPool[21];
-	*semdActive_h -> s_next -> s_semAdd = (signed int) INF;
+	semdActive_h -> s_next -> s_semAdd = INF;
+	semdActive_h -> s_next -> s_next = NULL;
+	
 	return;
 }
