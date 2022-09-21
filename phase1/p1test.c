@@ -246,6 +246,7 @@ void main() {
 
 	for (i = 0; i < 10; i++) 
 		freePcb(procp[i]);
+	
 
 	/* check ASL */
 	initASL();
