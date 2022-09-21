@@ -37,7 +37,7 @@
 /*2.4*/
 HIDDEN	semd_t *semdActive_h, *semdFree_h;
 
-semd_t mkEmptySemd() {
+semd_t *mkEmptySemd() {
 	return NULL;
 }
 
