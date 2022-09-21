@@ -37,7 +37,7 @@
 /*2.4*/
 HIDDEN	semd_t *semdActive_h, *semdFree_h;
 
-semd_PTR mkEmptySemd() {
+semd_t mkEmptySemd() {
 	return NULL;
 }
 
@@ -63,8 +63,16 @@ semd_t* search(semd_t *child){
 * should the send_t free list head is null,
 * then there are no free semd_t to allocate
 */
-static semd_PTR allocSemd(int *semAdd) {
-
+static semd_t allocSemd(int *semAdd) {
+	if(semdFree_h == NULL){
+		return NULL;
+	}
+	semd_t *asemd = semdFree_h;
+	semdFree_h = semdFree_h -> s_next;
+	asemd ->s_next = NULL;
+	asemd -> s_procQ = mkEmptyProcQ();
+	asemd -> s_semAdd = semAdd;
+	return (*asemd);
 }
 
 /*
@@ -73,7 +81,7 @@ static semd_PTR allocSemd(int *semAdd) {
 * used - since a semd_t cannot come off the
 * free list with defined values
 */
-static void cleanSemd(semd_PTR s) {
+static void cleanSemd(semd_t *s) {
 	/* clean the semd */
 	s->s_next = NULL;
 	s->s_procQ = mkEmptyProcQ();
@@ -87,8 +95,10 @@ static void cleanSemd(semd_PTR s) {
 * by making the newly added semd_t next semd_t
 * to be null; if its not empty
 */
-static void freeSemd(semd_PTR s) {
-
+static void freeSemd(semd_t *s) {
+	s -> s_next = semdFree_h;
+	semdFree_h = s;
+	s -> s_semAdd = NULL;
 }
 
 int 	insertBlocked(int *semAdd, pcb_t *p){
@@ -234,11 +244,12 @@ void 	initASL(){
 			prev -> s_next = current;
 		}
 		prev = current;*/
-		if(i>MAXPROC){
+		freeSemd(&semdPool[i]);
+		/*if(i>MAXPROC){
 			semdPool[i].s_next = NULL;
 		}else{
 			semdPool[i].s_next = &semdPool[i+1];
-		}
+		}*/
 	}
 	
 	/*set up active*/
