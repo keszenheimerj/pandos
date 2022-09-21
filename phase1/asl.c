@@ -96,7 +96,11 @@ static void cleanSemd(semd_t *s) {
 * to be null; if its not empty
 */
 static void freeSemd(semd_t *s) {
-	s -> s_semAdd = NULL;
+	s -> s_next = semdFree_h;
+	semdFree_h = s;
+
+
+	/*s -> s_semAdd = NULL;
 	s -> s_procQ = mkEmptyProcQ();
 	s-> s_next = NULL;
 	if(semdFree_h == NULL){
@@ -106,7 +110,7 @@ static void freeSemd(semd_t *s) {
 		
 		s -> s_next = semdFree_h;
 		semdFree_h = s;
-	}
+	}*/
 }
 
 int 	insertBlocked(int *semAdd, pcb_t *p){
@@ -239,6 +243,10 @@ void 	initASL(){
 	static semd t semdTable[MAXPROC]
 	This method will be only called once during data structure initializa-
 	tion. */
+	addokbuf("hello");
+	semdFree_h = NULL;
+	semdActive_h = NULL;
+
 	static semd_t semdPool[MAXPROC+2];
 	int i = 1;
 	/*semd_t *current = NULL;*/
@@ -252,21 +260,21 @@ void 	initASL(){
 			prev -> s_next = current;
 		}
 		prev = current;*/
-		freeSemd(&semdPool[i]);
+		freeSemd(&(semdPool[i]));
 		/*if(i>MAXPROC){
 			semdPool[i].s_next = NULL;
 		}else{
 			semdPool[i].s_next = &semdPool[i+1];
 		}*/
 	}
-	
+	semdPool[0].s_semAdd = 0;
+	semdPool[21].s_semAdd = (int *)0x7fffffff;
+
 	/*set up active*/
 	semdActive_h = (&semdPool[0]);
 	semdActive_h -> s_procQ = mkEmptyProcQ();
-	semdActive_h -> s_semAdd = 0;
 	semdActive_h -> s_next = &semdPool[21];
 	semdActive_h -> s_next -> s_procQ = mkEmptyProcQ();
-	semdActive_h -> s_next -> s_semAdd = (int *)0x7fffffff;
 	semdActive_h -> s_next -> s_next = NULL;
 	
 	return;
