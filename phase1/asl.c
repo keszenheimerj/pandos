@@ -37,6 +37,10 @@
 /*2.4*/
 HIDDEN	semd_t *semdActive_h, *semdFree_h;
 
+semd_PTR mkEmptySemd() {
+	return NULL;
+}
+
 semd_t*	searchAdd(int* checkVal){
 	/*loop return parent of node if there
 	or parent of node if not there*/
@@ -51,6 +55,40 @@ semd_t*	searchAdd(int* checkVal){
 semd_t* search(semd_t *child){
 	
 	return search(child);
+}
+
+/*
+*	Function: allocates a semd_t from the semd_t
+* free list and returns a pointer to it;
+* should the send_t free list head is null,
+* then there are no free semd_t to allocate
+*/
+static semd_PTR allocSemd(int *semAdd) {
+
+}
+
+/*
+* Function: nulls out all of the values of a
+* semd_t so that it is clean and can be ready to
+* used - since a semd_t cannot come off the
+* free list with defined values
+*/
+static void cleanSemd(semd_PTR s) {
+	/* clean the semd */
+	s->s_next = NULL;
+	s->s_procQ = mkEmptyProcQ();
+	s->s_semAdd = NULL;
+}
+
+/*
+* Function: takes a semd_t and points it onto
+* the semd_t free list; if there is nothing on
+* the semd_t free list, a free list is "created"
+* by making the newly added semd_t next semd_t
+* to be null; if its not empty
+*/
+static void freeSemd(semd_PTR s) {
+
 }
 
 int 	insertBlocked(int *semAdd, pcb_t *p){
