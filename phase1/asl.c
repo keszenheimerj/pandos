@@ -243,7 +243,6 @@ void 	initASL(){
 	static semd t semdTable[MAXPROC]
 	This method will be only called once during data structure initializa-
 	tion. */
-	addokbuf("hello");
 	semdFree_h = NULL;
 	semdActive_h = NULL;
 
@@ -253,7 +252,7 @@ void 	initASL(){
 	/*semd_t *prev = NULL;*/
 	/*semdFree_h = NULL;*/
 	semdFree_h = &semdPool[1];
-	for(i <= MAXPROC; i++){
+	for(i = 1; i <= MAXPROC; i++){
 		/*current = &semdPool[i];
 		current -> s_semAdd = NULL;
 		if(i>1){
