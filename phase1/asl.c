@@ -132,12 +132,12 @@ int 	insertBlocked(int *semAdd, pcb_t *p){
 			allocate a new semd from free list and init its fields and put a value in semAdd, init tailpointer with make empty proc and insert new node into active list
 			have to find right location for insert because it is sorted then perform same opperation as if it was found*/
 	
-	semd_t *insertP = searchAdd(semAdd); 	/*find parent of semAdd. temp = parent of semAdd*/
-	if((insertP -> s_next -> s_semAdd) == semAdd){ 	/*is semAdd already in the active list? If Found*/
+	semd_t *insertP = searchAdd(semAdd); 	/*find parent of semAdd. insertP = parent of semAdd*/
+	if((insertP -> s_next -> s_semAdd) == semAdd){ 	/*----------- To fix, check if this ever becomes FALSE!!!! -------------*/	/*is semAdd already in the active list? If Found*/
 		p -> p_semAdd = semAdd;
 		insertProcQ(&(insertP -> s_next -> s_procQ), p); 
 	}else{	
-		if(semdFree_h == NULL){
+		if(semdFree_h == NULL){			/*----------- To fix, check if this ever becomes TRUE!!!! -------------*/
 			return 1;
 		}					/*semAdd is not in the active list. Not Found*/
 		semd_t *copy = semdFree_h;
