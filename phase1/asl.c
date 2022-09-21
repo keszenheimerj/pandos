@@ -253,10 +253,10 @@ void 	initASL(){
 	}
 	
 	/*set up active*/
-	semdActive_h = &semdPool[0];
+	semdActive_h = (&semdPool[0]);
 	semdActive_h -> s_semAdd = 0;
 	semdActive_h -> s_next = &semdPool[21];
-	semdActive_h -> s_next -> s_semAdd = INF;
+	semdActive_h -> s_next -> s_semAdd = (int *)INF;
 	semdActive_h -> s_next -> s_next = NULL;
 	
 	return;
