@@ -245,7 +245,7 @@ void 	initASL(){
 	/*semd_t *prev = NULL;*/
 	/*semdFree_h = NULL;*/
 	semdFree_h = &semdPool[1];
-	for(;i <= MAXPROC; i++){
+	for(i <= MAXPROC; i++){
 		/*current = &semdPool[i];
 		current -> s_semAdd = NULL;
 		if(i>1){
@@ -266,7 +266,7 @@ void 	initASL(){
 	semdActive_h -> s_semAdd = 0;
 	semdActive_h -> s_next = &semdPool[21];
 	semdActive_h -> s_next -> s_procQ = mkEmptyProcQ();
-	semdActive_h -> s_next -> s_semAdd = (int *)INF;
+	semdActive_h -> s_next -> s_semAdd = (int *)0x7fffffff;
 	semdActive_h -> s_next -> s_next = NULL;
 	
 	return;
