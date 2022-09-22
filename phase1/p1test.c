@@ -171,7 +171,7 @@ void main() {
 	if (emptyProcQ(qa)) adderrbuf("emptyProcQ: unexpected TRUE"   );
 
 	/* Check outProc and headProc */
-	if (headProcQ(&qa) != firstproc)
+	if (headProcQ(qa) != firstproc)
 		adderrbuf("headProcQ failed   ");
 	q = outProcQ(&qa, firstproc);
 	if (q == NULL || q != firstproc)
@@ -270,7 +270,6 @@ void main() {
 	p = removeBlocked(&sem[11]);
 	if (insertBlocked(&sem[11],p))
 		adderrbuf("removeBlocked: fails to return to free list   ");
-
 	if (insertBlocked(&onesem, procp[9]) == FALSE)
 		adderrbuf("insertBlocked: inserted more than MAXPROC   ");
 	
