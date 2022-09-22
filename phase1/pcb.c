@@ -189,7 +189,7 @@ pcb_t 	*outProcQ(pcb_PTR *tp, pcb_t *p){
 	necessary. If the desired entry is not in the indicated queue (an error
 	condition), return NULL; otherwise, return p. Note that p can point
 	to any element of the process queue. */
-	/*pcb_PTR temp = *tp;
+	pcb_PTR temp = *tp;
 	if(emptyProcQ(*tp)){
 		return NULL;
 	}else if(temp == headProcQ(temp)){
@@ -211,8 +211,8 @@ pcb_t 	*outProcQ(pcb_PTR *tp, pcb_t *p){
 		}while(temp -> p_prev != *tp);
 		
 		return NULL;
-	}*/
-	
+	}
+	/*
 	pcb_PTR curN = (*tp) -> p_prev;
 	
 	while(*tp != curN && curN != p){
@@ -225,10 +225,10 @@ pcb_t 	*outProcQ(pcb_PTR *tp, pcb_t *p){
 		p -> p_next -> p_prev = p -> p_prev;
 		p -> p_prev -> p_next = p -> p_next;
 		/*p -> p_next = p -> p_prev = NULL;*/
-		return p;
+		/*return p;
 	}else{
 		return NULL;
-	}
+	}*/
 	
 }
 
