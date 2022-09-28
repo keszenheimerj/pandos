@@ -50,7 +50,7 @@ pcb_t	*mkEmptyProcQ(){
 * Function: Return TRUE if the queue whose tail is pointed 
 * to by tp is empty. Return FALSE otherwise.
 */
-int		emptyProcQ(pcb_t *tp){
+int	emptyProcQ(pcb_t *tp){
 	return (tp == NULL);
 }
 

@@ -30,7 +30,6 @@
 * AUTHORS :	James Keszenheimer, Evan Hanson		START DATE : 5 Sept 22
 *
 *H*/
-/*#include "./pcb.c"*/
 #include "../h/pcb.h"
 #include "../h/asl.h"
 #include "../h/const.h"
@@ -43,11 +42,11 @@ HIDDEN	semd_t *semdActive_h, *semdFree_h;
 * there or parent of node if not there.
 */
 semd_t*		searchAdd(int* checkVal){
-	semd_t *temp = semdActive_h;
-	while((temp -> s_next -> s_semAdd) < checkVal){
-		temp = temp -> s_next;
+	semd_t *loopingSem = semdActive_h;
+	while((loopingSem -> s_next -> s_semAdd) < checkVal){
+		loopingSem = loopingSem -> s_next;
 	}
-	return temp;
+	return loopingSem;
 }
 
 /*
@@ -55,22 +54,22 @@ semd_t*		searchAdd(int* checkVal){
 * free list and returns a pointer to it.
 */
 semd_t* 	allocSemd(int *semAdd) {
-	semd_t *asemd = semdActive_h;
-	while((asemd -> s_next -> s_semAdd) < semAdd){
-		asemd = asemd -> s_next;
+	semd_t *loopingSem = semdActive_h;
+	while((loopingSem -> s_next -> s_semAdd) < semAdd){
+		loopingSem = loopingSem -> s_next;
 	}
-	semd_t *rout = asemd -> s_next;
-	asemd -> s_next = asemd -> s_next -> s_next;
-	return (rout);
+	semd_t *semmToAlloc = loopingSem -> s_next;
+	loopingSem -> s_next = loopingSem -> s_next -> s_next;
+	return (semmToAlloc);
 }
 
 /*
 * Function: Takes a semd_t and points it to
 * the semd_t free list. 
 */
-void 	freeSemd(semd_t *s) {
-	s -> s_next = semdFree_h;
-	semdFree_h = s;
+void 	freeSemd(semd_t *free) {
+	free -> s_next = semdFree_h;
+	semdFree_h = free;
 }
 
 /*
@@ -95,17 +94,18 @@ int 	insertBlocked(int *semAdd, pcb_t *p){
 		if(semdFree_h == NULL){
 			return 1;
 		}
-		semd_t *tempF = semdFree_h;
+		semd_t *storeFree = semdFree_h;
 		semdFree_h = semdFree_h -> s_next;
 		
-		tempF -> s_next = insertP -> s_next;
-		insertP -> s_next = tempF;
-		tempF -> s_semAdd = semAdd;
-		tempF -> s_procQ = mkEmptyProcQ();
-		insertProcQ(&(tempF -> s_procQ), p);
+		storeFree -> s_next = insertP -> s_next;
+		insertP -> s_next = storeFree;
+		storeFree -> s_semAdd = semAdd;
+		storeFree -> s_procQ = mkEmptyProcQ();
+		insertProcQ(&(storeFree -> s_procQ), p);
 		p -> p_semAdd = semAdd;															
 	}
-	return 0;												/*semAdd is not in the active list. Not Found*/
+	return 0;												
+	/*semAdd is not in the active list. Not Found*/
 }
 
 /*
@@ -117,12 +117,12 @@ int 	insertBlocked(int *semAdd, pcb_t *p){
 * scriptor from the ASL and return it to the semdFree list.
 */
 pcb_t 	*removeBlocked(int *semAdd){
-	semd_t *insertP = searchAdd(semAdd);
-	if(insertP -> s_next -> s_semAdd != semAdd){
+	semd_t *child = searchAdd(semAdd) -> s_next;
+	if(child -> s_semAdd != semAdd){
 		return NULL;
 	}
-	pcb_t *outP = removeProcQ(&(insertP -> s_next -> s_procQ));
-	if(emptyProcQ(insertP -> s_next -> s_procQ)){
+	pcb_t *outP = removeProcQ(&(child -> s_procQ));
+	if(emptyProcQ(child -> s_procQ)){
 		
 		freeSemd(allocSemd(semAdd));
 	}
@@ -137,15 +137,13 @@ pcb_t 	*removeBlocked(int *semAdd){
 * return p.
 */
 pcb_t 	*outBlocked(pcb_t *p){
-	semd_t *insertP = searchAdd(p -> p_semAdd);
-	if(insertP -> s_next -> s_semAdd != p -> p_semAdd){
+	semd_t *child = searchAdd(p -> p_semAdd) -> s_next;
+	if(child -> s_semAdd != p -> p_semAdd){
 		return NULL;
 	}
-	pcb_t *outP = outProcQ(&(insertP -> s_next -> s_procQ), p);
-	if(outP == NULL){
-		return NULL;
-	}
-	if(emptyProcQ(insertP -> s_next -> s_procQ)){
+	pcb_t *outP = outProcQ(&(child -> s_procQ), p);
+	/*check null condition*/
+	if(outP != NULL && emptyProcQ(child -> s_procQ)){
 		freeSemd(allocSemd(p -> p_semAdd));
 	}	
 	return outP;
@@ -158,11 +156,11 @@ pcb_t 	*outBlocked(pcb_t *p){
 * is empty.
 */
 pcb_t 	*headBlocked(int *semAdd){
-	semd_t *temp = searchAdd(semAdd);
-	if(temp -> s_next -> s_semAdd != semAdd){
+	semd_t *parent = searchAdd(semAdd);
+	if(parent -> s_next -> s_semAdd != semAdd){
 		return NULL;
 	}
-	return (headProcQ(temp ->s_next -> s_procQ));
+	return (headProcQ(parent ->s_next -> s_procQ));
 }
 
 /*
@@ -182,7 +180,7 @@ void 	initASL(){
 	}
 
 	semdPool[0].s_semAdd = 0;
-	semdPool[21].s_semAdd = (int *)0x7fffffff;
+	semdPool[21].s_semAdd = (int *)INF; /*INF = 0x7fffffff;*/
 
 	/*set up active*/
 	semdActive_h = (&semdPool[0]);
