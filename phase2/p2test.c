@@ -43,6 +43,10 @@ typedef unsigned int devregtr;
 #define KUPBITON		0x8
 #define KUPBITOFF		0xFFFFFFF7
 #define TEBITON			0x08000000
+#define ALLOFF			0x0
+
+#define	ON				1
+#define OFF				0
 
 #define CAUSEINTMASK	0xFD00
 #define CAUSEINTOFFS	10
