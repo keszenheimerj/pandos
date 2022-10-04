@@ -73,6 +73,9 @@
 #define BIOSDATAPAGE    0x0FFFF000
 #define	PASSUPVECTOR	  0x0FFFF900
 
+/*ours added*/
+#define topNSpg		0x2000.1000		/*top of nucleus stack page*/
+
 /* Exceptions related constants */
 #define	PGFAULTEXCEPT	  0
 #define GENERALEXCEPT	  1

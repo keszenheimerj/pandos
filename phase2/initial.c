@@ -16,16 +16,28 @@
 #include "../h/types.h"
 #include "../h/const.h"
 
+extern void test();
+
 
 /*
 *****************global variables*****************
 */
-
 pcb_t* readyQueue = mkEmptyQ();
-pcb_t* currentProc = NULL; /*scaler to the running Proc*/
-int processCnt = 0;
-int softBlockCnt = 0;
-int deviceSema4s[42]; /*42 | 49; =0??*/
+pcb_t* currentProc = NULL; 	/*scaler to the running Proc*/
+int processCnt = 0;		/*int indicating the started but not terminated processes*/
+int softBlockCnt = 0;		/*a process can either be ready, running, blocked(waiting) state and this int is the number of started, but not terminated processes*/
+int deviceSema4s[42] = 0; /*42 | 49; =0??*/
+/*
+************end global variables**************
+*/
+
+
+void uTLB_RefillHandler () {
+	setENTRYHI(0x80000000);
+	setENTRYLO(0x00000000);
+	TLBWR();
+	LDST ((state_PTR) 0x0FFFF000);
+}
 
 /*main*/
 /*ref
@@ -35,18 +47,33 @@ int deviceSema4s[42]; /*42 | 49; =0??*/
 main{
 	initPcbs();
 	initASL();
-	init global Variables
 	
 	/*init 4 words in BIOS pg*/
-	xxx -> tlb_refill_handler = (memaddr) uTLB_RefillHandler;
-	tlb_refill_stackPtr
-	xxx -> exception_handler = (memaddr) fooBar;
-	exception_stackPtr
-		
-	allocPcb()
-	create 1 process
-	p = allocPcb();
-	yyy -> p_s -> s_pc = (memaddr) test;
+	passupvector	passV -> tlb_refill_handler = (memaddr) uTLB_RefillHandler;
+	passV -> tlb_refill_stackPtr = ;
+	passV -> exception_handler = (memaddr) topNSpg;
+	passV -> exception_stackPtr = (memaddr) topNSpg;
+	
+	LDIT = .1 /*loading the interval timer with 100 milisec*/
+	pcb_t p = allocPcb();
+	/*init interupts as enabled
+	procLocal timer enabled
+	kernel mode on
+	sp = RAMTOP
+	pc is set to address of test*/
+	s_sp = ramsize + rambase;	/*set to ram top which is installed ram size + ram base address*/
+	p -> p_s.s_pc = s_t9 = (memaddr) test;
+	/*process tree fields to NULL*/
+	
+	
+	/*done*/
+	
+	p -> p_time = 0;
+	p -> p_semAdd = NULL;
+	p -> p_supportStruct = NULL;
+	/*turn kernal mode on?*/
+	/*sp set to ram top*/
+
 	process Cnt ++;
 	insertProcQ(&readyQueue, p; #statis is ready
 	scheduler();#dequeue remove PRocQ
