@@ -98,6 +98,24 @@ typedef struct semd_t {
 					/* process queue */
 } semd_t;
 
+/* process content */
+typedef struct context_t {
+	/* process context fields */
+	unsigned	int	c_stackPtr,	/*stack pointer value*/
+				c_status,	/*status reg value*/
+				c_pc;		/*pc address*/
+} context_t;
+
+typedef struct support_t {
+	int		sup_asid;		/*Process Id (asid)*/
+	state_t		sup_exceptState[2];	/*stored except states */
+	context_t	sup_exceptContext[2];	/*pass up contexts*/
+	/*.. other fields to be added later*/
+} support_t;
+
+
+
+
 #define	s_at	s_reg[0]
 #define	s_v0	s_reg[1]
 #define s_v1	s_reg[2]
