@@ -1,6 +1,27 @@
 
 
 #include "../h/scheduler.h"
+#include "../h/types.h"
+#include "/usr/include/umps3/umps/libumps.h"
+
+void moveState(state_t source, state_t destination){
+	/*do stuff with all 35 regs in a for*/
+	for(int i = 0; i < STATEREGNUM;i++){
+		destination -> s_reg[i] = source -> s_reg[i];
+	}
+	
+	/*four other lines to init fields of state*/
+	destination -> s_entryHI = source -> s_entryHI;
+	destination -> s_cause = source -> s_cause;
+	destination -> s_status = source -> s_status;
+	destination -> s_pc = source -> s_pc;
+	switchContect(destination);
+}
+
+void switchContext(state_t state){
+	LDST(&(state));
+}
+
 void scheduler(){
 	if(currentProc != NULL){
 
@@ -18,7 +39,7 @@ void scheduler(){
 		LoadState /*privaledged instruction*/
 
 		/*loads all 35 registers*/
-		LDST(&(curentProc -> p_s));
+		moveState(source, destination);
 		/*if empty
 		....
 		*/

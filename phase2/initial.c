@@ -15,6 +15,7 @@
 #include "../h/initial.h"
 #include "../h/types.h"
 #include "../h/const.h"
+#include "/usr/include/umps3/umps/libumps.h"
 
 extern void test();
 
@@ -39,6 +40,12 @@ void uTLB_RefillHandler () {
 	LDST ((state_PTR) 0x0FFFF000);
 }
 
+void genExceptionHanler(){
+	save state
+	make ptr to from bios
+	do bitwise stuff
+}
+
 /*main*/
 /*ref
 	tlb_refil handler
@@ -50,9 +57,9 @@ main{
 	
 	/*init 4 words in BIOS pg*/
 	passupvector	passV -> tlb_refill_handler = (memaddr) uTLB_RefillHandler;
-	passV -> tlb_refill_stackPtr = ;
-	passV -> exception_handler = (memaddr) topNSpg;
-	passV -> exception_stackPtr = (memaddr) topNSpg;
+	passV -> tlb_refill_stackPtr = RAMTOP;
+	passV -> exception_handler =  (memaddr) genExceptionHanler();
+	passV -> exception_stackPtr = RAMTOP; 
 	
 	LDIT = .1 /*loading the interval timer with 100 milisec*/
 	pcb_t p = allocPcb();
@@ -75,6 +82,8 @@ main{
 	/*sp set to ram top*/
 
 	process Cnt ++;
-	insertProcQ(&readyQueue, p; #statis is ready
-	scheduler();#dequeue remove PRocQ
+	insertProcQ(&readyQueue, p; /*statis is ready*/
+	scheduler();			/*dequeue remove PRocQ*/
 }
+
+

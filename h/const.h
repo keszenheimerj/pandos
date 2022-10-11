@@ -18,6 +18,7 @@
 /* timer, timescale, TOD-LO and other bus regs */
 #define RAMBASEADDR		0x10000000
 #define RAMBASESIZE		0x10000004
+#define RAMTOP			0x2000.1000
 #define TODLOADDR		  0x1000001C
 #define INTERVALTMR		0x10000020	
 #define TIMESCALEADDR	0x10000024
@@ -74,7 +75,7 @@
 #define	PASSUPVECTOR	  0x0FFFF900
 
 /*ours added*/
-#define topNSpg		0x2000.1000		/*top of nucleus stack page*/
+/*#define 		0x2000.1000		/*top of nucleus stack page*/
 
 /* Exceptions related constants */
 #define	PGFAULTEXCEPT	  0
