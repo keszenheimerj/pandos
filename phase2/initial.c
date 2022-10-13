@@ -27,7 +27,7 @@ pcb_t* readyQueue = mkEmptyQ();
 pcb_t* currentProc = NULL; 	/*scaler to the running Proc*/
 int processCnt = 0;		/*int indicating the started but not terminated processes*/
 int softBlockCnt = 0;		/*a process can either be ready, running, blocked(waiting) state and this int is the number of started, but not terminated processes*/
-int deviceSema4s[42] = 0; /*42 | 49; =0??*/
+int deviceSema4s[49] = 0; /*42 | 49; =0??*/
 /*
 ************end global variables**************
 */

@@ -13,10 +13,27 @@ void sysCall(state_PTR state){
 			break;
 		case(2):
 			TERMINATEPROCESS();
+			break;
 		case(3):
 			PROBEREN(sema4);
+			break;
 		case(4):
-			
+			VERHOGEN(sema4);
+			break;
+		case(5):
+			WAIT_FOR_IO_DEVICE();
+			break;
+		case(6):
+			GET_CPU_TIME();
+			break;
+		case(7):
+			WAIT_FOR_CLOCK();
+			break;
+		case(8):
+			GET_SUPPORT_DATA();
+			break;
+		default:
+			passUpOrDie(stuff);
 	}
 }
 
