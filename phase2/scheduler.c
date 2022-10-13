@@ -18,8 +18,12 @@ void moveState(state_t source, state_t destination){
 	switchContect(destination);
 }
 
-void switchContext(state_t state){
-	LDST(&(state));
+void prepForSwitch(pcb_PTR current){
+	current -> s_pc = current -> s_pc + 4;
+}
+
+void switchContext(pcb_PTR current){
+	LDST(&(current -> s_pc));
 }
 
 void scheduler(){

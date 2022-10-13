@@ -73,6 +73,10 @@
 #define RAMSTART        0x20000000
 #define BIOSDATAPAGE    0x0FFFF000
 #define	PASSUPVECTOR	  0x0FFFF900
+/*adding*/
+#define Cause		0x0000007C
+#define CAUSESHIFT	0x00000002
+
 
 /*ours added*/
 /*#define 		0x2000.1000		/*top of nucleus stack page*/

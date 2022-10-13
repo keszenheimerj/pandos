@@ -1,3 +1,25 @@
+
+
+void sysCall(state_PTR state){
+	state -> s_pc = state -> s_pc + 4;
+	
+	int sysNum = state -> s_a0;
+	
+	
+	
+	switch(sysNum){
+		case(1):
+			CREATEPROCESS(state);
+			break;
+		case(2):
+			TERMINATEPROCESS();
+		case(3):
+			PROBEREN(sema4);
+		case(4):
+			
+	}
+}
+
 /*sys1*/
 HIDDEN void CREATEPROCESS(statePTR callerstate){
 	state_PTR newState = s_a1;

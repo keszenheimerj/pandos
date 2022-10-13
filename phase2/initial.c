@@ -41,9 +41,22 @@ void uTLB_RefillHandler () {
 }
 
 void genExceptionHanler(){
-	save state
-	make ptr to from bios
-	do bitwise stuff
+	/*save state*/
+	state_PTR peviousStatePTR = state_PTR;
+	/*make ptr to from bios*/
+	int causeNum = (previousStatePTR -> s_cause && CauseExcCode) >> CAUSESHIFT;
+	/*do bitwise stuff*/
+	if(causeNum == 0){
+		/*pass proccessing to nucleus dev interupt handler*/
+		
+	}else if(causeNum <= 3){
+		/*tlb execption, pass proccessing to tlb-exception handler*/
+		
+	}else if(causeNum == 8){
+		sysCall(previousStatePTR);
+	}else{
+		/*programTrap*/
+	}
 }
 
 /*main*/
@@ -68,7 +81,7 @@ main{
 	kernel mode on
 	sp = RAMTOP
 	pc is set to address of test*/
-	s_sp = ramsize + rambase;	/*set to ram top which is installed ram size + ram base address*/
+	s_sp = RAMTOP;	/*set to ram top which is installed ram size + ram base address*/
 	p -> p_s.s_pc = s_t9 = (memaddr) test;
 	/*process tree fields to NULL*/
 	
@@ -81,8 +94,8 @@ main{
 	/*turn kernal mode on?*/
 	/*sp set to ram top*/
 
-	process Cnt ++;
-	insertProcQ(&readyQueue, p; /*statis is ready*/
+	processCnt ++;
+	insertProcQ(&readyQueue, p); /*statis is ready*/
 	scheduler();			/*dequeue remove PRocQ*/
 }
 
