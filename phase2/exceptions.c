@@ -48,8 +48,21 @@ HIDDEN void CREATEPROCESS(statePTR callerstate){
 }
 
 /*sys2*/
-HIDDEN void TERMINATEPROCESS(){
+HIDDEN void TERMINATEPROCESS(pcb_PTR p){
+	/*
+	this service causes the executing process to cease to exist
+	reccursively call children and terminate their processes as well
+	*/
+	if(emptyChild(p)){
+		removerProc(p);
+	}else{
 	
+		while(!emptyChild(p)){
+			TERMINATEPROCESS(p -> p_child);
+		}
+	}
+	/*call scheduler*/
+	scheduler();
 }
 
 /*sys3*/
@@ -61,6 +74,7 @@ HIDDEN void PROBEREN(sem_PTR sema4){
 	}else{
 		LDST(sema4);
 	}
+}
 
 /*sys4*/
 HIDDEN void VERHOGEN((sem_PTR sema4){
@@ -72,8 +86,24 @@ HIDDEN void VERHOGEN((sem_PTR sema4){
 	LDST(sema4);/*return to current proccess*/
 }
 
+/*sys5*/
+HIDDEN void WAITFORIODEVICE(special sema4){
+	/*find which device
+	test value
+		insertBlocked
+		scheduler();
+		*/
+	sema4--;
+	if(sema4<0){
+		insertBlocked(&sema4, currentProc);
+		scheduler();
+	}else{
+		LDST(sema4);
+	}
+}
+
 /*sys6*/
-HIDDEN void GETCPUTIME(){
+HIDDEN void GETCPUTIME(PCB_PTR){
 	/*Bookeeping and management
 		look for a call called "CPU Time" maybe...
 		Write down time of day clock
@@ -82,13 +112,7 @@ HIDDEN void GETCPUTIME(){
 		How much is there plus how much current time slice.
 		use register s_v0
 		*/
+	p_time
 }
 
-/*sys8*/
-HIDDEN void WAITFORIODEVICE(special sema4){
-	/*find which device
-	test value
-		insertBlocked
-		scheduler();
-		*/
-}
+

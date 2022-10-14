@@ -60,10 +60,6 @@ void genExceptionHanler(){
 }
 
 /*main*/
-/*ref
-	tlb_refil handler
-	genException handler
-*/
 main{
 	initPcbs();
 	initASL();
@@ -76,9 +72,7 @@ main{
 	
 	LDIT = .1 /*loading the interval timer with 100 milisec*/
 	pcb_t p = allocPcb();
-	/*init interupts as enabled
-	procLocal timer enabled
-	kernel mode on
+	/*
 	sp = RAMTOP
 	pc is set to address of test*/
 	s_sp = RAMTOP;	/*set to ram top which is installed ram size + ram base address*/
@@ -92,7 +86,10 @@ main{
 	p -> p_semAdd = NULL;
 	p -> p_supportStruct = NULL;
 	/*turn kernal mode on?*/
-	/*sp set to ram top*/
+	/*init interupts as enabled
+	procLocal timer enabled
+	kernel mode on*/
+	p -> p_s.s_status = ALLOFF | TEBITON | IMON | IEPBIT;
 
 	processCnt ++;
 	insertProcQ(&readyQueue, p); /*statis is ready*/

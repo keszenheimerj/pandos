@@ -77,6 +77,13 @@
 #define Cause		0x0000007C
 #define CAUSESHIFT	0x00000002
 
+/*bit stuff*/
+#define ALLOFF		0x00000000
+#define IEPBITON	0x00000004
+#define IMON      	0x0000FF00
+#define TEBITON   	0x08000000
+#define IECON	  	0x00000001
+#define KUPON	  	0x00000008
 
 /*ours added*/
 /*#define 		0x2000.1000		/*top of nucleus stack page*/
