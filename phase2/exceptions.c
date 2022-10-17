@@ -1,4 +1,21 @@
+/*H***************************************************************************************************
+* FILENAME :	exceptions.c
+*
+* DESCRIPTION :	
+*	example
+*
+* PUBLIC FUNCTIONS : 
+*	
+* AUTHORS :	James Keszenheimer, Evan Hanson		START DATE : 31 Aug 22
+*
+*H*/
 
+#include "../h/pcb.h"
+#include "../h/asl.h"
+#include "../h/initial.h"
+#include "../h/types.h"
+#include "../h/const.h"
+#include "/usr/include/umps3/umps/libumps.h"
 
 void sysCall(state_PTR state){
 	state -> s_pc = state -> s_pc + 4;
@@ -87,7 +104,7 @@ HIDDEN void VERHOGEN((sem_PTR sema4){
 }
 
 /*sys5*/
-HIDDEN void WAITFORIODEVICE(special sema4){
+HIDDEN void WAIT_FOR_IO_DEVICE(special sema4){
 	/*find which device
 	test value
 		insertBlocked
@@ -103,7 +120,7 @@ HIDDEN void WAITFORIODEVICE(special sema4){
 }
 
 /*sys6*/
-HIDDEN void GETCPUTIME(PCB_PTR){
+HIDDEN void GET_CPU_TIME(PCB_PTR){
 	/*Bookeeping and management
 		look for a call called "CPU Time" maybe...
 		Write down time of day clock
@@ -115,4 +132,34 @@ HIDDEN void GETCPUTIME(PCB_PTR){
 	p_time
 }
 
+/*sys7*/
+HIDDEN void WAIT_FOR_CLOCK(){
+	/*Preforms a P oporations on the Nucleus.
+		This semaphore is V'ed every 100 milliseconds by the Nucleus.
+		This call should always clock the Current Process on the ASL, after the scheduler is called.
+		sys7 is used to transition the Current Process frim the "running" state to a "blocked" state.
+		sys7 is called by placing the value 7 in a0 and then exectuting syscall.
+		example sys7 request from book: SYSCALL (WAITCLOCK, 0, 0, 0); 
+		Where the mnemonic constant WAITCLOCK has the value of 7.
+		*/
+}
 
+/*sys8*/
+HIDDEN void GET_SUPPORT_DATA(){
+	/*requests a pointer to the Current Process's Support Structure. 
+		returns the value of p_supportStruct from the Current Process's pcb.
+		if no value for p_support Struct, then return NULL.
+		example sys8 from book: support_t *sPtr = SYSCALL (GETSUPPORTPTR, 0, 0, 0);
+		Where the mnemonic constant GETSUPPORTPTR has the value of 8.
+		*/
+}
+
+/*tlbTrapHandler*/
+HIDDEN void TLBTrapHandler(){
+
+}
+
+/*sysTrapHandler*/
+HIDDEN void sysTrapHandler(){
+	
+}

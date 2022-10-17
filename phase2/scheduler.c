@@ -1,4 +1,14 @@
-
+/*H***************************************************************************************************
+* FILENAME :	scheduler.c
+*
+* DESCRIPTION :	
+*	example
+*
+* PUBLIC FUNCTIONS : 
+*	
+* AUTHORS :	James Keszenheimer, Evan Hanson		START DATE : 31 Aug 22
+*
+*H*/
 
 #include "../h/scheduler.h"
 #include "../h/types.h"
