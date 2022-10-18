@@ -96,7 +96,7 @@ typedef struct semd_t {
 	int *s_semAdd; 				/* pointer to the semaphore*/
 	pcb_t *s_procQ; 			/* tail pointer to a */
 					/* process queue */
-} semd_t;
+} semd_t, *semd_PTR;
 
 /* process content */
 typedef struct context_t {
@@ -111,7 +111,7 @@ typedef struct support_t {
 	state_t		sup_exceptState[2];	/*stored except states */
 	context_t	sup_exceptContext[2];	/*pass up contexts*/
 	/*.. other fields to be added later*/
-} support_t;
+} support_t, *support_PTR;
 
 
 

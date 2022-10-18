@@ -20,6 +20,7 @@
 void passUpOrDie(int exType, state_t *exState){
 	if(currentProc -> p_supportStruct != NULL){
 		/*pass up*/
+		
 	}else{
 		
 		/*die*/
