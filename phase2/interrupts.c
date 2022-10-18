@@ -18,8 +18,17 @@
 #include "../h/exceptions.h"
 #include "../h/initial.h"
 
+cpu_t interruptStartTime;
+
 HIDDEN int getDevice(...){
 	return device;
+}
+
+void interruptLineHandler(int line){
+	/* non timer interrupt */
+	if(line >2){
+	
+	}
 }
 
 void interruptHandler(){

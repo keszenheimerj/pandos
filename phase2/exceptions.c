@@ -17,10 +17,34 @@
 #include "../h/const.h"
 #include "/usr/include/umps3/umps/libumps.h"
 
-void sysCall(state_PTR state){
-	state -> s_pc = state -> s_pc + 4;
+void passUpOrDie(int exType, state_t *exState){
+	if(currentProc -> p_supportStruct != NULL){
+		/*pass up*/
+	}else{
+		
+		/*die*/
+		TERMINATEPROCESS();
+	}
+}
+
+/*tlbTrapHandler*/
+HIDDEN void TLBTrapHandler(){
+
+}
+
+/*sysTrapHandler*/
+HIDDEN void sysTrapHandler(){
 	
-	int sysNum = state -> s_a0;
+}
+
+void sysCall(state_PTR state){
+	/*get info from BIOSDATABAGE*/
+	
+	exState = state;
+	
+	exState -> s_pc = exState -> s_pc + 4;
+	
+	int sysNum = exState -> s_a0;
 	
 	
 	
@@ -55,31 +79,63 @@ void sysCall(state_PTR state){
 }
 
 /*sys1*/
-HIDDEN void CREATEPROCESS(statePTR callerstate){
-	state_PTR newState = s_a1;
-	pcb_t tim = allocPCB();
+HIDDEN void CREATEPROCESS(){
+	state_PTR newState = (statePTR) exState -> s_a1;
+	support_t *supportP = (support_t*) exState -> s_a2;
+	pcb_PTR tim = allocPCB();
+	
 	if(tim == NULL){
-		s_v0 = -1;
-		LDST();
+		currentProc -> p_s.s_v0 = -1;
+	}else{
+		insertProcQ(&(readyQueue), tim);
+		insertChild(currentProc, tim);
+		currentProc -> p_s.s_v0 = 0;
+		
+		processCnt ++;
+		
+		tim -> p_semAdd = NULL;
+		tim -> p_time = 0;
+		tim -> p_s = newState;
+		tim -> p_supportStruct = supportP;
+		
 	}
+	LDST(exState);
 }
 
 /*sys2*/
-HIDDEN void TERMINATEPROCESS(pcb_PTR p){
+HIDDEN void TERMINATEPROCESS(){
 	/*
 	this service causes the executing process to cease to exist
 	reccursively call children and terminate their processes as well
 	*/
-	if(emptyChild(p)){
+	/*if(emptyChild(p)){
 		removerProc(p);
 	}else{
 	
 		while(!emptyChild(p)){
 			TERMINATEPROCESS(p -> p_child);
 		}
-	}
+	}*/
+	outChild(currentProc);
+	terminateChild(currentProc);
+	currentProc = NULL;
 	/*call scheduler*/
 	scheduler();
+}
+
+/*recursive helper for TERMINATEPROCESS*/
+void terminateChild(pcb_PTR child){
+	if(child != NULL){
+		while(!emptyChild(child){
+			terminateChild(removeChild(child));
+		}
+		processCnt --;
+		outProcQ(&readyQueue, child);
+		
+		/*check if free, active, asl*/
+		
+		freePCB(child);
+	}
 }
 
 /*sys3*/
@@ -104,7 +160,9 @@ HIDDEN void VERHOGEN((sem_PTR sema4){
 }
 
 /*sys5*/
-HIDDEN void WAIT_FOR_IO_DEVICE(special sema4){
+HIDDEN void WAIT_FOR_IO_DEVICE(){
+	int n = exState -> s_a1;
+	int dN = exState -> s_a2
 	/*find which device
 	test value
 		insertBlocked
@@ -120,7 +178,7 @@ HIDDEN void WAIT_FOR_IO_DEVICE(special sema4){
 }
 
 /*sys6*/
-HIDDEN void GET_CPU_TIME(PCB_PTR){
+HIDDEN void GET_CPU_TIME(P){
 	/*Bookeeping and management
 		look for a call called "CPU Time" maybe...
 		Write down time of day clock
@@ -129,7 +187,10 @@ HIDDEN void GET_CPU_TIME(PCB_PTR){
 		How much is there plus how much current time slice.
 		use register s_v0
 		*/
-	p_time
+	currentProc -> p_time = currentProc -> p_time + (	-startT);/*current time - startTime*/
+	exState -> s_v0 = currentProc -> p_time;
+	STCK(startTime);
+	LDST(exState); /*swap for switchContect*/
 }
 
 /*sys7*/
@@ -142,6 +203,8 @@ HIDDEN void WAIT_FOR_CLOCK(){
 		example sys7 request from book: SYSCALL (WAITCLOCK, 0, 0, 0); 
 		Where the mnemonic constant WAITCLOCK has the value of 7.
 		*/
+		softBlockCnt ++;
+		PASSERN(&deviceSema4s[/*on interval timer semaphore*/
 }
 
 /*sys8*/
@@ -152,14 +215,8 @@ HIDDEN void GET_SUPPORT_DATA(){
 		example sys8 from book: support_t *sPtr = SYSCALL (GETSUPPORTPTR, 0, 0, 0);
 		Where the mnemonic constant GETSUPPORTPTR has the value of 8.
 		*/
+		exstate -> s_v0 = currentProc -> p_supportStruct;
+		LDST(exState); /*swap for switch context*/
 }
 
-/*tlbTrapHandler*/
-HIDDEN void TLBTrapHandler(){
 
-}
-
-/*sysTrapHandler*/
-HIDDEN void sysTrapHandler(){
-	
-}

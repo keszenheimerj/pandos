@@ -14,6 +14,8 @@
 #include "../h/types.h"
 #include "/usr/include/umps3/umps/libumps.h"
 
+cpu_t startT;
+
 void moveState(state_t source, state_t destination){
 	/*do stuff with all 35 regs in a for*/
 	for(int i = 0; i < STATEREGNUM;i++){
@@ -39,13 +41,14 @@ void switchContext(pcb_PTR current){
 void scheduler(){
 	if(currentProc != NULL){
 
-
+		currentProc -> p_time = currentProc -> p_time + (/*current time*/- startT);
 		currentProc = removeProcQ(&readyQueue); /* get who is next*/
 		/*
 		if not empty
 			store a value on the timer
 			*/
 		if(emptyQueue(&readyQueue)){
+			STCK(startT);
 			PLT = 5;
 		}
 		/*length of a quantom
