@@ -28,6 +28,8 @@ void passUpOrDie(int exType, state_t *exState){
 	}
 }
 
+/* I think the TLBTrapHandler and the ProgramTrapHandler goes in the passUpOrDie()  - evan*/
+
 /*tlbTrapHandler*/
 HIDDEN void TLBTrapHandler(){
 
