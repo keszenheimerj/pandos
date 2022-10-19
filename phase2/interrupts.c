@@ -20,7 +20,8 @@
 
 cpu_t interruptStartTime;
 
-HIDDEN int getDevice(...){
+HIDDEN int getDevice(int line){
+	
 	return device;
 }
 
@@ -31,35 +32,9 @@ void interruptLineHandler(int line){
 	}
 }
 
-void interruptHandler(){
-
+void nonTimerI(){
+	/* Non-timer interrupt: device interrupt */
 	
-
-	loop(interruptCnt > 0){
-		inter = getInterWithHighestPriority();
-		
-		if(isTimer(inter)){/* Process Local Timer Interrupts (PLT) */
-			/* syscall2 (terminating) cause or exception without having set a support structure address */
-			
-			/* transition from running to blocked state; 
-			then execute 
-				a sys3,
-				sys5,
-				or sys7 */
-			
-			/* Be interrupted by a PLT Interrupt */
-				/*Current process has used up its time quantum/slice without complting it CPU Burst, change from running to ready state */
-				
-			/*Ach the PLT interrupt by loading the timer with a new value */
-			
-			/* copy the processor state at the time of exception; located at the start of the BIOS data pg
-				copy prrocesser state at the time of the exception into the Current processess's pcb (P_s) */
-			
-			/* place current process on the ready queue , tranisitioning current process from running state to the ready state */
-			
-			/* call the scheduler */
-			
-		}else{ /* Non-timer interrupt: device interrupt */
 			/* calculate address of device's device register */
 			
 			/* save off status code of device's device register */
@@ -86,6 +61,41 @@ void interruptHandler(){
 			
 			/* return control to the current process */
 			LDST(/*saved exception state (located at the start of the BIOS Data Page */);
+}
+
+void pltI(){/*process local timer interrupt*/
+	/* Process Local Timer Interrupts (PLT) */
+			/* syscall2 (terminating) cause or exception without having set a support structure address */
+			
+			/* transition from running to blocked state; 
+			then execute 
+				a sys3,
+				sys5,
+				or sys7 */
+			
+			/* Be interrupted by a PLT Interrupt */
+				/*Current process has used up its time quantum/slice without complting it CPU Burst, change from running to ready state */
+				
+			/*Ach the PLT interrupt by loading the timer with a new value */
+			
+			/* copy the processor state at the time of exception; located at the start of the BIOS data pg
+				copy prrocesser state at the time of the exception into the Current processess's pcb (P_s) */
+			
+			/* place current process on the ready queue , tranisitioning current process from running state to the ready state */
+			
+			/* call the scheduler */
+}
+
+void interruptHandler(){
+	
+	
+	loop(interruptCnt > 0){
+		inter = getInterWithHighestPriority();
+		
+		if(isTimer(inter)){
+			pltI();
+		}else{ 
+			nonTimerI();
 		}
 	}
 }

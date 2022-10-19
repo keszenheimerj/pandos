@@ -40,7 +40,7 @@ void uTLB_RefillHandler () {
 	LDST ((state_PTR) 0x0FFFF000);
 }
 
-void genExceptionHanler(){
+void genExceptionHandler(){
 	/*save state*/
 	state_PTR peviousStatePTR = state_PTR;
 	/*make ptr to from bios*/
@@ -67,10 +67,10 @@ main{
 	/*init 4 words in BIOS pg*/
 	passupvector	passV -> tlb_refill_handler = (memaddr) uTLB_RefillHandler;
 	passV -> tlb_refill_stackPtr = RAMTOP;
-	passV -> exception_handler =  (memaddr) genExceptionHanler();
+	passV -> exception_handler =  (memaddr) genExceptionHandler();
 	passV -> exception_stackPtr = RAMTOP; 
 	
-	LDIT = .1 /*loading the interval timer with 100 milisec*/
+	LDIT = INTERVALTMR /*loading the interval timer with 100 milisec*/
 	pcb_t p = allocPcb();
 	/*
 	sp = RAMTOP

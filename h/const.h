@@ -29,7 +29,6 @@
 #define	FALSE			    0
 #define HIDDEN			  static
 #define EOS				    '\0'
-
 #define NULL 			    ((void *)0xFFFFFFFF)
 
 /* device interrupts */
@@ -43,6 +42,7 @@
 #define DEVPERINT		  8		  /* devices per interrupt line */
 #define DEVREGLEN		  4		  /* device register field length in bytes, and regs per dev */	
 #define DEVREGSIZE	  16 		/* device register size in bytes */
+#define INSDEVBITMAP		ox1000.002C	/*installed devices bitmap (5words)*/
 
 /* device register field number for non-terminal devices */
 #define STATUS			  0
@@ -76,6 +76,8 @@
 /*adding*/
 #define Cause		0x0000007C
 #define CAUSESHIFT	0x00000002
+#define QUANTUM		.005
+#define INTERVALTMR	.1
 
 /*bit stuff*/
 #define ALLOFF		0x00000000
@@ -103,5 +105,7 @@
 
 /* Macro to read the TOD clock */
 #define STCK(T) ((T) = ((* ((cpu_t *) TODLOADDR)) / (* ((cpu_t *) TIMESCALEADDR))))
+
+/* Macro to get device */
 
 #endif

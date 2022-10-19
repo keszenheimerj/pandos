@@ -49,7 +49,7 @@ void scheduler(){
 			*/
 		if(emptyQueue(&readyQueue)){
 			STCK(startT);
-			PLT = 5;
+			PLT = .5;
 		}
 		/*length of a quantom
 		when at 0 call an interupt*/

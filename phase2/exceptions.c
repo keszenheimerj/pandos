@@ -164,6 +164,7 @@ HIDDEN void VERHOGEN((sem_PTR sema4){
 HIDDEN void WAIT_FOR_IO_DEVICE(){
 	int n = exState -> s_a1;
 	int dN = exState -> s_a2
+	/*a3*/
 	/*find which device
 	test value
 		insertBlocked
