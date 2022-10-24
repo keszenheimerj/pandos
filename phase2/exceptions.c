@@ -90,17 +90,17 @@ HIDDEN void CREATEPROCESS(){
 	if(tim == NULL){
 		currentProc -> p_s.s_v0 = -1;
 	}else{
-		insertProcQ(&(readyQueue), tim);
-		insertChild(currentProc, tim);
-		currentProc -> p_s.s_v0 = 0;
-		
-		processCnt ++;
-		
+		moveState(&tim -> p_s, newState);
 		tim -> p_semAdd = NULL;
 		tim -> p_time = 0;
 		tim -> p_s = newState;
 		tim -> p_supportStruct = supportP;
 		
+		insertProcQ(&(readyQueue), tim);
+		insertChild(currentProc, tim);
+		currentProc -> p_s.s_v0 = 0;
+		
+		processCnt ++;
 	}
 	LDST(exState);
 }

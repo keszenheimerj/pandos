@@ -16,7 +16,7 @@
 
 cpu_t startT;
 
-void moveState(state_t source, state_t destination){
+void moveState(state_PTR source, state_PTR destination){ /*copy the source state */
 	/*do stuff with all 35 regs in a for*/
 	for(int i = 0; i < STATEREGNUM;i++){
 		destination -> s_reg[i] = source -> s_reg[i];
@@ -39,44 +39,64 @@ void switchContext(pcb_PTR current){
 }
 
 void scheduler(){
-	if(currentProc != NULL){
-
-		currentProc -> p_time = currentProc -> p_time + (/*current time*/- startT);
+	if(emptyProcQ(readyQ)){
+		if(proccessCnt == 0){
+			HALT();
+		}
+		else if(softBlockCnt == 0){
+			PANIC();
+		}
+		
+		else if(softBlockCnt > 0){
+			currentProc = 0;
+			
+			/*set state*/	/* iec and im on */
+			/*set status*/
+			setTimer(BIGNUMBER);
+			WAIT();
+		}
+		
+		/*currentProc -> p_time = currentProc -> p_time + (/*current time- startT);
 		currentProc = removeProcQ(&readyQueue); /* get who is next*/
 		/*
 		if not empty
 			store a value on the timer
-			*/
+			
 		if(emptyQueue(&readyQueue)){
 			STCK(startT);
 			PLT = .5;
 		}
 		/*length of a quantom
-		when at 0 call an interupt*/
-		LoadState /*privaledged instruction*/
+		when at 0 call an interupt
+		LoadState /*privaledged instruction
 
-		/*loads all 35 registers*/
+		/*loads all 35 registers
 		moveState(source, destination);
 		/*if empty
 		....
-		*/
+		
 		if(pcCount == 0){
-			/*invoke halt */
+			/*invoke halt 
 		}else if(pcCount > 0 && softBlockCnt > 0){
-			/*set status to enable interrupts*/
+			/*set status to enable interrupts
 			d_status = TRUE;
 			disable PLT; || Load it with  a very large value
-			/*enter wait state*/
-		}else if(pcnt > 0 && softBlockCnt == 0){
-			/*panic syscall; deadlock detection action*/
-		}
-	}
-	
-	pcb_PTR nextProc = removeProcQ(&readyQueue);
-	
-	if(nextProc != NULL){
-		currentProc = nextProc;
+			/*enter wait state
+		}*/
 	}else{
-	
+		pcb_PTR nextProc = removeProc(&readyQueue);
+		
+		if(nextProc != NULL){
+			currentProc = nextProc;
+			/*set timer*/
+			PLT = .5;
+		
+			STCK(startT);
+			LDST(&currentProc -> p_s);
+		}else{
+			/*panic ?*/
+		}
+		
 	}
+	
 }

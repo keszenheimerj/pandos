@@ -13,6 +13,7 @@
 #define MAXPROC			  20			/* pandos can only support this pool of concurrent*/
 							/* processes */
 #define INF			  0x7FFFFFFF		/* infinity */
+#define BIGNUMBER		  999999		/* big value for loading timer wwith */
 
 
 /* timer, timescale, TOD-LO and other bus regs */
