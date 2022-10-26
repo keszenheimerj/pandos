@@ -102,13 +102,31 @@ void intTimerI(){
 
 }
 
-int getLine(){
-	(state_t)BIOSDATAPAGE s_cause
+int getLine(unsigned int cause){
+	/* declare the array of possible line numbers */
+    unsigned int lineNumbers[SEMDEVICE] = {4, 5, 6, 7, 8};
+    /* declare the array of possible device numbers */
+    unsigned int devices[SEMDEVICE] = {DISKINT, FLASHINT, NETWINT, PRNTINT, TERMINT};
+    int i;
+    /* what was our line number? */
+    int found = 0;
+    /* loop through each possible device */
+    for (i = 0; i < SEMDEVICE; i++) {
+        if(((cause) & (lineNumbers[i])) != 0) {
+            /* match the line number with the device */
+            found = devices[i];
+        }
+    }
+    /* we found it */
+    return found;
+
+
+	/* (state_t)BIOSDATAPAGE s_cause
 	for(int i = 0; i < 8; i++){
 		if( (LOWMEM + (i  * 0x80))  ){
 			
 		}
-	}
+	} */
 }
 
 void interruptHandler(){

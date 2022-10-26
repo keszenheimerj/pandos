@@ -32,6 +32,9 @@
 #define EOS				    '\0'
 #define NULL 			    ((void *)0xFFFFFFFF)
 
+/* masks */
+#define IPMASK            8
+
 /* device interrupts */
 #define DISKINT			  3
 #define FLASHINT 		  4
