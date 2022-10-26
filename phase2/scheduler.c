@@ -51,6 +51,7 @@ void scheduler(){
 			currentProc = 0;
 			
 			/*set state*/	/* iec and im on */
+			currentProc -> p_s.s_status = ALLOFF = IECON | IMON;
 			/*set status*/
 			setTimer(BIGNUMBER);
 			WAIT();

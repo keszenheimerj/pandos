@@ -32,7 +32,18 @@ void interruptLineHandler(int line){
 	}
 }
 
-void nonTimerI(){
+/*returns index of highest priority device*/
+int getIndexHPriority(int line){
+	for(int i = 0; i < 8; i++){
+		if(devAddrBase + 
+	}
+}
+
+void nonTimerI(int line){
+	
+	int DevNo = s_a2;
+	
+	int devAddrBase = LOWMEM + ((IntLineNo - 3) * 0x80) + (DevNo * 0x10); /*r28*/
 	/* Non-timer interrupt: device interrupt */
 	
 			/* calculate address of device's device register */
@@ -84,18 +95,31 @@ void pltI(){/*process local timer interrupt*/
 			/* place current process on the ready queue , tranisitioning current process from running state to the ready state */
 			
 			/* call the scheduler */
+			scheduluer();
+}
+
+void intTimerI(){
+
+}
+
+int getLine(){
+	(state_t)BIOSDATAPAGE s_cause
+	for(int i = 0; i < 8; i++){
+		if( (LOWMEM + (i  * 0x80))  ){
+			
+		}
+	}
 }
 
 void interruptHandler(){
-	
-	
-	loop(interruptCnt > 0){
-		inter = getInterWithHighestPriority();
-		
-		if(isTimer(inter)){
-			pltI();
-		}else{ 
-			nonTimerI();
-		}
+	int IntLineNo = s_a1;
+	if(if IntLineNo == 1){
+		pltI(IntLineNo);
+	}else if(IntLineNo == 2){
+		intTimerI();
+	}else if(IntLineNo > 2 && IntLineNo < 8){ 
+		nonTimerI();
+	}else{
+		PANIC();
 	}
 }

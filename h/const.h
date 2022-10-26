@@ -45,6 +45,7 @@
 #define DEVREGSIZE	  16 		/* device register size in bytes */
 #define INSDEVBITMAP		0x1000.002C	/*installed devices bitmap (5words) */
 #define IntDEVBITMAP		0x1000.0040	/*interrupt devices bitmap (5words) */
+#define LOWMEM			0x1000.0054
 
 /* device register field number for non-terminal devices */
 #define STATUS			  0

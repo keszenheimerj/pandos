@@ -22,7 +22,6 @@ void passUpOrDie(int exType, state_t *exState){
 		/*pass up*/
 		
 	}else{
-		
 		/*die*/
 		TERMINATEPROCESS();
 	}
@@ -148,7 +147,7 @@ HIDDEN void PROBEREN(sem_PTR sema4){
 		insertBlocked(&sema4, currentProc);
 		scheduler();
 	}else{
-		LDST(sema4);
+		switchContext(sema4);
 	}
 }
 
@@ -157,15 +156,15 @@ HIDDEN void VERHOGEN((sem_PTR sema4){
 	sema4++;
 	if(sema4 <= 0){
 		p = removeBlocked(&sema4);
-		insertPRocQ(&readyQueue, p);
+		insertProcQ(&readyQueue, p);
 	}
-	LDST(sema4);/*return to current proccess*/
+	switchContext(p);/*return to current proccess*/
 }
 
-/*sys5*/
+/*sys5*//*done*/
 HIDDEN void WAIT_FOR_IO_DEVICE(){
-	int n = exState -> s_a1;
-	int dN = exState -> s_a2
+	int lineN = exState -> s_a1;
+	int devN = exState -> s_a2
 	/*a3*/
 	/*find which device
 	test value
@@ -177,12 +176,12 @@ HIDDEN void WAIT_FOR_IO_DEVICE(){
 		insertBlocked(&sema4, currentProc);
 		scheduler();
 	}else{
-		LDST(sema4);
+		switchContext(sema4);
 	}
 }
 
-/*sys6*/
-HIDDEN void GET_CPU_TIME(P){
+/*sys6*/ /*done*/
+HIDDEN void GET_CPU_TIME(){
 	/*Bookeeping and management
 		look for a call called "CPU Time" maybe...
 		Write down time of day clock
@@ -191,10 +190,10 @@ HIDDEN void GET_CPU_TIME(P){
 		How much is there plus how much current time slice.
 		use register s_v0
 		*/
-	currentProc -> p_time = currentProc -> p_time + (	-startT);/*current time - startTime*/
+	currentProc -> p_time = currentProc -> p_time + (getTimer()-startT);/* current time - startTime */ /* getTimer from r129 */
 	exState -> s_v0 = currentProc -> p_time;
 	STCK(startTime);
-	LDST(exState); /*swap for switchContect*/
+	switchContext(currentProc); /*swap for switchContect*/
 }
 
 /*sys7*/
@@ -220,7 +219,7 @@ HIDDEN void GET_SUPPORT_DATA(){
 		Where the mnemonic constant GETSUPPORTPTR has the value of 8.
 		*/
 		exstate -> s_v0 = currentProc -> p_supportStruct;
-		LDST(exState); /*swap for switch context*/
+		switchContext(currentProc); /*swap for switch context*/
 }
 
 
