@@ -178,13 +178,13 @@ void interruptHandler(){
 	}
 
 	devregarea_t * ram = (devregarea_t *) RAMBASEADDR;
-	int devBits = ram -> interrupts_dev[IntLineNo-3];
+	device_PTR dev = ram -> interrupts_dev[IntLineNo-3]; /*devBits*/
 	
 	/*locate device number */
 	int intDevNo = -1;
 	
 	for(int i = 0; (i < 8 && intDevNo == -1); i++){
-		if(devBits & i+1){
+		if(dev -> d_status & i+1){
 			devNo = i;
 		}
 	}
