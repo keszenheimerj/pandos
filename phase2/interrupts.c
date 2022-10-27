@@ -159,7 +159,7 @@ void interruptHandler(){
 	state_PTR exState = (state_PTR) BIOSDATAPAGE;
 	int ip = ((exState -> s_cause & IPMASK) >> IPSHIFT);
 	/*find line number */
-	if(ip & <F5><C-F5><C-F5>1){
+	if(ip & 1){
 		/*in progress*/pltI(IntLineNo);
 		prepToSwitch();
 	}else if(ip & 2){
