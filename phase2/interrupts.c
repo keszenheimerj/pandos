@@ -159,10 +159,10 @@ void interruptHandler(){
 	state_PTR exState = (state_PTR) BIOSDATAPAGE;
 	int ip = ((exState -> s_cause & IPMASK) >> IPSHIFT);
 	/*find line number */
-	if(ip & 1){
+	if(ip & LINEONEON){
 		/*in progress*/pltI(IntLineNo);
 		prepToSwitch();
-	}else if(ip & 2){
+	}else if(ip & LINETWOON){
 		LDIT(
 		STCK(interruptStartTime);
 		pcb_PTR p = removeBlocked(sem/);
@@ -170,14 +170,15 @@ void interruptHandler(){
 		prep
 		prepToSwitch();
 	}
-	for(int i = 3; (i < 8 && intLineNo == 0); i++){
-		if(ip & i){
+	unsigned int lines[5] = {LINETHREEON, LINEFOURON, LINEFIVEON, LINESIXON, LINESEVENON};
+	for(int i = 3; (i < 8 && IntLineNo == 0); i++){
+		if(ip & lines[i]){
 			IntLineNo = i;
 		}
 	}
 
 	devregarea_t * ram = (devregarea_t *) RAMBASEADDR;
-	int devBits = ram ->interrupts_dev[IntLineNo-3];
+	int devBits = ram -> interrupts_dev[IntLineNo-3];
 	
 	/*locate device number */
 	int intDevNo = -1;

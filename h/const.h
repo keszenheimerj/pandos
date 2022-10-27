@@ -93,6 +93,13 @@
 #define TEBITON   	0x08000000
 #define IECON	  	0x00000001
 #define KUPON	  	0x00000008
+#define LINEONEON	0x00000080
+#define LINETWOON	0x00000100
+#define LINETHREEON	0x00000200
+#define LINEFOURON	0x00000400
+#define LINEFIVEON	0x00000800
+#define LINESIXON	0x00001000
+#define LINESEVENON	0x00002000
 
 /*ours added*/
 /*#define 		0x2000.1000		/*top of nucleus stack page*/
