@@ -80,7 +80,7 @@ void sysCall(state_PTR state){
 	}
 }
 
-/*sys1*/
+/*sys1*//*done*/
 HIDDEN void CREATEPROCESS(){
 	state_PTR newState = (statePTR) exState -> s_a1;
 	support_t *supportP = (support_t*) exState -> s_a2;
@@ -101,10 +101,10 @@ HIDDEN void CREATEPROCESS(){
 		
 		processCnt ++;
 	}
-	LDST(exState);
+	switchContext(currentProc);
 }
 
-/*sys2*/
+/*sys2*//*done*/
 HIDDEN void TERMINATEPROCESS(){
 	/*
 	this service causes the executing process to cease to exist
@@ -140,7 +140,7 @@ void terminateChild(pcb_PTR child){
 	}
 }
 
-/*sys3*/
+/*sys3*//*done*/
 HIDDEN void PROBEREN(sem_PTR sema4){
 	sema4--;
 	if(sema4<0){
@@ -151,7 +151,7 @@ HIDDEN void PROBEREN(sem_PTR sema4){
 	}
 }
 
-/*sys4*/
+/*sys4*//*done*/
 HIDDEN void VERHOGEN((sem_PTR sema4){
 	sema4++;
 	if(sema4 <= 0){
@@ -180,7 +180,7 @@ HIDDEN void WAIT_FOR_IO_DEVICE(){
 	}
 }
 
-/*sys6*/ /*done*/
+/*sys6*//*done*/
 HIDDEN void GET_CPU_TIME(){
 	/*Bookeeping and management
 		look for a call called "CPU Time" maybe...
