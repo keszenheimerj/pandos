@@ -35,7 +35,7 @@ void prepForSwitch(){
 		/*goto ready*/
 	if(currentProc != NULL){
 		moveState(exState, &(currentProc -> p_s));
-		insertProcQ(&readyQueue, currentProc)'
+		insertProcQ(&readyQueue, currentProc)
 	}
 	scheduluer();
 }
