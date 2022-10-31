@@ -12,10 +12,12 @@
 
 #include "../h/pcb.h"
 #include "../h/asl.h"
-#include "../h/initial.h"
 #include "../h/types.h"
 #include "../h/const.h"
-#include "/usr/include/umps3/umps/libumps.h"
+/* #include "../phase2/initial.c" */
+/* #include "../phase2/interrupts.c" */
+/* #include "../phase2/scheduler.c" */ 
+/* #include "/usr/include/umps3/umps/libumps.h" */
 
 void passUpOrDie(int exType, state_t *exState){
 	if(currentProc -> p_supportStruct != NULL){
@@ -39,52 +41,11 @@ HIDDEN void sysTrapHandler(){
 	
 }
 
-void sysCall(state_PTR state){
-	/*get info from BIOSDATABAGE*/
-	
-	exState = state;
-	
-	exState -> s_pc = exState -> s_pc + 4;
-	
-	int sysNum = exState -> s_a0;
-	
-	
-	
-	switch(sysNum){
-		case(1):
-			CREATEPROCESS(state);
-			break;
-		case(2):
-			TERMINATEPROCESS();
-			break;
-		case(3):
-			PROBEREN(sema4);
-			break;
-		case(4):
-			VERHOGEN(sema4);
-			break;
-		case(5):
-			WAIT_FOR_IO_DEVICE();
-			break;
-		case(6):
-			GET_CPU_TIME();
-			break;
-		case(7):
-			WAIT_FOR_CLOCK();
-			break;
-		case(8):
-			GET_SUPPORT_DATA();
-			break;
-		default:
-			passUpOrDie(stuff);
-	}
-}
-
 /*sys1*//*done*/
 HIDDEN void CREATEPROCESS(){
 	state_PTR newState = (statePTR) exState -> s_a1;
 	support_t *supportP = (support_t*) exState -> s_a2;
-	pcb_PTR tim = allocPCB();
+	pcb_PTR tim = allocPcb();
 	
 	if(tim == NULL){
 		currentProc -> p_s.s_v0 = -1;
@@ -92,7 +53,7 @@ HIDDEN void CREATEPROCESS(){
 		moveState(&tim -> p_s, newState);
 		tim -> p_semAdd = NULL;
 		tim -> p_time = 0;
-		tim -> p_s = newState;
+		tim -> p_s = *newState;
 		tim -> p_supportStruct = supportP;
 		
 		insertProcQ(&(readyQueue), tim);
@@ -102,6 +63,21 @@ HIDDEN void CREATEPROCESS(){
 		processCnt ++;
 	}
 	switchContext(currentProc);
+}
+
+/*recursive helper for TERMINATEPROCESS*/
+void terminateChild(pcb_PTR child){
+	if(child != NULL){
+		while(!emptyChild(child)){
+			terminateChild(removeChild(child));
+		}
+		processCnt --;
+		outProcQ(&readyQueue, child);
+		
+		/*check if free, active, asl*/
+		
+	freePcb(child);
+	}
 }
 
 /*sys2*//*done*/
@@ -123,21 +99,6 @@ HIDDEN void TERMINATEPROCESS(){
 	currentProc = NULL;
 	/*call scheduler*/
 	scheduler();
-}
-
-/*recursive helper for TERMINATEPROCESS*/
-void terminateChild(pcb_PTR child){
-	if(child != NULL){
-		while(!emptyChild(child){
-			terminateChild(removeChild(child));
-		}
-		processCnt --;
-		outProcQ(&readyQueue, child);
-		
-		/*check if free, active, asl*/
-		
-		freePCB(child);
-	}
 }
 
 /*sys3*//*done*/
@@ -222,4 +183,43 @@ HIDDEN void GET_SUPPORT_DATA(){
 		switchContext(currentProc); /*swap for switch context*/
 }
 
-
+void sysCall(state_PTR state){
+	/*get info from BIOSDATABAGE*/
+	
+	exState = state;
+	
+	exState -> s_pc = exState -> s_pc + 4;
+	
+	int sysNum = exState -> s_a0;
+	
+	
+	
+	switch(sysNum){
+		case(1):
+			CREATEPROCESS(state);
+			break;
+		case(2):
+			TERMINATEPROCESS();
+			break;
+		case(3):
+			PROBEREN(sema4);
+			break;
+		case(4):
+			VERHOGEN(sema4);
+			break;
+		case(5):
+			WAIT_FOR_IO_DEVICE();
+			break;
+		case(6):
+			GET_CPU_TIME();
+			break;
+		case(7):
+			WAIT_FOR_CLOCK();
+			break;
+		case(8):
+			GET_SUPPORT_DATA();
+			break;
+		default:
+			passUpOrDie(stuff);
+	}
+}

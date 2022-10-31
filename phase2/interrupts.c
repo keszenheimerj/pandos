@@ -10,13 +10,13 @@
 *
 *H*/
 
-#include "../h/const.h"
-#include "../h/types.h"
 #include "../h/pcb.h"
 #include "../h/asl.h"
-#include "../h/scheduler.h"
-#include "../h/exceptions.h"
-#include "../h/initial.h"
+#include "../h/types.h"
+#include "../h/const.h"
+/* #include "../phase2/exceptions.c" */
+/* #include "../phase2/scheduler.c" */
+/* #include "/usr/include/umps3/umps/libumps.h" */
 
 cpu_t interruptStartTime;
 int IntLineNo = 0;

@@ -102,7 +102,7 @@
 #define LINESEVENON	0x00002000
 
 /*ours added*/
-/*#define 		0x2000.1000		/*top of nucleus stack page*/
+/*#define 		0x2000.1000		top of nucleus stack page*/
 
 /* Exceptions related constants */
 #define	PGFAULTEXCEPT	  0
