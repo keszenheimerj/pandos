@@ -16,8 +16,15 @@
 #include "../h/const.h"
 /* #include "../phase2/initial.c" */
 /* #include "../phase2/interrupts.c" */
-/* #include "../phase2/scheduler.c" */ 
+#include "../phase2/scheduler.c"
 /* #include "/usr/include/umps3/umps/libumps.h" */
+
+/* ---------Global Variables----------- */
+extern pcb_PTR currentProc;
+extern pcb_PTR readyQueue;
+extern int processCnt;
+extern int softBlockCnt;
+/* ------------------------------------ */
 
 void passUpOrDie(int exType, state_t *exState){
 	if(currentProc -> p_supportStruct != NULL){
@@ -102,7 +109,7 @@ HIDDEN void TERMINATEPROCESS(){
 }
 
 /*sys3*//*done*/
-HIDDEN void PROBEREN(sem_PTR sema4){
+HIDDEN void PROBEREN(semd_PTR sema4){
 	sema4--;
 	if(sema4<0){
 		insertBlocked(&sema4, currentProc);
@@ -113,7 +120,7 @@ HIDDEN void PROBEREN(sem_PTR sema4){
 }
 
 /*sys4*//*done*/
-HIDDEN void VERHOGEN((sem_PTR sema4){
+HIDDEN void VERHOGEN(semd_PTR sema4){
 	sema4++;
 	if(sema4 <= 0){
 		p = removeBlocked(&sema4);

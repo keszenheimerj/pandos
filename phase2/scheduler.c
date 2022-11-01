@@ -14,12 +14,23 @@
 #include "../h/asl.h"
 #include "../h/types.h"
 #include "../h/const.h"
-#include "../phase2/exceptions.c"
-#include "../phase2/interrupts.c"
-#include "../phase2/initial.c"
-#include "/usr/include/umps3/umps/libumps.h"
+/* #include "../phase2/exceptions.c" */
+/* #include "../phase2/interrupts.c" */
+/* #include "../phase2/initial.c" */
+/* #include "/usr/include/umps3/umps/libumps.h" */
 
 cpu_t startT;
+
+/* ---------Global Variables----------- */
+extern pcb_PTR currentProc;
+extern pcb_PTR readyQueue;
+extern int processCnt;
+extern int softBlockCnt;
+/* ------------------------------------ */
+
+void switchContext(pcb_PTR current){
+	LDST(&(current -> s_pc));
+}
 
 void moveState(state_PTR source, state_PTR destination){ /*copy the source state */
 	/*do stuff with all 35 regs in a for*/
@@ -32,26 +43,12 @@ void moveState(state_PTR source, state_PTR destination){ /*copy the source state
 	destination -> s_cause = source -> s_cause;
 	destination -> s_status = source -> s_status;
 	destination -> s_pc = source -> s_pc;
-	switchContect(destination);
-}
-
-void prepForSwitch(){
-	state_PTR exState = (state_PTR) BIOSDATAPAGE;
-		/*goto ready*/
-	if(currentProc != NULL){
-		moveState(exState, &(currentProc -> p_s));
-		insertProcQ(&readyQueue, currentProc)
-	}
-	scheduluer();
-}
-
-void switchContext(pcb_PTR current){
-	LDST(&(current -> s_pc));
+	switchContext(destination);
 }
 
 void scheduler(){
 	if(emptyProcQ(readyQ)){
-		if(proccessCnt == 0){
+		if(processCnt == 0){
 			HALT();
 		}
 		else if(softBlockCnt == 0){
@@ -96,12 +93,12 @@ void scheduler(){
 			/*enter wait state
 		}*/
 	}else{
-		pcb_PTR nextProc = removeProc(&readyQueue);
+		pcb_PTR nextProc = removeProcQ(&readyQueue);
 		
 		if(nextProc != NULL){
 			currentProc = nextProc;
 			/*set timer*/
-			PLT = .5;
+			double PLT = .5;
 		
 			STCK(startT);
 			LDST(&currentProc -> p_s);
@@ -111,4 +108,14 @@ void scheduler(){
 		
 	}
 	
+}
+
+void prepForSwitch(){
+	state_PTR exState = (state_PTR) BIOSDATAPAGE;
+		/*goto ready*/
+	if(currentProc != NULL){
+		moveState(exState, &(currentProc -> p_s));
+		insertProcQ(&readyQueue, currentProc);
+	}
+	scheduler();
 }

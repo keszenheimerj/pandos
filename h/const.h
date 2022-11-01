@@ -83,7 +83,7 @@
 #define Cause		0x0000007C
 #define CAUSESHIFT	0x00000002
 #define QUANTUM		.005
-#define INTERVALTMR	.1
+/* #define INTERVALTMR	.1       This is redifined again here for some reason... */
 #define IPSHIFT		8
 
 /*bit stuff*/
