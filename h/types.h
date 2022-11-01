@@ -51,11 +51,11 @@ typedef struct {
 
 /* Pass Up Vector */
 typedef struct passupvector {
-    unsigned int tlb_refll_handler;
-    unsigned int tlb_refll_stackPtr;
+    unsigned int tlb_refill_handler;
+    unsigned int tlb_refill_stackPtr;
     unsigned int execption_handler;
     unsigned int exception_stackPtr;
-} passupvector_t;
+} passupvector_t, *passupvector_PTR;
 
 
 #define STATEREGNUM	31

@@ -29,7 +29,8 @@ pcb_PTR readyQueue = mkEmptyQ();
 pcb_PTR currentProc = NULL; 	/*scaler to the running Proc*/
 int processCnt = 0;		/*int indicating the started but not terminated processes*/
 int softBlockCnt = 0;		/*a process can either be ready, running, blocked(waiting) state and this int is the number of started, but not terminated processes*/
-int deviceSema4s[49] = 0; /*42 | 49; =0??*/
+int deviceSema4s[MAXDEVCNT]; /*42 | 49; =0??*/
+
 /*
 ************end global variables**************
 */
@@ -44,7 +45,7 @@ void uTLB_RefillHandler () {
 
 void genExceptionHandler(){
 	/*save state*/
-	state_PTR previousStatePTR = state_PTR;
+	state_PTR previousStatePTR = (state_PTR) (BIOSDATAPAGE);
 	/*make ptr to from bios*/
 	int causeNum = (previousStatePTR -> s_cause && CauseExcCode) >> CAUSESHIFT;
 	/*do bitwise stuff*/
@@ -63,17 +64,24 @@ void genExceptionHandler(){
 
 /*main*/
 int main(){
+	for(int i = 0; i < MAXDEVCNT; i++){
+		deviceSema4s[i] = 0;
+	}
+
 	initPcbs();
 	initASL();
 	
+	
+	
 	/*init 4 words in BIOS pg*/
-	passupvector	passV -> tlb_refill_handler = (memaddr) uTLB_RefillHandler;
+	passupvector_PTR	passV;
+	passV -> tlb_refill_handler = (memaddr) uTLB_RefillHandler;
 	passV -> tlb_refill_stackPtr = RAMTOP;
 	passV -> exception_handler =  (memaddr) genExceptionHandler();
 	passV -> exception_stackPtr = RAMTOP; 
 	
-	LDIT = INTERVALTMR /*loading the interval timer with 100 milisec*/
-	pcb_t p = allocPcb();
+	LDIT(INTERVALTMR); /*loading the interval timer with 100 milisec*/
+	pcb_PTR p = allocPcb();
 	/*
 	sp = RAMTOP
 	pc is set to address of test*/

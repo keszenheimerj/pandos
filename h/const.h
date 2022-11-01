@@ -22,7 +22,7 @@
 #define RAMTOP			0x2000.1000
 #define TODLOADDR		  0x1000001C
 #define INTERVALTMR		0x10000020	
-#define TIMESCALEADDR	0x10000024
+#define TIMESCALEADDR		0x10000024
 
 
 /* utility constants */
@@ -45,6 +45,7 @@
 #define DEVINTNUM		  5		  /* interrupt lines used by devices */
 #define DEVPERINT		  8		  /* devices per interrupt line */
 #define DEVREGLEN		  4		  /* device register field length in bytes, and regs per dev */	
+#define MAXDEVCNT		49
 #define DEVREGSIZE	  16 		/* device register size in bytes */
 #define INSDEVBITMAP		0x1000.002C	/*installed devices bitmap (5words) */
 #define IntDEVBITMAP		0x1000.0040	/*interrupt devices bitmap (5words) */

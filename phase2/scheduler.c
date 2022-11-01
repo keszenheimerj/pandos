@@ -29,7 +29,7 @@ extern int softBlockCnt;
 /* ------------------------------------ */
 
 void switchContext(pcb_PTR current){
-	LDST(&(current -> s_pc));
+	LDST(&(current -> p_s));
 }
 
 void moveState(state_PTR source, state_PTR destination){ /*copy the source state */
@@ -47,7 +47,7 @@ void moveState(state_PTR source, state_PTR destination){ /*copy the source state
 }
 
 void scheduler(){
-	if(emptyProcQ(readyQ)){
+	if(emptyProcQ(readyQueue)){
 		if(processCnt == 0){
 			HALT();
 		}
@@ -59,7 +59,7 @@ void scheduler(){
 			currentProc = 0;
 			
 			/*set state*/	/* iec and im on */
-			currentProc -> p_s.s_status = ALLOFF = IECON | IMON;
+			currentProc -> p_s.s_status = ALLOFF | IECON | IMON;
 			/*set status*/
 			setTimer(BIGNUMBER);
 			WAIT();

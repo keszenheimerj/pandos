@@ -24,17 +24,10 @@ extern pcb_PTR currentProc;
 extern pcb_PTR readyQueue;
 extern int processCnt;
 extern int softBlockCnt;
+state_PTR exState;
 /* ------------------------------------ */
 
-void passUpOrDie(int exType, state_t *exState){
-	if(currentProc -> p_supportStruct != NULL){
-		/*pass up*/
-		
-	}else{
-		/*die*/
-		TERMINATEPROCESS();
-	}
-}
+
 
 /* I think the TLBTrapHandler and the ProgramTrapHandler goes in the passUpOrDie()  - evan*/
 
@@ -50,7 +43,7 @@ HIDDEN void sysTrapHandler(){
 
 /*sys1*//*done*/
 HIDDEN void CREATEPROCESS(){
-	state_PTR newState = (statePTR) exState -> s_a1;
+	state_PTR newState = (state_PTR) exState -> s_a1;
 	support_t *supportP = (support_t*) exState -> s_a2;
 	pcb_PTR tim = allocPcb();
 	
@@ -73,7 +66,7 @@ HIDDEN void CREATEPROCESS(){
 }
 
 /*recursive helper for TERMINATEPROCESS*/
-void terminateChild(pcb_PTR child){
+HIDDEN void terminateChild(pcb_PTR child){
 	if(child != NULL){
 		while(!emptyChild(child)){
 			terminateChild(removeChild(child));
@@ -122,6 +115,7 @@ HIDDEN void PROBEREN(semd_PTR sema4){
 /*sys4*//*done*/
 HIDDEN void VERHOGEN(semd_PTR sema4){
 	sema4++;
+	pcb_PTR p;
 	if(sema4 <= 0){
 		p = removeBlocked(&sema4);
 		insertProcQ(&readyQueue, p);
@@ -132,7 +126,8 @@ HIDDEN void VERHOGEN(semd_PTR sema4){
 /*sys5*//*done*/
 HIDDEN void WAIT_FOR_IO_DEVICE(){
 	int lineN = exState -> s_a1;
-	int devN = exState -> s_a2
+	int devN = exState -> s_a2;
+	
 	/*a3*/
 	/*find which device
 	test value
@@ -160,7 +155,7 @@ HIDDEN void GET_CPU_TIME(){
 		*/
 	currentProc -> p_time = currentProc -> p_time + (getTimer()-startT);/* current time - startTime */ /* getTimer from r129 */
 	exState -> s_v0 = currentProc -> p_time;
-	STCK(startTime);
+	STCK(startT);
 	switchContext(currentProc); /*swap for switchContect*/
 }
 
@@ -175,7 +170,7 @@ HIDDEN void WAIT_FOR_CLOCK(){
 		Where the mnemonic constant WAITCLOCK has the value of 7.
 		*/
 		softBlockCnt ++;
-		PASSERN(&deviceSema4s[/*on interval timer semaphore*/
+		PASSERN(&deviceSema4s[/*stuff*/]/*on interval timer semaphore*/)
 }
 
 /*sys8*/
@@ -186,8 +181,18 @@ HIDDEN void GET_SUPPORT_DATA(){
 		example sys8 from book: support_t *sPtr = SYSCALL (GETSUPPORTPTR, 0, 0, 0);
 		Where the mnemonic constant GETSUPPORTPTR has the value of 8.
 		*/
-		exstate -> s_v0 = currentProc -> p_supportStruct;
+		exState -> s_v0 = currentProc -> p_supportStruct;
 		switchContext(currentProc); /*swap for switch context*/
+}
+
+void passUpOrDie(int exType, state_t *exState){
+	if(currentProc -> p_supportStruct != NULL){
+		/*pass up*/
+		
+	}else{
+		/*die*/
+		TERMINATEPROCESS();
+	}
 }
 
 void sysCall(state_PTR state){
@@ -230,3 +235,5 @@ void sysCall(state_PTR state){
 			passUpOrDie(stuff);
 	}
 }
+
+

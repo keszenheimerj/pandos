@@ -46,9 +46,11 @@ void nonTimerI(int devNo){
 	int devAddrBase = LOWMEM + ((IntLineNo - 3) * 0x80) + (devNo * 0x10); /*r28*/
 
 	device_t_PTR device = (device_PTR) devAddrBase;
-
+	
+	int status;
+	
 	if(intLineNo < 7){
-		status...= device -> d_status;
+		status = device -> d_status;
 		device->t_recv_command = ACK;
 	}
 		devP = devP + DEVPERINT;
@@ -64,7 +66,7 @@ void nonTimerI(int devNo){
 		pcb_PTR p = removerBlocked(&semad_PTR);
 
 		if(p != NULL){
-			p -> p_s.s_v0 = status/'
+			p -> p_s.s_v0 = status;
 			softBlockCnt--;
 			insertProcQ(&readyQueue, p);
 		}
@@ -100,10 +102,10 @@ void nonTimerI(int devNo){
 			LDST(/*saved exception state (located at the start of the BIOS Data Page */);
 }
 
-void pltI(){/*process local timer interrupt*/
+void pltI(state_PTR eState){/*process local timer interrupt*/
 	/* Process Local Timer Interrupts (PLT) */
 			/* syscall2 (terminating) cause or exception without having set a support structure address */
-			
+	
 			/* transition from running to blocked state; 
 			then execute 
 				a sys3,
@@ -121,7 +123,10 @@ void pltI(){/*process local timer interrupt*/
 			/* place current process on the ready queue , tranisitioning current process from running state to the ready state */
 			
 			/* call the scheduler */
-			scheduluer();
+		LDIT(QUANTUM);
+		moveState(eState, curreentProc -> p_s);
+		insertProcQ(&readyQueue, currentProc);
+		scheduluer();
 }
 
 void intTimerI(){
@@ -160,7 +165,8 @@ void interruptHandler(){
 	int ip = ((exState -> s_cause & IPMASK) >> IPSHIFT);
 	/*find line number */
 	if(ip & LINEONEON){
-		/*in progress*/pltI(IntLineNo);
+		/*in progress*/
+		pltI(exState);
 		prepToSwitch();
 	}else if(ip & LINETWOON){
 		LDIT(
