@@ -83,7 +83,7 @@
 #define Cause		0x0000007C
 #define CAUSESHIFT	0x00000002
 #define QUANTUM		.005
-#define INTERVALTMR	.1
+/* #define INTERVALTMR	.1       This is redifined again here for some reason... */
 #define IPSHIFT		8
 
 /*bit stuff*/
@@ -103,7 +103,7 @@
 #define LINESEVENON	0x00002000
 
 /*ours added*/
-/*#define 		0x2000.1000		/*top of nucleus stack page*/
+/*#define 		0x2000.1000		top of nucleus stack page*/
 
 /* Exceptions related constants */
 #define	PGFAULTEXCEPT	  0

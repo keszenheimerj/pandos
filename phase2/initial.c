@@ -12,10 +12,12 @@
 
 #include "../h/pcb.h"
 #include "../h/asl.h"
-#include "../h/initial.h"
 #include "../h/types.h"
 #include "../h/const.h"
-#include "/usr/include/umps3/umps/libumps.h"
+ #include "../phase2/exceptions.c" 
+/* #include "../phase2/interrupts.c" */
+/* #include "../phase2/scheduler.c" */
+/* #include "/usr/include/umps3/umps/libumps.h" */
 
 extern void test();
 
@@ -42,7 +44,7 @@ void uTLB_RefillHandler () {
 
 void genExceptionHandler(){
 	/*save state*/
-	state_PTR peviousStatePTR = state_PTR;
+	state_PTR previousStatePTR = state_PTR;
 	/*make ptr to from bios*/
 	int causeNum = (previousStatePTR -> s_cause && CauseExcCode) >> CAUSESHIFT;
 	/*do bitwise stuff*/
@@ -60,7 +62,7 @@ void genExceptionHandler(){
 }
 
 /*main*/
-main{
+int main(){
 	initPcbs();
 	initASL();
 	
