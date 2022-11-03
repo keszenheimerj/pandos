@@ -126,7 +126,7 @@ void pltI(state_PTR eState){/*process local timer interrupt*/
 		LDIT(QUANTUM);
 		moveState(eState, curreentProc -> p_s);
 		insertProcQ(&readyQueue, currentProc);
-		scheduluer();
+		scheduler();
 }
 
 void intTimerI(){
