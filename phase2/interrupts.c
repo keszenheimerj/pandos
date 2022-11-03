@@ -18,8 +18,14 @@
 /* #include "../phase2/scheduler.c" */
 /* #include "/usr/include/umps3/umps/libumps.h" */
 
+/* ---------Global Variables----------- */
+extern pcb_PTR currentProc;
+extern pcb_PTR readyQueue;
+extern int processCnt;
+extern int softBlockCnt;
 cpu_t interruptStartTime;
 int IntLineNo = 0;
+/* ------------------------------------ */
 
 HIDDEN int getDevice(int line){
 	
@@ -36,7 +42,9 @@ void interruptLineHandler(int line){
 /*returns index of highest priority device*/
 int getIndexHPriority(int line){
 	for(int i = 0; i < 8; i++){
-		if(devAddrBase + 
+		if(devAddrBase + ){
+
+		}
 	}
 }
 
@@ -45,17 +53,15 @@ void nonTimerI(int devNo){
 	
 	int devAddrBase = LOWMEM + ((IntLineNo - 3) * 0x80) + (devNo * 0x10); /*r28*/
 
-	device_t_PTR device = (device_PTR) devAddrBase;
+	device_PTR device = (device_PTR) devAddrBase;
 	
 	int status;
 	
-	if(intLineNo < 7){
+	if(IntLineNo < 7){
 		status = device -> d_status;
 		device->t_recv_command = ACK;
 	}
 		devP = devP + DEVPERINT;
-		
-	}
 
 
 	/*do the V*/
@@ -63,7 +69,7 @@ void nonTimerI(int devNo){
 	semad_PTR++;
 
 	if(semadPTR >= 0){
-		pcb_PTR p = removerBlocked(&semad_PTR);
+		pcb_PTR p = removeBlocked(&semad_PTR);
 
 		if(p != NULL){
 			p -> p_s.s_v0 = status;
@@ -124,7 +130,7 @@ void pltI(state_PTR eState){/*process local timer interrupt*/
 			
 			/* call the scheduler */
 		LDIT(QUANTUM);
-		moveState(eState, curreentProc -> p_s);
+		moveState(eState, currentProc -> p_s);
 		insertProcQ(&readyQueue, currentProc);
 		scheduler();
 }
@@ -169,13 +175,13 @@ void interruptHandler(){
 		pltI(exState);
 		prepToSwitch();
 	}else if(ip & LINETWOON){
-		LDIT(
+		LDIT()
 		STCK(interruptStartTime);
-		pcb_PTR p = removeBlocked(sem/);
+		pcb_PTR p = removeBlocked(sem);
 		sem = 0;
-		prep
 		prepToSwitch();
 	}
+	
 	unsigned int lines[5] = {LINETHREEON, LINEFOURON, LINEFIVEON, LINESIXON, LINESEVENON};
 	for(int i = 3; (i < 8 && IntLineNo == 0); i++){
 		if(ip & lines[i]){
