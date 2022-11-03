@@ -14,8 +14,8 @@
 #include "../h/asl.h"
 #include "../h/types.h"
 #include "../h/const.h"
- #include "../phase2/exceptions.c" 
-/* #include "../phase2/interrupts.c" */
+#include "../phase2/exceptions.c" 
+#include "../phase2/interrupts.c"
 /* #include "../phase2/scheduler.c" */
 /* #include "/usr/include/umps3/umps/libumps.h" */
 
