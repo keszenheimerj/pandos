@@ -68,7 +68,7 @@ void nonTimerI(int devNo){
 	int semad_PTR = &sema4Dev[device];
 	semad_PTR++;
 
-	if(semadPTR >= 0){
+	if(semad_PTR >= 0){
 		pcb_PTR p = removeBlocked(&semad_PTR);
 
 		if(p != NULL){
@@ -190,7 +190,7 @@ void interruptHandler(){
 	}
 
 	devregarea_t * ram = (devregarea_t *) RAMBASEADDR;
-	device_PTR dev = ram -> interrupts_dev[IntLineNo-3]; /*devBits*/
+	device_PTR dev = ram -> interrupt_dev[IntLineNo-3]; /*devBits*/
 	
 	/*locate device number */
 	int intDevNo = -1;
@@ -200,7 +200,7 @@ void interruptHandler(){
 			devNo = i;
 		}
 	}
-	if(intLineNo >= 3){
+	if(IntLineNo >= 3){
 		nonTimerI(devNo);
 	}
 }
