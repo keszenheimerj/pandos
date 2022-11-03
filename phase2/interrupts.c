@@ -24,7 +24,7 @@ extern pcb_PTR readyQueue;
 extern int processCnt;
 extern int softBlockCnt;
 cpu_t interruptStartTime;
-int IntLineNo = 0;
+int intLineNo = 0;
 /* ------------------------------------ */
 
 HIDDEN int getDevice(int line){
@@ -51,13 +51,13 @@ int getIndexHPriority(int line){
 void nonTimerI(int devNo){
 	int devP = (intDevNo-3) * DEVPERINT + devNo;
 	
-	int devAddrBase = LOWMEM + ((IntLineNo - 3) * 0x80) + (devNo * 0x10); /*r28*/
+	int devAddrBase = LOWMEM + ((intLineNo - 3) * 0x80) + (devNo * 0x10); /*r28*/
 
 	device_PTR device = (device_PTR) devAddrBase;
 	
 	int status;
 	
-	if(IntLineNo < 7){
+	if(intLineNo < 7){
 		status = device -> d_status;
 		device->t_recv_command = ACK;
 	}
@@ -183,14 +183,14 @@ void interruptHandler(){
 	}
 	
 	unsigned int lines[5] = {LINETHREEON, LINEFOURON, LINEFIVEON, LINESIXON, LINESEVENON};
-	for(int i = 3; (i < 8 && IntLineNo == 0); i++){
+	for(int i = 3; (i < 8 && intLineNo == 0); i++){
 		if(ip & lines[i]){
-			IntLineNo = i;
+			intLineNo = i;
 		}
 	}
 
 	devregarea_t * ram = (devregarea_t *) RAMBASEADDR;
-	device_PTR dev = ram -> interrupt_dev[IntLineNo-3]; /*devBits*/
+	device_PTR dev = ram -> interrupt_dev[intLineNo-3]; /*devBits*/
 	
 	/*locate device number */
 	int intDevNo = -1;
@@ -200,7 +200,7 @@ void interruptHandler(){
 			devNo = i;
 		}
 	}
-	if(IntLineNo >= 3){
+	if(intLineNo >= 3){
 		nonTimerI(devNo);
 	}
 }
