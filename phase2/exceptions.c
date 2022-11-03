@@ -185,6 +185,17 @@ HIDDEN void GET_SUPPORT_DATA(){
 		switchContext(currentProc); /*swap for switch context*/
 }
 
+void pseudoClockTick(){
+	/*1. acknowledge the interrupt by loading the Interval Timer with a new value: 100 milliseconds
+		2. Unblock ALL pcbs blocked on the Pseudo-clock semaphore. Hence, the semantics of this 
+		semaphore are a bit different than traditional sycronization semaphores.
+		3. Reset the Pseudo-clock semaphore to zero. This insures that all SYS7 calls block and that 
+		the Pseudo-clock semaphoredoes not grow positiv.
+		4. Return control to the Current Process: Preform a LDST on the saved exception state
+		(located at the start of the BIOS Data Page).
+		*/
+}
+
 void passUpOrDie(int exType, state_t *exState){
 	if(currentProc -> p_supportStruct != NULL){
 		/*pass up*/
