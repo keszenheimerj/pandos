@@ -102,7 +102,7 @@ HIDDEN void TERMINATEPROCESS(){
 }
 
 /*sys3*//*done*/
-HIDDEN void PROBEREN(semd_PTR sema4){
+HIDDEN void PASSEREN(semd_PTR sema4){
 	sema4--;
 	if(sema4<0){
 		insertBlocked(&sema4, currentProc);
@@ -170,7 +170,7 @@ HIDDEN void WAIT_FOR_CLOCK(){
 		Where the mnemonic constant WAITCLOCK has the value of 7.
 		*/
 		softBlockCnt ++;
-		PASSERN(&deviceSema4s[/*stuff*/]/*on interval timer semaphore*/)
+		PASSEREN(&deviceSema4s[/*stuff*/]/*on interval timer semaphore*/)
 }
 
 /*sys8*/
@@ -214,7 +214,7 @@ void sysCall(state_PTR state){
 			TERMINATEPROCESS();
 			break;
 		case(3):
-			PROBEREN(sema4);
+			PASSEREN(sema4);
 			break;
 		case(4):
 			VERHOGEN(sema4);

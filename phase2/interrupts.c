@@ -25,6 +25,7 @@ extern int processCnt;
 extern int softBlockCnt;
 cpu_t interruptStartTime;
 int intLineNo = 0;
+/* int intDevNo = 0; */
 /* ------------------------------------ */
 
 HIDDEN int getDevice(int line){
@@ -49,9 +50,12 @@ int getIndexHPriority(int line){
 }
 
 void nonTimerI(int devNo){
+	/*delcare variables*/
+	/* devaddrBase */
+
 	int devP = (intDevNo-3) * DEVPERINT + devNo;
 	
-	int devAddrBase = LOWMEM + ((intLineNo - 3) * 0x80) + (devNo * 0x10); /*r28*/
+	int devAddrBase = *LOWMEM + ((intLineNo - 3) * 0x80) + (devNo * 0x10); /*r28*/
 
 	device_PTR device = (device_PTR) devAddrBase;
 	
