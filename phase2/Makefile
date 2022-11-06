@@ -13,12 +13,11 @@
 #	UMPS3_DIR_PREFIX = /usr/local
 #	LIBDIR = $(UMPS3_DIR_PREFIX)/lib/umps3
 #endif
-UMPS3_DIR_PREFIX = /usr			#added
-LIBDIR = $(UMPS3_DIR_PREFIX)/lib/x86_64-linux-gnu/umps3 #added
+UMPS3_DIR_PREFIX = /usr
+LIBDIR = $(UMPS3_DIR_PREFIX)/lib/x86_64-linux-gnu/umps3
 
 INCDIR = $(UMPS3_DIR_PREFIX)/umps3/umps
 SUPDIR = $(UMPS3_DIR_PREFIX)/share/umps3
-#LIBDIR = $(UMPS3_DIR_PREFIX)/lib/umps3
 LIBDIR = $(UMPS3_DIR_PREFIX)/lib/x86_64-linux-gnu/umps3
 
 DEFS = ../h/const.h ../h/types.h ../h/pcb.h ../h/asl.h \
