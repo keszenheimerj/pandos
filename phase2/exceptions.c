@@ -65,7 +65,7 @@ HIDDEN void CREATEPROCESS(){
 		
 		processCnt ++;
 	}
-	switchContext(currentProc);
+	switchContext(&(currentProc -> p_s));
 }
 
 /*recursive helper for TERMINATEPROCESS*/
@@ -110,23 +110,23 @@ HIDDEN void TERMINATEPROCESS(){
 
 /*sys3*//*done*/
 HIDDEN void PASSEREN(){
-	int* sema4 = exState -> s_a1;
+	int* sema4 = &(exState -> s_a1);
 	(*sema4)--;
 	if(sema4<0){
-		insertBlocked(&sema4, currentProc);
+		insertBlocked(sema4, currentProc);
 		scheduler();
 	}else{
-		switchContext(sema4);
+		switchContext(exState);
 	}
 }
 
 /*sys4*//*done*/
 HIDDEN void VERHOGEN(){
-	int* sema4 = exState->s_a1;
+	int* sema4 = &(exState->s_a1);
 	(*sema4)++;
 	pcb_PTR p;
 	if((*sema4) <= 0){
-		p = removeBlocked(&sema4);
+		p = removeBlocked(sema4);
 		insertProcQ(&readyQueue, p);
 	}
 	switchContext(exState);/*return to current proccess*/
@@ -153,7 +153,7 @@ HIDDEN void WAIT_FOR_IO_DEVICE(){
 		insertBlocked(&(deviceSema4s[device]), currentProc);
 		scheduler();
 	}else{
-		switchContext(deviceSema4s[device]);
+		switchContext(exState);
 	}
 }
 
@@ -200,7 +200,7 @@ HIDDEN void GET_SUPPORT_DATA(){
 		Where the mnemonic constant GETSUPPORTPTR has the value of 8.
 		*/
 		moveState(exState, &(currentProc->p_s));
-		currentProc -> p_s.s_v0 = currentProc -> p_supportStruct;
+		currentProc -> p_s.s_v0 = (int)(currentProc -> p_supportStruct);
 		switchContext(&(currentProc -> p_s)); /*swap for switch context*/
 }
 
@@ -215,7 +215,7 @@ void pseudoClockTick(){
 		*/
 }
 
-void passUpOrDie(int exType, state_t *exState){
+void passUpOrDie(state_t *exState, int exType){
 	if(currentProc -> p_supportStruct != NULL){
 		/*pass up*/
 		moveState(exState,&(currentProc -> p_supportStruct -> sup_exceptState[exType]));

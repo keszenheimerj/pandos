@@ -48,7 +48,7 @@ void genExceptionHandler(){
 	/*save state*/
 	state_PTR previousStatePTR = (state_PTR) (BIOSDATAPAGE);
 	/*make ptr to from bios*/
-	int causeNum = (previousStatePTR -> s_cause && Cause) >> CAUSESHIFT;
+	int causeNum = (previousStatePTR -> s_cause & Cause) >> CAUSESHIFT;
 	/*do bitwise stuff*/
 	if(causeNum == 0){
 		/*pass proccessing to nucleus dev interupt handler*/
@@ -57,7 +57,7 @@ void genExceptionHandler(){
 		/*tlb execption, pass proccessing to tlb-exception handler*/
 		
 	}else if(causeNum == 8){
-		sysCall(previousStatePTR);
+		sysCall();/*previousStatePTR could be passed but unneccessary */
 	}else{
 		/*programTrap*/
 	}
@@ -65,9 +65,11 @@ void genExceptionHandler(){
 
 /*main*/
 int main(){
-	readyQueue = mkEmptyQ();
-	for(int i = 0; i < MAXDEVCNT; i++){
+	readyQueue = mkEmptyProcQ();
+	int i = 0;
+	while(i < MAXDEVCNT){
 		deviceSema4s[i] = 0;
+		i++;
 	}
 
 	initPcbs();

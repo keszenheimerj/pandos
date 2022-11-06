@@ -17,7 +17,7 @@
 /* #include "../phase2/exceptions.c" */
 /* #include "../phase2/interrupts.c" */
 /* #include "../phase2/initial.c" */
-/* #include "/usr/include/umps3/umps/libumps.h" */
+#include "/usr/include/umps3/umps/libumps.h"
 
 cpu_t startT;
 
@@ -31,14 +31,16 @@ extern int softBlockCnt;
 /*void switchContext(pcb_PTR current){
 	LDST(&(current -> p_s));
 }*/
-void switchContext(state_PTR state){
-	LDST(state);
+void switchContext(state_PTR s){
+	LDST(s);
 }
 
 void moveState(state_PTR source, state_PTR destination){ /*copy the source state */
 	/*do stuff with all 35 regs in a for*/
-	for(int i = 0; i < STATEREGNUM;i++){
+	int i = 0;
+	while(i < STATEREGNUM){
 		destination -> s_reg[i] = source -> s_reg[i];
+		i++;
 	}
 	
 	/*four other lines to init fields of state*/
@@ -64,7 +66,6 @@ void scheduler(){
 			/*set state*/	/* iec and im on */
 			currentProc -> p_s.s_status = ALLOFF | IECON | IMON;
 			/*set status*/
-			setTimer(BIGNUMBER);
 			WAIT();
 		}
 		

@@ -190,22 +190,25 @@ void interruptHandler(){
 	}
 	
 	unsigned int lines[5] = {LINETHREEON, LINEFOURON, LINEFIVEON, LINESIXON, LINESEVENON};
-	for(int i = 3; (i < 8 && intLineNo == 0); i++){
+	int i = 3;
+	while((i < 8 && intLineNo == 0)){
 		if(ip & lines[i]){
 			intLineNo = i;
 		}
+		i++;
 	}
 
 	devregarea_t * ram = (devregarea_t *) RAMBASEADDR;
-	device_PTR dev = ram -> interrupt_dev[intLineNo-3]; /*devBits*/
+	int dev = ram -> interrupt_dev[intLineNo-3]; /*devBits*/
 	
 	/*locate device number */
 	intDevNo = -1;
-	
-	for(int i = 0; (i < 8 && intDevNo == -1); i++){
-		if(dev -> d_status & i+1){
+	i = 0;
+	while((i < 8 && intDevNo == -1)){
+		if(dev & i+1){
 			intDevNo = i;
 		}
+		i++;
 	}
 	if(intLineNo >= 3){
 		nonTimerI(intDevNo);
