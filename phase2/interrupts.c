@@ -24,30 +24,33 @@ extern pcb_PTR readyQueue;
 extern int processCnt;
 extern int softBlockCnt;
 cpu_t interruptStartTime;
+cpu_t interruptStopTime;
 int intLineNo = 0;
-/* int intDevNo = 0; */
+extern int deviceSema4s[MAXDEVCNT];
+int intDevNo = 0;
 /* ------------------------------------ */
 
-HIDDEN int getDevice(int line){
+
+/*HIDDEN int getDevice(int line){
 	
 	return device;
-}
+}*/
 
-void interruptLineHandler(int line){
-	/* non timer interrupt */
+/*void interruptLineHandler(int line){
+	/* non timer interrupt *//*
 	if(line >2){
 	
 	}
-}
+}*/
 
 /*returns index of highest priority device*/
-int getIndexHPriority(int line){
+/*int getIndexHPriority(int line){
 	for(int i = 0; i < 8; i++){
 		if(devAddrBase + ){
 
 		}
 	}
-}
+}*/
 
 void nonTimerI(int devNo){
 	/*delcare variables*/
@@ -55,7 +58,7 @@ void nonTimerI(int devNo){
 
 	int devP = (intDevNo-3) * DEVPERINT + devNo;
 	
-	int devAddrBase = *LOWMEM + ((intLineNo - 3) * 0x80) + (devNo * 0x10); /*r28*/
+	int devAddrBase = 0x10000054 + ((intLineNo - 3) * 0x80) + (devNo * 0x10); /*r28*/ /* first part is magic should be LOWMEM but this creates issues */
 
 	device_PTR device = (device_PTR) devAddrBase;
 	
@@ -69,7 +72,7 @@ void nonTimerI(int devNo){
 
 
 	/*do the V*/
-	int semad_PTR = &sema4Dev[device];
+	int semad_PTR = &deviceSema4s[devP];
 	semad_PTR++;
 
 	if(semad_PTR >= 0){
@@ -109,7 +112,7 @@ void nonTimerI(int devNo){
 			/* insert the newly unblocked pcb onto the Ready Queue, changing the state from blocked to ready */
 			
 			/* return control to the current process */
-			LDST(/*saved exception state (located at the start of the BIOS Data Page */);
+	LDST((state_PTR) BIOSDATAPAGE);/*saved exception state (located at the start of the BIOS Data Page */
 }
 
 void pltI(state_PTR eState){/*process local timer interrupt*/
@@ -134,7 +137,7 @@ void pltI(state_PTR eState){/*process local timer interrupt*/
 			
 			/* call the scheduler */
 		LDIT(QUANTUM);
-		moveState(eState, currentProc -> p_s);
+		moveState(eState, &(currentProc -> p_s));
 		insertProcQ(&readyQueue, currentProc);
 		scheduler();
 }
@@ -179,10 +182,10 @@ void interruptHandler(){
 		pltI(exState);
 		prepToSwitch();
 	}else if(ip & LINETWOON){
-		LDIT()
+		LDIT(interruptStartTime);
 		STCK(interruptStartTime);
-		pcb_PTR p = removeBlocked(sem);
-		sem = 0;
+		pcb_PTR p = removeBlocked(deviceSema4s[MAXDEVCNT-1]);
+		deviceSema4s[MAXDEVCNT-1] = 0;
 		prepToSwitch();
 	}
 	
@@ -197,14 +200,14 @@ void interruptHandler(){
 	device_PTR dev = ram -> interrupt_dev[intLineNo-3]; /*devBits*/
 	
 	/*locate device number */
-	int intDevNo = -1;
+	intDevNo = -1;
 	
 	for(int i = 0; (i < 8 && intDevNo == -1); i++){
 		if(dev -> d_status & i+1){
-			devNo = i;
+			intDevNo = i;
 		}
 	}
 	if(intLineNo >= 3){
-		nonTimerI(devNo);
+		nonTimerI(intDevNo);
 	}
 }

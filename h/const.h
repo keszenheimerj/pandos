@@ -14,12 +14,13 @@
 /* processes */
 #define INF			      0x7FFFFFFF	/* infinity */
 #define BIGNUMBER         999999		/* big value for loading timer wwith */
+#define SEMDEVICE		5
 
 
 /* timer, timescale, TOD-LO and other bus regs */
 #define RAMBASEADDR		  0x10000000
 #define RAMBASESIZE		  0x10000004
-#define RAMTOP			  0x2000.1000
+#define RAMTOP			  0x20001000 /*0x2000.1000*/
 #define TODLOADDR		  0x1000001C
 #define INTERVALTMR		  0x10000020	
 #define TIMESCALEADDR     0x10000024
@@ -46,9 +47,9 @@
 #define DEVPERINT		  8		        /* devices per interrupt line        */
 #define DEVREGLEN		  4		        /* device register field length in bytes, and regs per dev */	
 #define MAXDEVCNT		  49
-#define DEVREGSIZE	      16 	        /* device register size in bytes     */
-#define INSDEVBITMAP	  0x1000.002C	/* installed devices bitmap (5words) */
-#define IntDEVBITMAP	  0x1000.0040	/* interrupt devices bitmap (5words) */
+#define DEVREGSIZE	      	  16 	        	/* device register size in bytes     */
+#define INSDEVBITMAP	  	  0x1000.002C		/* installed devices bitmap (5words) */
+#define IntDEVBITMAP	  	  0x1000.0040		/* interrupt devices bitmap (5words) */
 #define LOWMEM			  0x1000.0054
 
 /* device register field number for non-terminal devices */

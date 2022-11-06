@@ -2,7 +2,7 @@
 * FILENAME :	scheduler.c
 *
 * DESCRIPTION :	
-*	example
+*	implements a round-robin scheduling algoithm whenever a new process is needed.
 *
 * PUBLIC FUNCTIONS : 
 *	
@@ -28,8 +28,11 @@ extern int processCnt;
 extern int softBlockCnt;
 /* ------------------------------------ */
 
-void switchContext(pcb_PTR current){
+/*void switchContext(pcb_PTR current){
 	LDST(&(current -> p_s));
+}*/
+void switchContext(state_PTR state){
+	LDST(state);
 }
 
 void moveState(state_PTR source, state_PTR destination){ /*copy the source state */

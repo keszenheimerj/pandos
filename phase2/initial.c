@@ -25,11 +25,12 @@ extern void test();
 /*
 *****************global variables*****************
 */
-pcb_PTR readyQueue = mkEmptyQ();
+pcb_PTR readyQueue;
 pcb_PTR currentProc = NULL; 	/*scaler to the running Proc*/
 int processCnt = 0;		/*int indicating the started but not terminated processes*/
 int softBlockCnt = 0;		/*a process can either be ready, running, blocked(waiting) state and this int is the number of started, but not terminated processes*/
 int deviceSema4s[MAXDEVCNT]; /*42 | 49; =0??*/
+cpu_t startTime;
 
 /*
 ************end global variables**************
@@ -47,7 +48,7 @@ void genExceptionHandler(){
 	/*save state*/
 	state_PTR previousStatePTR = (state_PTR) (BIOSDATAPAGE);
 	/*make ptr to from bios*/
-	int causeNum = (previousStatePTR -> s_cause && CauseExcCode) >> CAUSESHIFT;
+	int causeNum = (previousStatePTR -> s_cause && Cause) >> CAUSESHIFT;
 	/*do bitwise stuff*/
 	if(causeNum == 0){
 		/*pass proccessing to nucleus dev interupt handler*/
@@ -64,6 +65,7 @@ void genExceptionHandler(){
 
 /*main*/
 int main(){
+	readyQueue = mkEmptyQ();
 	for(int i = 0; i < MAXDEVCNT; i++){
 		deviceSema4s[i] = 0;
 	}
@@ -77,7 +79,7 @@ int main(){
 	passupvector_PTR	passV;
 	passV -> tlb_refill_handler = (memaddr) uTLB_RefillHandler;
 	passV -> tlb_refill_stackPtr = RAMTOP;
-	passV -> exception_handler =  (memaddr) genExceptionHandler();
+	passV -> exception_handler =  (memaddr) genExceptionHandler;
 	passV -> exception_stackPtr = RAMTOP; 
 	
 	LDIT(INTERVALTMR); /*loading the interval timer with 100 milisec*/
@@ -85,8 +87,8 @@ int main(){
 	/*
 	sp = RAMTOP
 	pc is set to address of test*/
-	s_sp = RAMTOP;	/*set to ram top which is installed ram size + ram base address*/
-	p -> p_s.s_pc = s_t9 = (memaddr) test;
+	p -> p_s.s_sp = RAMTOP;	/*set to ram top which is installed ram size + ram base address*/
+	p -> p_s.s_pc = p -> p_s.s_t9 = (memaddr) test;
 	/*process tree fields to NULL*/
 	
 	
@@ -99,7 +101,7 @@ int main(){
 	/*init interupts as enabled
 	procLocal timer enabled
 	kernel mode on*/
-	p -> p_s.s_status = ALLOFF | TEBITON | IMON | IEPBIT;
+	p -> p_s.s_status = ALLOFF | TEBITON | IMON | IEPBITON;
 
 	processCnt ++;
 	insertProcQ(&(readyQueue), p); /*statis is ready*/

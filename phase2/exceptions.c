@@ -24,6 +24,9 @@ extern pcb_PTR currentProc;
 extern pcb_PTR readyQueue;
 extern int processCnt;
 extern int softBlockCnt;
+extern int deviceSema4s[MAXDEVCNT];
+extern cpu_t startTime;
+
 state_PTR exState;
 /* ------------------------------------ */
 
@@ -67,16 +70,20 @@ HIDDEN void CREATEPROCESS(){
 
 /*recursive helper for TERMINATEPROCESS*/
 HIDDEN void terminateChild(pcb_PTR child){
-	if(child != NULL){
-		while(!emptyChild(child)){
-			terminateChild(removeChild(child));
+	if(currentProc == NULL){
+		scheduler();
+	}else{
+		if(child != NULL){
+			while(!emptyChild(child)){
+				terminateChild(removeChild(child));
+			}
+			processCnt --;
+			outProcQ(&readyQueue, child);
+			
+			/*check if free, active, asl*/
+			
+		freePcb(child);
 		}
-		processCnt --;
-		outProcQ(&readyQueue, child);
-		
-		/*check if free, active, asl*/
-		
-	freePcb(child);
 	}
 }
 
@@ -102,8 +109,9 @@ HIDDEN void TERMINATEPROCESS(){
 }
 
 /*sys3*//*done*/
-HIDDEN void PASSEREN(semd_PTR sema4){
-	sema4--;
+HIDDEN void PASSEREN(){
+	int* sema4 = exState -> s_a1;
+	(*sema4)--;
 	if(sema4<0){
 		insertBlocked(&sema4, currentProc);
 		scheduler();
@@ -113,33 +121,39 @@ HIDDEN void PASSEREN(semd_PTR sema4){
 }
 
 /*sys4*//*done*/
-HIDDEN void VERHOGEN(semd_PTR sema4){
-	sema4++;
+HIDDEN void VERHOGEN(){
+	int* sema4 = exState->s_a1;
+	(*sema4)++;
 	pcb_PTR p;
-	if(sema4 <= 0){
+	if((*sema4) <= 0){
 		p = removeBlocked(&sema4);
 		insertProcQ(&readyQueue, p);
 	}
-	switchContext(p);/*return to current proccess*/
+	switchContext(exState);/*return to current proccess*/
 }
 
 /*sys5*//*done*/
 HIDDEN void WAIT_FOR_IO_DEVICE(){
+	moveState(exState, &(currentProc -> p_s));
 	int lineN = exState -> s_a1;
 	int devN = exState -> s_a2;
 	
 	/*a3*/
+	int wait = exState-> s_a3;
 	/*find which device
 	test value
 		insertBlocked
 		scheduler();
 		*/
-	sema4--;
-	if(sema4<0){
-		insertBlocked(&sema4, currentProc);
+	int device = ((lineN - 3 + wait) * DEVPERINT + devN);
+	deviceSema4s[device]--;
+	
+	if(deviceSema4s[device]<0){
+		softBlockCnt++;
+		insertBlocked(&(deviceSema4s[device]), currentProc);
 		scheduler();
 	}else{
-		switchContext(sema4);
+		switchContext(deviceSema4s[device]);
 	}
 }
 
@@ -153,10 +167,13 @@ HIDDEN void GET_CPU_TIME(){
 		How much is there plus how much current time slice.
 		use register s_v0
 		*/
-	currentProc -> p_time = currentProc -> p_time + (getTimer()-startT);/* current time - startTime */ /* getTimer from r129 */
-	exState -> s_v0 = currentProc -> p_time;
-	STCK(startT);
-	switchContext(currentProc); /*swap for switchContect*/
+	/*copy old state to current process*/
+	moveState(exState, &(currentProc->p_s));
+	cpu_t calcTime;
+	STCK(calcTime);
+	currentProc -> p_s.s_v0 = currentProc -> p_time = currentProc -> p_time + (calcTime-startTime);/* current time - startTime */ /* getTimer from r129 */
+	
+	switchContext(&currentProc->p_s); /*swap for switchContect*/
 }
 
 /*sys7*/
@@ -169,8 +186,9 @@ HIDDEN void WAIT_FOR_CLOCK(){
 		example sys7 request from book: SYSCALL (WAITCLOCK, 0, 0, 0); 
 		Where the mnemonic constant WAITCLOCK has the value of 7.
 		*/
+		moveState(exState, &(currentProc -> p_s));
 		softBlockCnt ++;
-		PASSEREN(&deviceSema4s[/*stuff*/]/*on interval timer semaphore*/)
+		PASSEREN(&(deviceSema4s[MAXDEVCNT-1]));/*on interval timer semaphore*/
 }
 
 /*sys8*/
@@ -181,8 +199,9 @@ HIDDEN void GET_SUPPORT_DATA(){
 		example sys8 from book: support_t *sPtr = SYSCALL (GETSUPPORTPTR, 0, 0, 0);
 		Where the mnemonic constant GETSUPPORTPTR has the value of 8.
 		*/
-		exState -> s_v0 = currentProc -> p_supportStruct;
-		switchContext(currentProc); /*swap for switch context*/
+		moveState(exState, &(currentProc->p_s));
+		currentProc -> p_s.s_v0 = currentProc -> p_supportStruct;
+		switchContext(&(currentProc -> p_s)); /*swap for switch context*/
 }
 
 void pseudoClockTick(){
@@ -199,17 +218,26 @@ void pseudoClockTick(){
 void passUpOrDie(int exType, state_t *exState){
 	if(currentProc -> p_supportStruct != NULL){
 		/*pass up*/
+		moveState(exState,&(currentProc -> p_supportStruct -> sup_exceptState[exType]));
 		
+		/*r129 seems liked we need to change execution state*/
+		
+		unsigned int stackP = currentProc -> p_supportStruct -> sup_exceptContext[exType].c_stackPtr;
+		unsigned int statusN = currentProc -> p_supportStruct -> sup_exceptContext[exType].c_status;
+		unsigned int pc = currentProc-> p_supportStruct -> sup_exceptContext[exType].c_pc;
+		LDCXT(stackP, statusN, pc); 
 	}else{
 		/*die*/
 		TERMINATEPROCESS();
+		currentProc = NULL;
+		scheduler();
 	}
 }
 
-void sysCall(state_PTR state){
+void sysCall(){
 	/*get info from BIOSDATABAGE*/
 	
-	exState = state;
+	exState = (state_PTR) BIOSDATAPAGE;
 	
 	exState -> s_pc = exState -> s_pc + 4;
 	
@@ -219,16 +247,16 @@ void sysCall(state_PTR state){
 	
 	switch(sysNum){
 		case(1):
-			CREATEPROCESS(state);
+			CREATEPROCESS();
 			break;
 		case(2):
 			TERMINATEPROCESS();
 			break;
 		case(3):
-			PASSEREN(sema4);
+			PASSEREN();
 			break;
 		case(4):
-			VERHOGEN(sema4);
+			VERHOGEN();
 			break;
 		case(5):
 			WAIT_FOR_IO_DEVICE();
@@ -243,7 +271,8 @@ void sysCall(state_PTR state){
 			GET_SUPPORT_DATA();
 			break;
 		default:
-			passUpOrDie(stuff);
+			passUpOrDie(exState, 1);/*generalException*/
+			break;
 	}
 }
 

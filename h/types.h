@@ -110,6 +110,7 @@ typedef struct support_t {
 	state_t		sup_exceptState[2];	/*stored except states */
 	context_t	sup_exceptContext[2];	/*pass up contexts*/
 	/*.. other fields to be added later*/
+	
 } support_t, *support_PTR;
 
 
