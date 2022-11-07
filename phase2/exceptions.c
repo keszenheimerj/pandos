@@ -16,8 +16,7 @@
 #include "../h/const.h"
 /* #include "../phase2/initial.c" */
 /* #include "../phase2/interrupts.c" */
-#include "../phase2/scheduler.c"
-/* #include "/usr/include/umps3/umps/libumps.h" */
+#include "/usr/include/umps3/umps/libumps.h"
 
 /* ---------Global Variables----------- */
 extern pcb_PTR currentProc;
@@ -26,6 +25,11 @@ extern int processCnt;
 extern int softBlockCnt;
 extern int deviceSema4s[MAXDEVCNT];
 extern cpu_t startTime;
+extern void prepForSwitch();
+extern void moveState(state_PTR source, state_PTR destination);
+extern void switchContext(state_PTR s);
+extern void scheduler();
+
 
 state_PTR exState;
 /* ------------------------------------ */
@@ -35,19 +39,20 @@ state_PTR exState;
 /* I think the TLBTrapHandler and the ProgramTrapHandler goes in the passUpOrDie()  - evan*/
 
 /*tlbTrapHandler*/
-HIDDEN void TLBTrapHandler(){
+/*HIDDEN void TLBTrapHandler(){
 
-}
+}*/
 
 /*sysTrapHandler*/
-HIDDEN void sysTrapHandler(){
+/*HIDDEN void sysTrapHandler(){
 	
-}
+}*/
 
 /*sys1*//*done*/
 HIDDEN void CREATEPROCESS(){
 	state_PTR newState = (state_PTR) exState -> s_a1;
 	support_t *supportP = (support_t*) exState -> s_a2;
+	
 	pcb_PTR tim = allocPcb();
 	
 	if(tim == NULL){
@@ -65,7 +70,7 @@ HIDDEN void CREATEPROCESS(){
 		
 		processCnt ++;
 	}
-	switchContext(&(currentProc -> p_s));
+	switchContext(exState);
 }
 
 /*recursive helper for TERMINATEPROCESS*/
@@ -188,7 +193,8 @@ HIDDEN void WAIT_FOR_CLOCK(){
 		*/
 		moveState(exState, &(currentProc -> p_s));
 		softBlockCnt ++;
-		PASSEREN(&(deviceSema4s[MAXDEVCNT-1]));/*on interval timer semaphore*/
+		exState -> s_a1 = (deviceSema4s[MAXDEVCNT-1]);
+		PASSEREN();/*on interval timer semaphore*/
 }
 
 /*sys8*/
@@ -246,10 +252,10 @@ void sysCall(){
 	
 	
 	switch(sysNum){
-		case(1):
+		case(1):/*createthread*/
 			CREATEPROCESS();
 			break;
-		case(2):
+		case(2):/*terminatethread*/
 			TERMINATEPROCESS();
 			break;
 		case(3):

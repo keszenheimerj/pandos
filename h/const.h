@@ -89,10 +89,10 @@
 #define IPSHIFT		      8
 
 /*bit stuff*/
-#define ALLOFF		      0x00000000
-#define IEPBITON	      0x00000004
+#define ALLBITSOFF		      0x00000000
+#define IEPON	      0x00000004
 #define IMON      	      0x0000FF00
-#define TEBITON       	  0x08000000
+#define TEON       	  0x08000000
 #define IECON	  	      0x00000001
 #define KUPON	  	      0x00000008
 

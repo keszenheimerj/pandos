@@ -16,6 +16,7 @@
 #include "../h/const.h"
 #include "../phase2/exceptions.c" 
 #include "../phase2/interrupts.c"
+/*#include "../phase2/p2test.c"*/
 /* #include "../phase2/scheduler.c" */
 /* #include "/usr/include/umps3/umps/libumps.h" */
 
@@ -31,18 +32,22 @@ int processCnt = 0;		/*int indicating the started but not terminated processes*/
 int softBlockCnt = 0;		/*a process can either be ready, running, blocked(waiting) state and this int is the number of started, but not terminated processes*/
 int deviceSema4s[MAXDEVCNT]; /*42 | 49; =0??*/
 cpu_t startTime;
+extern void intHandler();
+extern void sysCall();
+extern void scheduler();
+extern void prepForSwitch();
 
 /*
 ************end global variables**************
 */
 
 
-void uTLB_RefillHandler () {
+void uTLB_RefillHandler2() {
 	setENTRYHI(0x80000000);
 	setENTRYLO(0x00000000);
 	TLBWR();
 	LDST ((state_PTR) 0x0FFFF000);
-}
+}/*exists in p2test*/
 
 void genExceptionHandler(){
 	/*save state*/
@@ -52,13 +57,16 @@ void genExceptionHandler(){
 	/*do bitwise stuff*/
 	if(causeNum == 0){
 		/*pass proccessing to nucleus dev interupt handler*/
-		
-	}else if(causeNum <= 3){
-		/*tlb execption, pass proccessing to tlb-exception handler*/
-		
+		intHandler();
 	}else if(causeNum == 8){
 		sysCall();/*previousStatePTR could be passed but unneccessary */
 	}else{
+		/*tlb execption, pass proccessing to tlb-exception handler*/
+		if(causeNum < 4){
+			passUpOrDie((state_PTR) BIOSDATAPAGE, 0); /*PGF*/
+		}else{
+			passUpOrDie((state_PTR) BIOSDATAPAGE, 1); /*general*/
+		}
 		/*programTrap*/
 	}
 }
@@ -78,8 +86,8 @@ int main(){
 	
 	
 	/*init 4 words in BIOS pg*/
-	passupvector_PTR	passV;
-	passV -> tlb_refill_handler = (memaddr) uTLB_RefillHandler;
+	passupvector_PTR	passV = (passupvector_t *) PASSUPVECTOR;
+	passV -> tlb_refill_handler = (memaddr) uTLB_RefillHandler2;
 	passV -> tlb_refill_stackPtr = RAMTOP;
 	passV -> exception_handler =  (memaddr) genExceptionHandler;
 	passV -> exception_stackPtr = RAMTOP; 
@@ -103,11 +111,12 @@ int main(){
 	/*init interupts as enabled
 	procLocal timer enabled
 	kernel mode on*/
-	p -> p_s.s_status = ALLOFF | TEBITON | IMON | IEPBITON;
+	p -> p_s.s_status = ALLBITSOFF | TEON | IMON | IEPON;
 
 	processCnt ++;
 	insertProcQ(&(readyQueue), p); /*statis is ready*/
 	scheduler();			/*dequeue remove PRocQ*/
+	return 0;
 }
 
 

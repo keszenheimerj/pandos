@@ -64,14 +64,14 @@ void scheduler(){
 			currentProc = 0;
 			
 			/*set state*/	/* iec and im on */
-			currentProc -> p_s.s_status = ALLOFF | IECON | IMON;
+			currentProc -> p_s.s_status = ALLBITSOFF | IECON | IMON;
 			/*set status*/
 			WAIT();
 		}
 		
-		/*currentProc -> p_time = currentProc -> p_time + (/*current time- startT);
-		currentProc = removeProcQ(&readyQueue); /* get who is next*/
-		/*
+		/*currentProc -> p_time = currentProc -> p_time + (current time- startT);
+		currentProc = removeProcQ(&readyQueue);  get who is next
+		
 		if not empty
 			store a value on the timer
 			
@@ -79,22 +79,22 @@ void scheduler(){
 			STCK(startT);
 			PLT = .5;
 		}
-		/*length of a quantom
+		length of a quantom
 		when at 0 call an interupt
-		LoadState /*privaledged instruction
+		LoadState privaledged instruction
 
-		/*loads all 35 registers
+		loads all 35 registers
 		moveState(source, destination);
-		/*if empty
+		if empty
 		....
 		
 		if(pcCount == 0){
-			/*invoke halt 
+			invoke halt 
 		}else if(pcCount > 0 && softBlockCnt > 0){
-			/*set status to enable interrupts
+			set status to enable interrupts
 			d_status = TRUE;
 			disable PLT; || Load it with  a very large value
-			/*enter wait state
+			enter wait state
 		}*/
 	}else{
 		pcb_PTR nextProc = removeProcQ(&readyQueue);
@@ -102,7 +102,7 @@ void scheduler(){
 		if(nextProc != NULL){
 			currentProc = nextProc;
 			/*set timer*/
-			double PLT = .5;
+			/*double PLT = .5;	unused*/
 		
 			STCK(startT);
 			LDST(&currentProc -> p_s);

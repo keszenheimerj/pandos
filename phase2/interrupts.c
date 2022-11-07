@@ -14,22 +14,27 @@
 #include "../h/asl.h"
 #include "../h/types.h"
 #include "../h/const.h"
+/*#include "../h/scheduler.h"*/
 /* #include "../phase2/exceptions.c" */
 /* #include "../phase2/scheduler.c" */
-/* #include "/usr/include/umps3/umps/libumps.h" */
+#include "/usr/include/umps3/umps/libumps.h"
 
 /* ---------Global Variables----------- */
 extern pcb_PTR currentProc;
 extern pcb_PTR readyQueue;
 extern int processCnt;
 extern int softBlockCnt;
-cpu_t interruptStartTime;
-cpu_t interruptStopTime;
-int intLineNo = 0;
 extern int deviceSema4s[MAXDEVCNT];
-int intDevNo = 0;
-/* ------------------------------------ */
 
+extern pcb_PTR removeBlocked(int *semAdd);
+extern void prepForSwitch();
+void moveState(state_PTR source, state_PTR destination);
+void scheduler();
+/* ------------------------------------ */
+cpu_t interruptStart;
+cpu_t interruptStop;
+int intLineN = 0;
+int intDevN = 0;
 
 /*HIDDEN int getDevice(int line){
 	
@@ -37,7 +42,7 @@ int intDevNo = 0;
 }*/
 
 /*void interruptLineHandler(int line){
-	/* non timer interrupt *//*
+	non timer interrupt 
 	if(line >2){
 	
 	}
@@ -52,19 +57,19 @@ int intDevNo = 0;
 	}
 }*/
 
-void nonTimerI(int devNo){
+void nonTimerInt(int devNo){
 	/*delcare variables*/
 	/* devaddrBase */
 
-	int devP = (intDevNo-3) * DEVPERINT + devNo;
+	int devP = (intDevN-3) * DEVPERINT + devNo;
 	
-	int devAddrBase = 0x10000054 + ((intLineNo - 3) * 0x80) + (devNo * 0x10); /*r28*/ /* first part is magic should be LOWMEM but this creates issues */
+	int devAddrBase = 0x10000054 + ((intLineN - 3) * 0x80) + (devNo * 0x10); /*r28*/ /* first part is magic should be LOWMEM but this creates issues */
 
 	device_PTR device = (device_PTR) devAddrBase;
 	
 	int status;
 	
-	if(intLineNo < 7){
+	if(intLineN < 7){
 		status = device -> d_status;
 		device->t_recv_command = ACK;
 	}
@@ -72,11 +77,12 @@ void nonTimerI(int devNo){
 
 
 	/*do the V*/
-	int semad_PTR = &deviceSema4s[devP];
+	int semad_PTR = deviceSema4s[devP];
 	semad_PTR++;
 
 	if(semad_PTR >= 0){
-		pcb_PTR p = removeBlocked(&semad_PTR);
+		int* s = &semad_PTR;
+		pcb_PTR p = removeBlocked((s));
 
 		if(p != NULL){
 			p -> p_s.s_v0 = status;
@@ -84,7 +90,7 @@ void nonTimerI(int devNo){
 			insertProcQ(&readyQueue, p);
 		}
 	}
-	prepToSwitch();
+	prepForSwitch();
 	/* Non-timer interrupt: device interrupt */
 	
 			/* calculate address of device's device register */
@@ -115,7 +121,7 @@ void nonTimerI(int devNo){
 	LDST((state_PTR) BIOSDATAPAGE);/*saved exception state (located at the start of the BIOS Data Page */
 }
 
-void pltI(state_PTR eState){/*process local timer interrupt*/
+void pltInt(state_PTR eState){/*process local timer interrupt*/
 	/* Process Local Timer Interrupts (PLT) */
 			/* syscall2 (terminating) cause or exception without having set a support structure address */
 	
@@ -126,7 +132,7 @@ void pltI(state_PTR eState){/*process local timer interrupt*/
 				or sys7 */
 			
 			/* Be interrupted by a PLT Interrupt */
-				/*Current process has used up its time quantum/slice without complting it CPU Burst, change from running to ready state */
+				/*Current process has used up its time quantum/slice without compltIntng it CPU Burst, change from running to ready state */
 				
 			/*Ach the PLT interrupt by loading the timer with a new value */
 			
@@ -142,11 +148,11 @@ void pltI(state_PTR eState){/*process local timer interrupt*/
 		scheduler();
 }
 
-void intTimerI(){
+/*void intTimerInt(){
 
-}
+}*/
 
-int getLine(unsigned int cause){
+int getLineN(unsigned int cause){
 	/* declare the array of possible line numbers */
     unsigned int lineNumbers[SEMDEVICE] = {4, 5, 6, 7, 8};
     /* declare the array of possible device numbers */
@@ -173,44 +179,46 @@ int getLine(unsigned int cause){
 	} */
 }
 
-void interruptHandler(){
+void intHandler(){
 	state_PTR exState = (state_PTR) BIOSDATAPAGE;
 	int ip = ((exState -> s_cause & IPMASK) >> IPSHIFT);
 	/*find line number */
 	if(ip & LINEONEON){
 		/*in progress*/
-		pltI(exState);
-		prepToSwitch();
+		pltInt(exState);
+		prepForSwitch();
 	}else if(ip & LINETWOON){
-		LDIT(interruptStartTime);
-		STCK(interruptStartTime);
-		pcb_PTR p = removeBlocked(deviceSema4s[MAXDEVCNT-1]);
+		LDIT(interruptStart);
+		STCK(interruptStart);
+		int *clockS = &deviceSema4s[MAXDEVCNT-1];
+		pcb_PTR p = (removeBlocked(clockS));/*store process */
+		p = p; /*remove error, using variable*/
 		deviceSema4s[MAXDEVCNT-1] = 0;
-		prepToSwitch();
+		prepForSwitch();
 	}
 	
 	unsigned int lines[5] = {LINETHREEON, LINEFOURON, LINEFIVEON, LINESIXON, LINESEVENON};
 	int i = 3;
-	while((i < 8 && intLineNo == 0)){
+	while((i < 8 && intLineN == 0)){
 		if(ip & lines[i]){
-			intLineNo = i;
+			intLineN = i;
 		}
 		i++;
 	}
 
 	devregarea_t * ram = (devregarea_t *) RAMBASEADDR;
-	int dev = ram -> interrupt_dev[intLineNo-3]; /*devBits*/
+	int dev = ram -> interrupt_dev[intLineN-3]; /*devBits*/
 	
 	/*locate device number */
-	intDevNo = -1;
+	intDevN = -1;
 	i = 0;
-	while((i < 8 && intDevNo == -1)){
-		if(dev & i+1){
-			intDevNo = i;
+	while((i < 8 && intDevN == -1)){
+		if(dev & (i+1)){
+			intDevN = i;
 		}
 		i++;
 	}
-	if(intLineNo >= 3){
-		nonTimerI(intDevNo);
+	if(intLineN >= 3){
+		nonTimerInt(intDevN);
 	}
 }

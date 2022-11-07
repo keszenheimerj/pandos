@@ -18,7 +18,7 @@ LIBDIR = $(UMPS3_DIR_PREFIX)/lib/x86_64-linux-gnu/umps3
 
 INCDIR = $(UMPS3_DIR_PREFIX)/umps3/umps
 SUPDIR = $(UMPS3_DIR_PREFIX)/share/umps3
-LIBDIR = $(UMPS3_DIR_PREFIX)/lib/x86_64-linux-gnu/umps3
+#LIBDIR = $(UMPS3_DIR_PREFIX)/lib/x86_64-linux-gnu/umps3
 
 DEFS = ../h/const.h ../h/types.h ../h/pcb.h ../h/asl.h \
 	../h/initial.h ../h/interrupts.h ../h/scheduler.h ../h/exceptions.h \
@@ -44,8 +44,8 @@ all: kernel.core.umps
 kernel.core.umps: kernel
 	$(EF) -k kernel
 
-kernel: p2test.o $(OBJS)
-	$(LD) $(LDCOREFLAGS) $(LIBDIR)/crtso.o p2test.o $(OBJS) $(LIBDIR)/libumps.o -o kernel
+kernel: p2test.o initial.o interrupts.o scheduler.o exceptions.o asl.o pcb.o
+	$(LD) $(LDCOREFLAGS) $(LIBDIR)/crtso.o p2test.o initial.o interrupts.o scheduler.o exceptions.o asl.o pcb.o $(LIBDIR)/libumps.o -o kernel
 
 
 %.o: %.c $(DEFS)
