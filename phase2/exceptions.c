@@ -48,6 +48,11 @@ state_PTR exState;
 	
 }*/
 
+/*state_PTR firstHalf(){
+	support_t *supportP = (support_t*) exState -> s_a2;
+	return s;
+}*/
+
 /*sys1*//*done*/
 HIDDEN void CREATEPROCESS(){
 	state_PTR newState = (state_PTR) exState -> s_a1;
@@ -58,10 +63,10 @@ HIDDEN void CREATEPROCESS(){
 	if(tim == NULL){
 		currentProc -> p_s.s_v0 = -1;
 	}else{
-		moveState(&tim -> p_s, newState);
+		moveState(&(tim -> p_s), newState);
 		tim -> p_semAdd = NULL;
 		tim -> p_time = 0;
-		tim -> p_s = *newState;
+		tim -> p_s = *newState; /*tim -> p_s = *newState; is good*/
 		tim -> p_supportStruct = supportP;
 		
 		insertProcQ(&(readyQueue), tim);
@@ -206,7 +211,7 @@ HIDDEN void GET_SUPPORT_DATA(){
 		Where the mnemonic constant GETSUPPORTPTR has the value of 8.
 		*/
 		moveState(exState, &(currentProc->p_s));
-		currentProc -> p_s.s_v0 = (int)(currentProc -> p_supportStruct);
+		currentProc -> p_s.s_v0 = (int)(currentProc -> p_supportStruct);/*check whether to add -> sup_asid */
 		switchContext(&(currentProc -> p_s)); /*swap for switch context*/
 }
 
