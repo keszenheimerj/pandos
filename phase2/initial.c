@@ -14,29 +14,31 @@
 #include "../h/asl.h"
 #include "../h/types.h"
 #include "../h/const.h"
-#include "../phase2/exceptions.c" 
-#include "../phase2/interrupts.c"
+/*#include "../phase2/exceptions.c" 
+#include "../phase2/interrupts.c"*/
 /*#include "../phase2/p2test.c"*/
 /* #include "../phase2/scheduler.c" */
-/* #include "/usr/include/umps3/umps/libumps.h" */
+#include "/usr/include/umps3/umps/libumps.h"
 
 extern void test();
+extern void passUpOrDie(state_t *exState, int exType);
 
 
 /*
 *****************global variables*****************
 */
+
+extern void intHandler();
+extern void sysCall();
+extern void scheduler();
+extern void prepForSwitch();
+
 pcb_PTR readyQueue;
 pcb_PTR currentProc = NULL; 	/*scaler to the running Proc*/
 int processCnt = 0;		/*int indicating the started but not terminated processes*/
 int softBlockCnt = 0;		/*a process can either be ready, running, blocked(waiting) state and this int is the number of started, but not terminated processes*/
 int deviceSema4s[MAXDEVCNT]; /*42 | 49; =0??*/
 cpu_t startTime;
-extern void intHandler();
-extern void sysCall();
-extern void scheduler();
-extern void prepForSwitch();
-
 /*
 ************end global variables**************
 */
