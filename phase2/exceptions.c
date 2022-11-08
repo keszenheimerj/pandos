@@ -55,7 +55,10 @@ state_PTR exState;
 
 /*sys1*//*done*/
 HIDDEN void CREATEPROCESS(){
+	/*state_PTR newState = (state_PTR) BIOSDATAPAGE; just filling for init
+	moveState( ( (state_PTR) exState -> s_a1), newState);*/
 	state_PTR newState = (state_PTR) exState -> s_a1;
+
 	support_t *supportP = (support_t*) exState -> s_a2;
 	
 	pcb_PTR tim = allocPcb();
@@ -63,17 +66,19 @@ HIDDEN void CREATEPROCESS(){
 	if(tim == NULL){
 		currentProc -> p_s.s_v0 = -1;
 	}else{
-		moveState(&(tim -> p_s), newState);
+		
 		tim -> p_semAdd = NULL;
 		tim -> p_time = 0;
-		tim -> p_s = *newState; /*tim -> p_s = *newState; is good*/
+		/*tim -> p_s = *newState; tim -> p_s = *newState; is memcpy error*/
 		tim -> p_supportStruct = supportP;
 		
-		insertProcQ(&(readyQueue), tim);
 		insertChild(currentProc, tim);
-		currentProc -> p_s.s_v0 = 0;
+		insertProcQ(&(readyQueue), tim);
 		
+		
+		moveState(newState, &(tim -> p_s));
 		processCnt ++;
+		currentProc -> p_s.s_v0 = 0;
 	}
 	switchContext(exState);
 }
