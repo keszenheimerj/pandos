@@ -16,6 +16,16 @@
 #define BIGNUMBER         999999		/* big value for loading timer wwith */
 #define SEMDEVICE		5
 
+/* system call codes */
+#define	CREATETHREAD	1	/* create thread */
+#define	TERMINATETHREAD	2	/* terminate thread */
+#define	PASSERN			3	/* P a semaphore */
+#define	VERHOGEN		4	/* V a semaphore */
+#define	WAITIO			5	/* delay on a io semaphore */
+#define	GETCPUTIME		6	/* get cpu time used to date */
+#define	WAITCLOCK		7	/* delay on the clock semaphore */
+#define	GETSPTPTR		8	/* return support structure ptr. */
+
 
 /* timer, timescale, TOD-LO and other bus regs */
 #define RAMBASEADDR		  0x10000000
