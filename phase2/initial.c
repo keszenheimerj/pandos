@@ -29,7 +29,7 @@ extern void passUpOrDie(state_t *exState, int exType);
 */
 
 extern void intHandler();
-extern void sysCall();
+extern unsigned int SYS(unsigned int number, unsigned int arg1, unsigned int arg2, unsigned int arg3);
 extern void scheduler();
 extern void prepForSwitch();
 
@@ -61,7 +61,7 @@ void genExceptionHandler(){
 		/*pass proccessing to nucleus dev interupt handler*/
 		intHandler();
 	}else if(causeNum == 8){
-		sysCall();/*previousStatePTR could be passed but unneccessary */
+		SYS(previousStatePTR -> s_a0, previousStatePTR -> s_a1, previousStatePTR -> s_a2, previousStatePTR -> s_a3);/*previousStatePTR could be passed but unneccessary */
 	}else{
 		/*tlb execption, pass proccessing to tlb-exception handler*/
 		if(causeNum < 4){
@@ -120,5 +120,4 @@ int main(){
 	scheduler();			/*dequeue remove PRocQ*/
 	return 0;
 }
-
 
