@@ -136,7 +136,7 @@ HIDDEN void VERHOGEN1(state_PTR exState){
 			insertProcQ(&readyQueue, p);
 		}
 	}
-	switchContext(exState);/*return to current proccess
+	switchContext(exState);/*return to current proccess*/
 }
 
 /*sys5 - Wait for IO Device
