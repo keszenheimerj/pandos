@@ -16,7 +16,7 @@
 #include "../h/const.h"
 /* #include "../phase2/initial.c" */
 /* #include "../phase2/interrupts.c" */
-#include "/usr/include/umps3/umps/libumps.h"
+/*#include "/usr/include/umps3/umps/libumps.h"*/
 
 /* ---------Global Variables----------- */
 extern pcb_PTR currentProc;
@@ -29,6 +29,7 @@ extern void prepForSwitch();
 extern void moveState(state_PTR source, state_PTR destination);
 extern void switchContext(state_PTR s);
 extern void scheduler();
+extern void LDCXT(unsigned int stackPTR, unsigned int status, unsigned int pc);
 
 
 state_PTR exState;
@@ -124,7 +125,7 @@ HIDDEN void TERMINATEPROCESS(){
 }
 
 /*sys3*//*done*/
-HIDDEN void PASSEREN(){
+HIDDEN void PASSEREN1(){
 	int* sema4 = &(exState -> s_a1);
 	(*sema4)--;
 	if(sema4<0){
@@ -136,7 +137,7 @@ HIDDEN void PASSEREN(){
 }
 
 /*sys4*//*done*/
-HIDDEN void VERHOGEN(){
+HIDDEN void VERHOGEN1(){
 	int* sema4 = &(exState->s_a1);
 	(*sema4)++;
 	pcb_PTR p;
@@ -197,14 +198,14 @@ HIDDEN void WAIT_FOR_CLOCK(){
 		This semaphore is V'ed every 100 milliseconds by the Nucleus.
 		This call should always clock the Current Process on the ASL, after the scheduler is called.
 		sys7 is used to transition the Current Process frim the "running" state to a "blocked" state.
-		sys7 is called by placing the value 7 in a0 and then exectuting syscall.
-		example sys7 request from book: SYSCALL (WAITCLOCK, 0, 0, 0); 
+		sys7 is called by placing the value 7 in a0 and then exectuting SYS.
+		example sys7 request from book: SYS (WAITCLOCK, 0, 0, 0); 
 		Where the mnemonic constant WAITCLOCK has the value of 7.
 		*/
 		moveState(exState, &(currentProc -> p_s));
 		softBlockCnt ++;
 		exState -> s_a1 = (deviceSema4s[MAXDEVCNT-1]);
-		PASSEREN();/*on interval timer semaphore*/
+		PASSEREN1();/*on interval timer semaphore*/
 }
 
 /*sys8*/
@@ -212,7 +213,7 @@ HIDDEN void GET_SUPPORT_DATA(){
 	/*requests a pointer to the Current Process's Support Structure. 
 		returns the value of p_supportStruct from the Current Process's pcb.
 		if no value for p_support Struct, then return NULL.
-		example sys8 from book: support_t *sPtr = SYSCALL (GETSUPPORTPTR, 0, 0, 0);
+		example sys8 from book: support_t *sPtr = SYS (GETSUPPORTPTR, 0, 0, 0);
 		Where the mnemonic constant GETSUPPORTPTR has the value of 8.
 		*/
 		moveState(exState, &(currentProc->p_s));
@@ -250,40 +251,41 @@ void passUpOrDie(state_t *exState, int exType){
 	}
 }
 
-void sysCall(){
+void SYS(unsigned int num, unsigned int arg1, unsigned int arg2, unsigned int arg3){
 	/*get info from BIOSDATABAGE*/
 	
 	exState = (state_PTR) BIOSDATAPAGE;
 	
 	exState -> s_pc = exState -> s_pc + 4;
 	
-	int sysNum = exState -> s_a0;
+	/*int sysNum = exState -> s_a0;*/
+	int sysNum = num;
 	
 	
 	
 	switch(sysNum){
-		case(1):/*createthread*/
+		case(CREATETHREAD):/*createthread*/
 			CREATEPROCESS();
 			break;
-		case(2):/*terminatethread*/
+		case(TERMINATETHREAD):/*terminatethread*/
 			TERMINATEPROCESS();
 			break;
-		case(3):
-			PASSEREN();
+		case(PASSERN):
+			PASSEREN1();
 			break;
-		case(4):
-			VERHOGEN();
+		case(VERHOGEN):
+			VERHOGEN1();
 			break;
-		case(5):
+		case(WAITIO):
 			WAIT_FOR_IO_DEVICE();
 			break;
-		case(6):
+		case(GETCPUTIME):
 			GET_CPU_TIME();
 			break;
-		case(7):
+		case(WAITCLOCK):
 			WAIT_FOR_CLOCK();
 			break;
-		case(8):
+		case(GETSPTPTR):
 			GET_SUPPORT_DATA();
 			break;
 		default:
@@ -291,5 +293,4 @@ void sysCall(){
 			break;
 	}
 }
-
 
