@@ -123,11 +123,11 @@ void nonTimerInt(int devNo){
 
 void pltInt(state_PTR eState){/*process local timer interrupt*/
 	/* Process Local Timer Interrupts (PLT) */
-<<<<<<< HEAD
+
 			/* syscall2 (terminating) cause or exception without having set a support structure address */
-=======
+
 			/* SYS2 (terminating) cause or exception without having set a support structure address */
->>>>>>> 8e7f32d (error fixing)
+
 	
 			/* transition from running to blocked state; 
 			then execute 
