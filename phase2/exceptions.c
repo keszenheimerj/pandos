@@ -294,3 +294,7 @@ void SYS(unsigned int num, unsigned int arg1, unsigned int arg2, unsigned int ar
 	}
 }
 
+<<<<<<< HEAD
+=======
+
+>>>>>>> 8e7f32d (error fixing)

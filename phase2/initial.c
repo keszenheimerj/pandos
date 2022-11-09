@@ -121,3 +121,7 @@ int main(){
 	return 0;
 }
 
+<<<<<<< HEAD
+=======
+
+>>>>>>> 8e7f32d (error fixing)
