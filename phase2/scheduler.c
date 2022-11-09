@@ -26,6 +26,8 @@ extern pcb_PTR currentProc;
 extern pcb_PTR readyQueue;
 extern int processCnt;
 extern int softBlockCnt;
+extern cpu_t startTime;
+extern cpu_t interruptStart;
 /* ------------------------------------ */
 
 /*void switchContext(pcb_PTR current){
@@ -53,7 +55,7 @@ void moveState(state_PTR source, state_PTR destination){ /*copy the source state
 
 void scheduler(){
 	startT = 0;
-	if(currentProc != NULL){/*emptyProcQ(readyQueue)*/
+	/*if(currentProc != NULL){emptyProcQ(readyQueue)
 		if(processCnt == 0){
 			HALT();
 		}
@@ -64,9 +66,9 @@ void scheduler(){
 		else if(softBlockCnt > 0){
 			currentProc = 0;
 			
-			/*set state*/	/* iec and im on */
+			/*set state*/	/* iec and im on 
 			currentProc -> p_s.s_status = ALLBITSOFF | IECON | IMON;
-			/*set status*/
+			/*set status
 			WAIT();
 		}
 		
@@ -96,21 +98,43 @@ void scheduler(){
 			d_status = TRUE;
 			disable PLT; || Load it with  a very large value
 			enter wait state
-		}*/
+		}*
 	}else{
 		pcb_PTR nextProc = removeProcQ(&readyQueue);
 		
 		if(nextProc != NULL){
 			currentProc = nextProc;
-			/*set timer*/
-			/*double PLT = .5;	unused*/
+			/*set timer
+			/*double PLT = .5;	unused
 		
 			STCK(startT);
 			LDST(&currentProc -> p_s);
 		}else{
-			/*panic ?*/
+			panic ?
 		}
 		
+	}*/
+	
+	if(currentProc == NULL){
+		currentProc = removeProcQ(&readyQueue);
+		if(currentProc != NULL){
+			STCK(startT);
+			currentProc -> p_time = currentProc -> p_time + (startT - startTime);
+			LDIT(interruptStart);
+		}else{
+			PANIC();
+		}
+		
+	}else{
+		if(processCnt == 0){
+			HALT();
+		}
+		if(softBlockCnt > 0){
+			currentProc -> p_s.s_status = ALLBITSOFF | IECON | IMON;
+			WAIT();
+		}else if(softBlockCnt == 0){
+			PANIC();
+		}
 	}
 	/*is currentP null
 		STCK(startT)
@@ -125,7 +149,7 @@ void scheduler(){
 			set statius(mask)
 			wait
 		elseif(softblock is 0
-			panic
+			panic*/
 			
 	
 }
