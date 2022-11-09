@@ -251,15 +251,15 @@ void passUpOrDie(state_t *exState, int exType){
 	}
 }
 
-void SYS(unsigned int num, unsigned int arg1, unsigned int arg2, unsigned int arg3){
+void SYS(){/*unsigned int num, unsigned int arg1, unsigned int arg2, unsigned int arg3*/
 	/*get info from BIOSDATABAGE*/
 	
 	exState = (state_PTR) BIOSDATAPAGE;
 	
-	exState -> s_pc = exState -> s_pc + 4;
+	exState -> s_pc = exState -> s_t9 = exState -> s_pc + 4;
 	
-	/*int sysNum = exState -> s_a0;*/
-	int sysNum = num;
+	/*int sysNum = ;*//*&UM 0x0...2*/
+	int sysNum = exState -> s_a0;
 	
 	
 	

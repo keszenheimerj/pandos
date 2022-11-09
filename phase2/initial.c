@@ -29,9 +29,10 @@ extern void passUpOrDie(state_t *exState, int exType);
 */
 
 extern void intHandler();
-extern unsigned int SYS(unsigned int number, unsigned int arg1, unsigned int arg2, unsigned int arg3);
+extern unsigned int SYS();
 extern void scheduler();
 extern void prepForSwitch();
+extern void uTLB_RefillHandler();
 
 pcb_PTR readyQueue;
 pcb_PTR currentProc = NULL; 	/*scaler to the running Proc*/
@@ -44,12 +45,12 @@ cpu_t startTime;
 */
 
 
-void uTLB_RefillHandler2() {
+/*void uTLB_RefillHandler2() {
 	setENTRYHI(0x80000000);
 	setENTRYLO(0x00000000);
 	TLBWR();
 	LDST ((state_PTR) 0x0FFFF000);
-}/*exists in p2test*/
+}exists in p2test*/
 
 void genExceptionHandler(){
 	/*save state*/
@@ -61,7 +62,7 @@ void genExceptionHandler(){
 		/*pass proccessing to nucleus dev interupt handler*/
 		intHandler();
 	}else if(causeNum == 8){
-		SYS(previousStatePTR -> s_a0, previousStatePTR -> s_a1, previousStatePTR -> s_a2, previousStatePTR -> s_a3);/*previousStatePTR could be passed but unneccessary */
+		SYS();/*previousStatePTR could be passed but unneccessary previousStatePTR -> s_a0, previousStatePTR -> s_a1, previousStatePTR -> s_a2, previousStatePTR -> s_a3*/
 	}else{
 		/*tlb execption, pass proccessing to tlb-exception handler*/
 		if(causeNum < 4){
@@ -89,7 +90,7 @@ int main(){
 	
 	/*init 4 words in BIOS pg*/
 	passupvector_PTR	passV = (passupvector_t *) PASSUPVECTOR;
-	passV -> tlb_refill_handler = (memaddr) uTLB_RefillHandler2;
+	passV -> tlb_refill_handler = (memaddr) uTLB_RefillHandler;
 	passV -> tlb_refill_stackPtr = RAMTOP;
 	passV -> exception_handler =  (memaddr) genExceptionHandler;
 	passV -> exception_stackPtr = RAMTOP; 
