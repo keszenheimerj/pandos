@@ -121,19 +121,23 @@ void scheduler(){
 		LDIT(IO);
 		
 	}
-	pcb_PTR nProc = removeProcQ(&readyQueue);
-	if(currentProc != NULL){
+	pcb_PTR nProc = removeProcQ(&readyQueue);/*reached*/
+	if(nProc != NULL){
 		currentProc = nProc;
 		STCK(startTime);
 		setTIMER(QUANTUM);
 		switchContext(&(currentProc -> p_s));
-	}else if(processCnt == 0){
-		HALT();
-	}else if(softBlockCnt > 0){
-		currentProc -> p_s.s_status = ALLBITSOFF | IECON | IMON;
-		WAIT();
-	}else if(softBlockCnt == 0){
-		PANIC();
+	}else{
+		if(processCnt == 0){
+			HALT();
+		}
+		if(softBlockCnt > 0){
+			/*currentProc -> p_s.s_status = */
+			setSTATUS((int) ALLBITSOFF | IECON | IMON);
+			WAIT();
+		}else if(softBlockCnt == 0){/*getting stuck on*/
+			PANIC();
+		}
 	}
 	
 	/*is currentP null

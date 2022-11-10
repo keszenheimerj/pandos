@@ -79,12 +79,15 @@ int main(){
 	initPcbs();
 	initASL();
 	
+	devregarea_PTR devBus = (devregarea_PTR) RAMBASEADDR;
+	int RAMTOP = (devBus -> rambase + devBus -> ramsize);
+	
 	/*init 4 words in BIOS pg*/
-	passupvector_PTR	passV = (passupvector_t *) PASSUPVECTOR;
+	passupvector_PTR passV = (passupvector_t *) PASSUPVECTOR;
 	passV -> tlb_refill_handler = (memaddr) uTLB_RefillHandler;
-	passV -> tlb_refill_stackPtr = RAMTOP;
+	passV -> tlb_refill_stackPtr = EXENTRY;
 	passV -> exception_handler =  (memaddr) genExceptionHandler;
-	passV -> exception_stackPtr = RAMTOP; 
+	passV -> exception_stackPtr = EXENTRY; 
 	
 	readyQueue = mkEmptyProcQ();
 	currentProc = NULL;
@@ -99,7 +102,10 @@ int main(){
 	
 	
 	
-	pcb_PTR p = allocPcb();
+	pcb_PTR p = allocPcb();/*reached*/
+	if(p == NULL){
+		PANIC();
+	}
 	/*
 	sp = RAMTOP
 	pc is set to address of test*/
@@ -120,11 +126,13 @@ int main(){
 	p -> p_s.s_status = ALLBITSOFF | TEON | IMON | IEPON;
 
 	
-	insertProcQ(&(readyQueue), p); /*statis is ready*/
+	insertProcQ(&readyQueue, p); /*statis is ready*/
 	processCnt = processCnt + 1;
 	LDIT(IO); /*loading the interval timer with 100 milisec*/
+	p = NULL;/*testing theory*/
 	STCK(startTime);
-	scheduler();			/*dequeue remove PRocQ*/
+	scheduler();/*gets called*/			/*dequeue remove PRocQ*/
+	
 	return 0;
 }
 
