@@ -161,6 +161,7 @@ void pltInt(state_PTR eState){/*process local timer interrupt*/
 			/* call the scheduler */
 		LDIT(QUANTUM);
 		moveState(eState, &(currentProc -> p_s));
+		/*insertBlocked(&readyQueue, currentProc);*/
 		insertProcQ(&readyQueue, currentProc);
 		scheduler();
 }
@@ -206,9 +207,9 @@ void intHandler(){
 	}else */
 	if(ip & LINEONEON){
 		/*in progress*/
-		/*pltInt(exState);*/
-		prepForSwitch();
-	}else if(ip & LINETWOON){
+		pltInt(exState);
+		/*prepForSwitch(); laast*/
+	}else if(ip & LINETWOON){/*pg 34*/
 		LDIT(IO);
 		STCK(interruptStop);
 		int *clockS = &deviceSema4s[MAXDEVCNT-1];

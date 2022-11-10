@@ -30,10 +30,11 @@
 /* timer, timescale, TOD-LO and other bus regs */
 #define RAMBASEADDR		  0x10000000
 #define RAMBASESIZE		  0x10000004
-#define RAMTOP			  0x20001000 /*0x2000.1000*/
+#define  EXENTRY		  0x20001000 /*0x2000.1000*/
 #define TODLOADDR		  0x1000001C
 #define INTERVALTMR		  0x10000020	
 #define TIMESCALEADDR     0x10000024
+#define IO			  100000
 
 
 /* utility constants */
@@ -52,6 +53,7 @@
 #define NETWINT 		  5
 #define PRNTINT 		  6
 #define TERMINT			  7
+#define TRANSON			  15
 
 #define DEVINTNUM		  5		        /* interrupt lines used by devices   */
 #define DEVPERINT		  8		        /* devices per interrupt line        */
@@ -92,7 +94,7 @@
 #define BIOSDATAPAGE      0x0FFFF000
 #define	PASSUPVECTOR	  0x0FFFF900
 /*adding*/
-#define Cause		      0x0000007C
+#define Cause		      0x0000007c
 #define CAUSESHIFT	      0x00000002
 #define QUANTUM		      .005
 /* #define INTERVALTMR	  .1       This is redifined again here for some reason... */
@@ -106,13 +108,22 @@
 #define IECON	  	      0x00000001
 #define KUPON	  	      0x00000008
 
-#define LINEONEON	      0x00000080
-#define LINETWOON	      0x00000100
-#define LINETHREEON	      0x00000200
-#define LINEFOURON	      0x00000400
-#define LINEFIVEON	      0x00000800
-#define LINESIXON	      0x00001000
-#define LINESEVENON	      0x00002000
+/*#define LINEZEROON	      0x00000001
+#define LINEONEON	      0x00000002
+#define LINETWOON	      0x00000004
+#define LINETHREEON	      0x00000008
+#define LINEFOURON	      0x00000010
+#define LINEFIVEON	      0x00000020
+#define LINESIXON	      0x00000040
+#define LINESEVENON	      0x00000080*/
+#define LINEZEROON	      0x00000100
+#define LINEONEON	      0x00000200
+#define LINETWOON	      0x00000400
+#define LINETHREEON	      0x00000800
+#define LINEFOURON	      0x00001000
+#define LINEFIVEON	      0x00002000
+#define LINESIXON	      0x00004000
+#define LINESEVENON	      0x00008000
 
 /*ours added*/
 /*#define 		0x2000.1000		top of nucleus stack page*/

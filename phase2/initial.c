@@ -56,7 +56,7 @@ void genExceptionHandler(){
 	/*save state*/
 	state_PTR previousStatePTR = (state_PTR) (BIOSDATAPAGE);
 	/*make ptr to from bios*/
-	int causeNum = ((previousStatePTR -> s_cause & Cause) >> 2);
+	int causeNum = ((previousStatePTR -> s_cause) >> 2);/* & Cause*/
 	/*do bitwise stuff*/
 	if(causeNum == 0){
 		/*pass proccessing to nucleus dev interupt handler*/
