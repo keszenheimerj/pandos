@@ -35,9 +35,9 @@ extern void prepForSwitch();
 extern void uTLB_RefillHandler();
 
 pcb_PTR readyQueue;
-pcb_PTR currentProc = NULL; 	/*scaler to the running Proc*/
-int processCnt = 0;		/*int indicating the started but not terminated processes*/
-int softBlockCnt = 0;		/*a process can either be ready, running, blocked(waiting) state and this int is the number of started, but not terminated processes*/
+pcb_PTR currentProc; 	/*scaler to the running Proc*/
+int processCnt;		/*int indicating the started but not terminated processes*/
+int softBlockCnt;		/*a process can either be ready, running, blocked(waiting) state and this int is the number of started, but not terminated processes*/
 int deviceSema4s[MAXDEVCNT]; /*42 | 49; =0??*/
 cpu_t startTime;
 /*
@@ -56,7 +56,7 @@ void genExceptionHandler(){
 	/*save state*/
 	state_PTR previousStatePTR = (state_PTR) (BIOSDATAPAGE);
 	/*make ptr to from bios*/
-	int causeNum = (previousStatePTR -> s_cause & Cause) >> CAUSESHIFT;
+	int causeNum = ((previousStatePTR -> s_cause & Cause) >> 2);
 	/*do bitwise stuff*/
 	if(causeNum == 0){
 		/*pass proccessing to nucleus dev interupt handler*/
@@ -76,18 +76,8 @@ void genExceptionHandler(){
 
 /*main*/
 int main(){
-	readyQueue = mkEmptyProcQ();
-	currentProc = NULL;
-	int i = 0;
-	while(i < MAXDEVCNT){
-		deviceSema4s[i] = 0;
-		i++;
-	}
-
 	initPcbs();
 	initASL();
-	
-	
 	
 	/*init 4 words in BIOS pg*/
 	passupvector_PTR	passV = (passupvector_t *) PASSUPVECTOR;
@@ -96,7 +86,19 @@ int main(){
 	passV -> exception_handler =  (memaddr) genExceptionHandler;
 	passV -> exception_stackPtr = RAMTOP; 
 	
-	LDIT(INTERVALTMR); /*loading the interval timer with 100 milisec*/
+	readyQueue = mkEmptyProcQ();
+	currentProc = NULL;
+	processCnt = 0;
+	softBlockCnt = 0;
+	int i = 0;
+	while(i < MAXDEVCNT){
+		deviceSema4s[i] = 0;
+		i++;
+	}
+
+	
+	
+	
 	pcb_PTR p = allocPcb();
 	/*
 	sp = RAMTOP
@@ -108,8 +110,8 @@ int main(){
 	
 	/*done*/
 	
-	p -> p_time = 0;
-	p -> p_semAdd = NULL;
+	/*p -> p_time = 0;
+	p -> p_semAdd = NULL;*/
 	p -> p_supportStruct = NULL;
 	/*turn kernal mode on?*/
 	/*init interupts as enabled
@@ -117,8 +119,11 @@ int main(){
 	kernel mode on*/
 	p -> p_s.s_status = ALLBITSOFF | TEON | IMON | IEPON;
 
-	processCnt = processCnt + 1;
+	
 	insertProcQ(&(readyQueue), p); /*statis is ready*/
+	processCnt = processCnt + 1;
+	LDIT(IO); /*loading the interval timer with 100 milisec*/
+	STCK(startTime);
 	scheduler();			/*dequeue remove PRocQ*/
 	return 0;
 }

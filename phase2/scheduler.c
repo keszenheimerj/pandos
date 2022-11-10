@@ -114,23 +114,28 @@ void scheduler(){
 		}
 		
 	}*/
-	currentProc = removeProcQ(&readyQueue);
+	
 	if(currentProc != NULL){
 		STCK(startT);
 		currentProc -> p_time = currentProc -> p_time + (startT - startTime);
-		LDIT(interruptStart);
-		switchContext(&(currentProc -> p_s));
-	}else{
-		if(processCnt == 0){
-			HALT();
-		}
-		if(softBlockCnt > 0){
-			currentProc -> p_s.s_status = ALLBITSOFF | IECON | IMON;
-			WAIT();
-		}else if(softBlockCnt == 0){
-			PANIC();
-		}
+		LDIT(IO);
+		
 	}
+	pcb_PTR nProc = removeProcQ(&readyQueue);
+	if(currentProc != NULL){
+		currentProc = nProc;
+		STCK(startTime);
+		setTIMER(QUANTUM);
+		switchContext(&(currentProc -> p_s));
+	}else if(processCnt == 0){
+		HALT();
+	}else if(softBlockCnt > 0){
+		currentProc -> p_s.s_status = ALLBITSOFF | IECON | IMON;
+		WAIT();
+	}else if(softBlockCnt == 0){
+		PANIC();
+	}
+	
 	/*is currentP null
 		STCK(startT)
 		currentProc -> p_time = currentProc->p_time + (startT - startTime)

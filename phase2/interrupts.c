@@ -203,6 +203,7 @@ void intHandler(){
 	
 	unsigned int lines[5] = {LINETHREEON, LINEFOURON, LINEFIVEON, LINESIXON, LINESEVENON};
 	int i = 3;
+	intLineN = 0;
 	while((i < 8 && intLineN == 0)){
 		if(ip & lines[i]){
 			intLineN = i;

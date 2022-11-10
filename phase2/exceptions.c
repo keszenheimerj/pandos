@@ -32,7 +32,7 @@ extern void scheduler();
 extern void LDCXT(unsigned int stackPTR, unsigned int status, unsigned int pc);
 
 
-state_PTR exState;
+/*state_PTR exState;*/
 /* ------------------------------------ */
 
 
@@ -55,7 +55,7 @@ state_PTR exState;
 }*/
 
 /*sys1*//*done*/
-HIDDEN void CREATEPROCESS(){
+HIDDEN void CREATEPROCESS(state_PTR exState){
 	/*state_PTR newState = (state_PTR) BIOSDATAPAGE; just filling for init
 	moveState( ( (state_PTR) exState -> s_a1), newState);*/
 	state_PTR newState = (state_PTR) exState -> s_a1;
@@ -125,7 +125,7 @@ HIDDEN void TERMINATEPROCESS(){
 }
 
 /*sys3*//*done*/
-HIDDEN void PASSEREN1(){
+HIDDEN void PASSEREN1(state_PTR exState){
 	int* sema4 = &(exState -> s_a1);
 	(*sema4)--;
 	if(sema4<0){
@@ -137,7 +137,7 @@ HIDDEN void PASSEREN1(){
 }
 
 /*sys4*//*done*/
-HIDDEN void VERHOGEN1(){
+HIDDEN void VERHOGEN1(state_PTR exState){
 	int* sema4 = &(exState->s_a1);
 	(*sema4)++;
 	pcb_PTR p;
@@ -149,7 +149,7 @@ HIDDEN void VERHOGEN1(){
 }
 
 /*sys5*//*done*/
-HIDDEN void WAIT_FOR_IO_DEVICE(){
+HIDDEN void WAIT_FOR_IO_DEVICE(state_PTR exState){
 	moveState(exState, &(currentProc -> p_s));
 	int lineN = exState -> s_a1;
 	int devN = exState -> s_a2;
@@ -174,7 +174,7 @@ HIDDEN void WAIT_FOR_IO_DEVICE(){
 }
 
 /*sys6*//*done*/
-HIDDEN void GET_CPU_TIME(){
+HIDDEN void GET_CPU_TIME(state_PTR exState){
 	/*Bookeeping and management
 		look for a call called "CPU Time" maybe...
 		Write down time of day clock
@@ -193,7 +193,7 @@ HIDDEN void GET_CPU_TIME(){
 }
 
 /*sys7*/
-HIDDEN void WAIT_FOR_CLOCK(){
+HIDDEN void WAIT_FOR_CLOCK(state_PTR exState){
 	/*Preforms a P oporations on the Nucleus.
 		This semaphore is V'ed every 100 milliseconds by the Nucleus.
 		This call should always clock the Current Process on the ASL, after the scheduler is called.
@@ -205,11 +205,11 @@ HIDDEN void WAIT_FOR_CLOCK(){
 		moveState(exState, &(currentProc -> p_s));
 		softBlockCnt ++;
 		exState -> s_a1 = (deviceSema4s[MAXDEVCNT-1]);
-		PASSEREN1();/*on interval timer semaphore*/
+		PASSEREN1(exState);/*on interval timer semaphore*/
 }
 
 /*sys8*/
-HIDDEN void GET_SUPPORT_DATA(){
+HIDDEN void GET_SUPPORT_DATA(state_PTR exState){
 	/*requests a pointer to the Current Process's Support Structure. 
 		returns the value of p_supportStruct from the Current Process's pcb.
 		if no value for p_support Struct, then return NULL.
@@ -254,43 +254,47 @@ void passUpOrDie(state_t *exState, int exType){
 void SYS(){/*unsigned int num, unsigned int arg1, unsigned int arg2, unsigned int arg3*/
 	/*get info from BIOSDATABAGE*/
 	
+	state_PTR exState;
 	exState = (state_PTR) BIOSDATAPAGE;
 	
 	exState -> s_pc = exState -> s_t9 = exState -> s_pc + 4;
 	
 	/*int sysNum = ;*//*&UM 0x0...2*/
-	int sysNum = exState -> s_a0;
+	if(((exState -> s_a0) & CAUSESHIFT) != ALLBITSOFF){
+		passUpOrDie(exState, 1);
+	}
+	int sysNum = (exState -> s_a0);
 	
 	
 	
 	switch(sysNum){
-		case(CREATETHREAD):/*createthread*/
-			CREATEPROCESS();
-			break;
-		case(TERMINATETHREAD):/*terminatethread*/
+		case(CREATETHREAD):{/*createthread*/
+			CREATEPROCESS(exState);
+			break;}
+		case(TERMINATETHREAD):{/*terminatethread*/
 			TERMINATEPROCESS();
-			break;
-		case(PASSERN):
-			PASSEREN1();
-			break;
-		case(VERHOGEN):
-			VERHOGEN1();
-			break;
-		case(WAITIO):
-			WAIT_FOR_IO_DEVICE();
-			break;
-		case(GETCPUTIME):
-			GET_CPU_TIME();
-			break;
-		case(WAITCLOCK):
-			WAIT_FOR_CLOCK();
-			break;
-		case(GETSPTPTR):
-			GET_SUPPORT_DATA();
-			break;
-		default:
+			break;}
+		case(PASSERN):{
+			PASSEREN1(exState);
+			break;}
+		case(VERHOGEN):{
+			VERHOGEN1(exState);
+			break;}
+		case(WAITIO):{
+			WAIT_FOR_IO_DEVICE(exState);
+			break;}
+		case(GETCPUTIME):{
+			GET_CPU_TIME(exState);
+			break;}
+		case(WAITCLOCK):{
+			WAIT_FOR_CLOCK(exState);
+			break;}
+		case(GETSPTPTR):{
+			GET_SUPPORT_DATA(exState);
+			break;}
+		default:{
 			passUpOrDie(exState, 1);/*generalException*/
-			break;
+			break;}
 	}
 }
 
