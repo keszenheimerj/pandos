@@ -25,16 +25,17 @@ extern pcb_PTR readyQueue;
 extern int processCnt;
 extern int softBlockCnt;
 extern int deviceSema4s[MAXDEVCNT];
+extern cpu_t startTime;
 
 extern pcb_PTR removeBlocked(int *semAdd);
 extern void prepForSwitch();
 void moveState(state_PTR source, state_PTR destination);
 void scheduler();
 /* ------------------------------------ */
-cpu_t interruptStart;
+cpu_t interruptStart;/*dont use*/
 cpu_t interruptStop;
-int intLineN = 0;
-int intDevN = 0;
+int intLineN;
+int intDevN;
 
 /*HIDDEN int getDevice(int line){
 	
@@ -57,13 +58,13 @@ int intDevN = 0;
 	}
 }*/
 
-void nonTimerInt(int devNo){
+void nonTimerInt(int dev, int intDevN, int intLineN){
 	/*delcare variables*/
 	/* devaddrBase */
 
-	int devP = (intDevN-3) * DEVPERINT + devNo;
+	int devP = (intLineN-3) * DEVPERINT + intDevN;
 	
-	int devAddrBase = 0x10000054 + ((intLineN - 3) * 0x80) + (devNo * 0x10); /*r28*/ /* first part is magic should be LOWMEM but this creates issues */
+	int devAddrBase = 0x10000054 + ((intLineN - 3) * 0x80) + (intDevN * 0x10); /*r28*/ /* first part is magic should be LOWMEM but this creates issues */
 
 	device_PTR device = (device_PTR) devAddrBase;
 	
@@ -71,9 +72,18 @@ void nonTimerInt(int devNo){
 	
 	if(intLineN < 7){
 		status = device -> d_status;
-		device->t_recv_command = ACK;
+		device->d_command = ACK;
+	}else{/*device is is 7*/
+		if(device -> t_transm_command & TRANSON){
+			status = device ->t_transm_status;
+			device -> t_transm_command = ACK;
+		}else{
+			status = device -> t_recv_status;
+			device -> t_recv_command = ACK;
+			devP = devP + DEVPERINT;
+		}
+		
 	}
-		devP = devP + DEVPERINT;
 
 
 	/*do the V*/
@@ -85,12 +95,15 @@ void nonTimerInt(int devNo){
 		pcb_PTR p = removeBlocked((s));
 
 		if(p != NULL){
+			STCK(interruptStop);
+			p -> p_time = (p -> p_time) + (interruptStop - startTime);
 			p -> p_s.s_v0 = status;
 			softBlockCnt--;
 			insertProcQ(&readyQueue, p);
 		}
 	}
 	prepForSwitch();
+	
 	/* Non-timer interrupt: device interrupt */
 	
 			/* calculate address of device's device register */
@@ -118,7 +131,7 @@ void nonTimerInt(int devNo){
 			/* insert the newly unblocked pcb onto the Ready Queue, changing the state from blocked to ready */
 			
 			/* return control to the current process */
-	LDST((state_PTR) BIOSDATAPAGE);/*saved exception state (located at the start of the BIOS Data Page */
+	/*LDST((state_PTR) BIOSDATAPAGE);saved exception state (located at the start of the BIOS Data Page */
 }
 
 void pltInt(state_PTR eState){/*process local timer interrupt*/
@@ -185,27 +198,37 @@ int getLineN(unsigned int cause){
 
 void intHandler(){
 	state_PTR exState = (state_PTR) BIOSDATAPAGE;
-	int ip = ((exState -> s_cause & IPMASK) >> IPSHIFT);
+	/*int ip = ((exState -> s_cause & IPMASK) >> IPSHIFT);*/
+	int ip = (exState -> s_cause);
 	/*find line number */
+	/*if(ip & LINEZEROON){
+		PANIC();
+	}else */
 	if(ip & LINEONEON){
 		/*in progress*/
-		pltInt(exState);
+		/*pltInt(exState);*/
 		prepForSwitch();
 	}else if(ip & LINETWOON){
-		LDIT(interruptStart);
-		STCK(interruptStart);
+		LDIT(IO);
+		STCK(interruptStop);
 		int *clockS = &deviceSema4s[MAXDEVCNT-1];
 		pcb_PTR p = (removeBlocked(clockS));/*store process */
-		p = p; /*remove error, using variable*/
-		deviceSema4s[MAXDEVCNT-1] = 0;
+		while(p != NULL){
+			p->p_time = (p -> p_time) + (interruptStop - startTime);
+			insertProcQ(&readyQueue, p);
+			p = removeBlocked(clockS);
+			softBlockCnt--;
+		}
+		
+		*clockS = 0;
 		prepForSwitch();
 	}
 	
-	unsigned int lines[5] = {LINETHREEON, LINEFOURON, LINEFIVEON, LINESIXON, LINESEVENON};
+	unsigned int lines[8] = {LINEZEROON, LINEONEON, LINETWOON, LINETHREEON, LINEFOURON, LINEFIVEON, LINESIXON, LINESEVENON};
 	int i = 3;
 	intLineN = 0;
 	while((i < 8 && intLineN == 0)){
-		if(ip & lines[i]){
+		if(ip & lines[(i)]){
 			intLineN = i;
 		}
 		i++;
@@ -218,12 +241,14 @@ void intHandler(){
 	intDevN = -1;
 	i = 0;
 	while((i < 8 && intDevN == -1)){
-		if(dev & (i+1)){
+		if(dev & lines[(i)]){
 			intDevN = i;
 		}
 		i++;
 	}
 	if(intLineN >= 3){
-		nonTimerInt(intDevN);
+		nonTimerInt(dev, intDevN, intLineN);
+	}else{
+		/*pltInt(exState);*/
 	}
 }
