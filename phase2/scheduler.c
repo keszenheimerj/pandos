@@ -114,17 +114,12 @@ void scheduler(){
 		}
 		
 	}*/
-	
-	if(currentProc == NULL){
-		currentProc = removeProcQ(&readyQueue);
-		if(currentProc != NULL){
-			STCK(startT);
-			currentProc -> p_time = currentProc -> p_time + (startT - startTime);
-			LDIT(interruptStart);
-		}else{
-			PANIC();
-		}
-		
+	currentProc = removeProcQ(&readyQueue);
+	if(currentProc != NULL){
+		STCK(startT);
+		currentProc -> p_time = currentProc -> p_time + (startT - startTime);
+		LDIT(interruptStart);
+		switchContext(&(currentProc -> p_s));
 	}else{
 		if(processCnt == 0){
 			HALT();

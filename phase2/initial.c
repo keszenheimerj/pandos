@@ -35,7 +35,7 @@ extern void prepForSwitch();
 extern void uTLB_RefillHandler();
 
 pcb_PTR readyQueue;
-pcb_PTR currentProc; = NULL; 	/*scaler to the running Proc*/
+pcb_PTR currentProc = NULL; 	/*scaler to the running Proc*/
 int processCnt = 0;		/*int indicating the started but not terminated processes*/
 int softBlockCnt = 0;		/*a process can either be ready, running, blocked(waiting) state and this int is the number of started, but not terminated processes*/
 int deviceSema4s[MAXDEVCNT]; /*42 | 49; =0??*/
