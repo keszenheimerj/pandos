@@ -40,6 +40,7 @@ int processCnt;		/*int indicating the started but not terminated processes*/
 int softBlockCnt;		/*a process can either be ready, running, blocked(waiting) state and this int is the number of started, but not terminated processes*/
 int deviceSema4s[MAXDEVCNT]; /*42 | 49; =0??*/
 cpu_t startTime;
+int causeNum;
 /*
 ************end global variables**************
 */
@@ -56,7 +57,7 @@ void genExceptionHandler(){
 	/*save state*/
 	state_PTR previousStatePTR = (state_PTR) (BIOSDATAPAGE);
 	/*make ptr to from bios*/
-	int causeNum = ((previousStatePTR -> s_cause) >> 2);/* & Cause*/
+	causeNum = (int) (((previousStatePTR -> s_cause) & genExMask) >> 2);/* & used to grab just the five bits desired*/
 	/*do bitwise stuff*/
 	if(causeNum == 0){
 		/*pass proccessing to nucleus dev interupt handler*/

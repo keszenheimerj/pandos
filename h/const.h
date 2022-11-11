@@ -94,9 +94,9 @@
 #define BIOSDATAPAGE      0x0FFFF000
 #define	PASSUPVECTOR	  0x0FFFF900
 /*adding*/
-#define Cause		      0x0000007c
-#define CAUSESHIFT	      0x00000002
-#define QUANTUM		      .005
+#define genExMask		0x0000007c	/*7c to grab bits index 2-5 with five addresses*/
+#define CAUSESHIFT	        0x00000002
+#define QUANTUM		        .005
 /* #define INTERVALTMR	  .1       This is redifined again here for some reason... */
 #define IPSHIFT		      8
 
