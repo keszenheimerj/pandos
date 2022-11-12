@@ -45,7 +45,7 @@
 #define NULL 			  ((void *)0xFFFFFFFF)
 
 /* masks */
-#define IPMASK            8
+#define IPMASK            	  0xFF00/*8*/
 
 /* device interrupts */
 #define DISKINT			  3

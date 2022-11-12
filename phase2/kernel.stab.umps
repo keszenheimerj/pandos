@@ -31,7 +31,7 @@ initPcbs                         :FUN:0x20004E08:0x000000AC:GLB
 getENTRYHI                       :FUN:0x20005718:0x00000014:GLB
 emptyProcQ                       :FUN:0x20004D84:0x00000038:GLB
 p5gen                            :FUN:0x20002414:0x000001EC:GLB
-intHandler                       :FUN:0x200034FC:0x00000388:GLB
+intHandler                       :FUN:0x200034FC:0x00000390:GLB
 p2                               :FUN:0x20001C48:0x000003E0:GLB
 endp8                            :OBJ:0x20006080:0x00000004:GLB
 endp2                            :OBJ:0x2000606C:0x00000004:GLB

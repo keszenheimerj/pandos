@@ -199,8 +199,8 @@ int getLineN(unsigned int cause){
 
 void intHandler(){
 	state_PTR exState = (state_PTR) BIOSDATAPAGE;
-	/*int ip = ((exState -> s_cause & IPMASK) >> IPSHIFT);*/
-	int ip = (exState -> s_cause);
+	int ip = ((exState -> s_cause & IPMASK) >> IPSHIFT);
+	/*int ip = (exState -> s_cause);*/
 	/*find line number */
 	/*if(ip & LINEZEROON){
 		PANIC();
@@ -232,6 +232,10 @@ void intHandler(){
 		if(ip & lines[(i)]){
 			intLineN = i;
 		}
+		/*
+		if(ip & lines[(i)]){
+			intLineN = i;
+		}*/
 		i++;
 	}
 
