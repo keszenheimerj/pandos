@@ -108,14 +108,15 @@
 #define IECON	  	      0x00000001
 #define KUPON	  	      0x00000008
 
-/*#define LINEZEROON	      0x00000001
-#define LINEONEON	      0x00000002
-#define LINETWOON	      0x00000004
-#define LINETHREEON	      0x00000008
-#define LINEFOURON	      0x00000010
-#define LINEFIVEON	      0x00000020
-#define LINESIXON	      0x00000040
-#define LINESEVENON	      0x00000080*/
+#define DEVLINEZEROON	      0x1
+#define DEVLINEONEON	      0x2
+#define DEVLINETWOON	      0x4
+#define DEVLINETHREEON	      0x8
+#define DEVLINEFOURON	      0x10
+#define DEVLINEFIVEON	      0x20
+#define DEVLINESIXON	      0x40
+#define DEVINESEVENON	      0x80
+
 #define LINEZEROON	      0x00000100
 #define LINEONEON	      0x00000200
 #define LINETWOON	      0x00000400
@@ -124,6 +125,14 @@
 #define LINEFIVEON	      0x00002000
 #define LINESIXON	      0x00004000
 #define LINESEVENON	      0x00008000
+/*#define LINEZEROON	      0x00000100
+#define LINEONEON	      0x00000200
+#define LINETWOON	      0x08000000
+#define LINETHREEON	      0x00000003
+#define LINEFOURON	      0x00000004
+#define LINEFIVEON	      0x00000005
+#define LINESIXON	      0x00000006
+#define LINESEVENON	      0x00000007*/
 
 /*ours added*/
 /*#define 		0x2000.1000		top of nucleus stack page*/

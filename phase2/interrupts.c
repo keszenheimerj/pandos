@@ -36,6 +36,7 @@ cpu_t interruptStart;/*dont use*/
 cpu_t interruptStop;
 int intLineN;
 int intDevN;
+int ip;
 
 /*HIDDEN int getDevice(int line){
 	
@@ -159,7 +160,8 @@ void pltInt(state_PTR eState){/*process local timer interrupt*/
 			/* place current process on the ready queue , tranisitioning current process from running state to the ready state */
 			
 			/* call the scheduler */
-		LDIT(QUANTUM);
+		/*LDIT(QUANTUM);*/
+		currentProc -> p_time += (interruptStop - startTime);
 		moveState(eState, &(currentProc -> p_s));
 		/*insertBlocked(&readyQueue, currentProc);*/
 		insertProcQ(&readyQueue, currentProc);
@@ -199,17 +201,17 @@ int getLineN(unsigned int cause){
 
 void intHandler(){
 	state_PTR exState = (state_PTR) BIOSDATAPAGE;
-	int ip = ((exState -> s_cause & IPMASK) >> IPSHIFT);
+	ip = ((exState -> s_cause));/* & IPMASK) >> IPSHIFT*/
 	/*int ip = (exState -> s_cause);*/
 	/*find line number */
 	/*if(ip & LINEZEROON){
 		PANIC();
 	}else */
-	if(ip & LINEONEON){
+	if((ip & LINEONEON) != 0){
 		/*in progress*/
 		pltInt(exState);
 		/*prepForSwitch(); laast*/
-	}else if(ip & LINETWOON){/*pg 34*/
+	}else if((ip & LINETWOON) != 0){/*pg 34*/
 		LDIT(IO);
 		STCK(interruptStop);
 		int *clockS = &deviceSema4s[MAXDEVCNT-1];
@@ -229,7 +231,7 @@ void intHandler(){
 	int i = 3;
 	intLineN = 0;
 	while((i < 8 && intLineN == 0)){
-		if(ip & lines[(i)]){
+		if((ip & lines[(i)]) != 0){
 			intLineN = i;
 		}
 		/*
@@ -241,12 +243,12 @@ void intHandler(){
 
 	devregarea_t * ram = (devregarea_t *) RAMBASEADDR;
 	int dev = ram -> interrupt_dev[intLineN-3]; /*devBits*/
-	
+	unsigned int devlines[8] = {DEVLINEZEROON, DEVLINEONEON, DEVLINETWOON, DEVLINETHREEON, DEVLINEFOURON, DEVLINEFIVEON, DEVLINESIXON, DEVINESEVENON};
 	/*locate device number */
 	intDevN = -1;
 	i = 0;
 	while((i < 8 && intDevN == -1)){
-		if(dev & lines[(i)]){
+		if((dev & devlines[(i)]) != 0){
 			intDevN = i;
 		}
 		i++;
