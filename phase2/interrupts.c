@@ -161,10 +161,13 @@ void pltInt(state_PTR eState){/*process local timer interrupt*/
 			
 			/* call the scheduler */
 		/*LDIT(QUANTUM);*/
-		currentProc -> p_time += (interruptStop - startTime);
-		moveState(eState, &(currentProc -> p_s));
-		/*insertBlocked(&readyQueue, currentProc);*/
-		insertProcQ(&readyQueue, currentProc);
+		setTIMER(IO);
+		/*currentProc -> p_time += (interruptStop - startTime);*/
+		if(currentProc != NULL){
+			moveState(eState, &(currentProc -> p_s));
+			/*insertBlocked(&readyQueue, currentProc);*/
+			insertProcQ(&readyQueue, currentProc);
+		}
 		scheduler();
 }
 
@@ -201,12 +204,12 @@ int getLineN(unsigned int cause){
 
 void intHandler(){
 	state_PTR exState = (state_PTR) BIOSDATAPAGE;
-	ip = ((exState -> s_cause));/* & IPMASK) >> IPSHIFT*/
+	ip = ((exState -> s_cause))>>8;/* & IPMASK) >> IPSHIFT*/
 	/*int ip = (exState -> s_cause);*/
 	/*find line number */
-	/*if(ip & LINEZEROON){
+	if(ip & LINEZEROON){
 		PANIC();
-	}else */
+	}else 
 	if((ip & LINEONEON) != 0){
 		/*in progress*/
 		pltInt(exState);

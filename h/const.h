@@ -117,14 +117,14 @@
 #define DEVLINESIXON	      0x40
 #define DEVINESEVENON	      0x80
 
-#define LINEZEROON	      0x00000100
-#define LINEONEON	      0x00000200
-#define LINETWOON	      0x00000400
-#define LINETHREEON	      0x00000800
-#define LINEFOURON	      0x00001000
-#define LINEFIVEON	      0x00002000
-#define LINESIXON	      0x00004000
-#define LINESEVENON	      0x00008000
+#define LINEZEROON	      0x000001
+#define LINEONEON	      0x000002
+#define LINETWOON	      0x000004
+#define LINETHREEON	      0x000008
+#define LINEFOURON	      0x000010
+#define LINEFIVEON	      0x000020
+#define LINESIXON	      0x000040
+#define LINESEVENON	      0x000080
 /*#define LINEZEROON	      0x00000100
 #define LINEONEON	      0x00000200
 #define LINETWOON	      0x08000000

@@ -135,9 +135,9 @@ void scheduler(){
 			/*currentProc -> p_s.s_status = */
 			setSTATUS((int) ALLBITSOFF | IECON | IMON);
 			WAIT();
-		}else if(softBlockCnt == 0){/*getting stuck on*/
+		}/*else if(softBlockCnt == 0){getting stuck on
 			PANIC();
-		}
+		}*/
 	}
 	
 	/*is currentP null

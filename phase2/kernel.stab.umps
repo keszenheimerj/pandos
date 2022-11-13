@@ -15,7 +15,7 @@ pcbFree_h                        :OBJ:0x20006B10:0x00000004:LOC
 pool.0                           :OBJ:0x20006B14:0x00000DC0:LOC
 INITCPU                          :FUN:0x200059DC:0x00000040:GLB
 p4state                          :OBJ:0x200061A4:0x0000008C:GLB
-pltInt                           :FUN:0x20003324:0x000000B0:GLB
+pltInt                           :FUN:0x20003324:0x0000009C:GLB
 currentProc                      :OBJ:0x200068F4:0x00000004:GLB
 print                            :FUN:0x200010F0:0x0000011C:GLB
 p5Stack                          :OBJ:0x200068E4:0x00000004:GLB
@@ -32,7 +32,7 @@ initPcbs                         :FUN:0x20004E18:0x000000AC:GLB
 getENTRYHI                       :FUN:0x20005728:0x00000014:GLB
 emptyProcQ                       :FUN:0x20004D94:0x00000038:GLB
 p5gen                            :FUN:0x20002414:0x000001EC:GLB
-intHandler                       :FUN:0x200034C4:0x000003DC:GLB
+intHandler                       :FUN:0x200034B0:0x00000408:GLB
 p2                               :FUN:0x20001C48:0x000003E0:GLB
 endp8                            :OBJ:0x20006080:0x00000004:GLB
 endp2                            :OBJ:0x2000606C:0x00000004:GLB
@@ -45,7 +45,7 @@ gchild3state                     :OBJ:0x20006690:0x0000008C:GLB
 TLBWR                            :FUN:0x20005834:0x00000014:GLB
 p8leaf                           :FUN:0x20002CEC:0x0000007C:GLB
 STST                             :FUN:0x200058DC:0x000000C0:GLB
-switchContext                    :FUN:0x200038A0:0x0000003C:GLB
+switchContext                    :FUN:0x200038C0:0x0000003C:GLB
 p1p2synch                        :OBJ:0x200068DC:0x00000004:GLB
 freeSemd                         :FUN:0x2000480C:0x0000004C:GLB
 getEPC                           :FUN:0x20005764:0x00000014:GLB
@@ -70,12 +70,12 @@ p3state                          :OBJ:0x20006118:0x0000008C:GLB
 emptyChild                       :FUN:0x200053F4:0x00000040:GLB
 p5MemLocation                    :OBJ:0x200068EC:0x00000004:GLB
 intLineN                         :OBJ:0x200069D8:0x00000004:GLB
-getLineN                         :FUN:0x200033D4:0x000000F0:GLB
+getLineN                         :FUN:0x200033C0:0x000000F0:GLB
 removeChild                      :FUN:0x200054B0:0x000000D0:GLB
 p8inc                            :OBJ:0x200068E0:0x00000004:GLB
 WAIT                             :FUN:0x20005898:0x00000014:GLB
 __start                          :FUN:0x200010B0:0x0000003C:GLB
-moveState                        :FUN:0x200038DC:0x00000108:GLB
+moveState                        :FUN:0x200038FC:0x00000108:GLB
 SYS                              :FUN:0x2000452C:0x000001A8:GLB
 LDST                             :FUN:0x200059C4:0x00000018:GLB
 endp4                            :OBJ:0x20006078:0x00000004:GLB
@@ -86,12 +86,12 @@ getSTATUS                        :FUN:0x2000573C:0x00000014:GLB
 test                             :FUN:0x20001268:0x000009E0:GLB
 TLBR                             :FUN:0x20005870:0x00000014:GLB
 startp2                          :OBJ:0x20006068:0x00000004:GLB
-scheduler                        :FUN:0x200039E4:0x00000204:GLB
+scheduler                        :FUN:0x20003A04:0x000001E0:GLB
 endcreate                        :OBJ:0x20006084:0x00000004:GLB
 testsem                          :OBJ:0x20006064:0x00000004:GLB
 allocSemd                        :FUN:0x2000475C:0x000000B0:GLB
 p8root                           :FUN:0x20002AB0:0x00000104:GLB
-prepForSwitch                    :FUN:0x20003BE8:0x00000094:GLB
+prepForSwitch                    :FUN:0x20003BE4:0x00000094:GLB
 setTIMER                         :FUN:0x200057C4:0x0000001C:GLB
 CAS                              :FUN:0x200058AC:0x00000010:GLB
 p8rootstate                      :OBJ:0x200063D4:0x0000008C:GLB
