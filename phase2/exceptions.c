@@ -292,7 +292,7 @@ void SYS(){/*unsigned int num, unsigned int arg1, unsigned int arg2, unsigned in
 	exState -> s_pc = exState -> s_t9 = exState -> s_pc + 4;
 	
 	/*int sysNum = ;*//*&UM 0x0...2*/
-	/*if(((exState -> s_a0) & CAUSESHIFT) != ALLBITSOFF){
+	/*if(((exState -> s_a0) & STAT) != ALLBITSOFF){
 		passUpOrDie(exState, 1);
 	}*/
 	sysNum = (exState -> s_a0);
