@@ -30,7 +30,7 @@ extern void moveState(state_PTR source, state_PTR destination);
 extern void switchContext(state_PTR s);
 extern void scheduler();
 extern void LDCXT(unsigned int stackPTR, unsigned int status, unsigned int pc);
-
+int sysNum;
 
 /*state_PTR exState;*/
 /* ------------------------------------ */
@@ -71,17 +71,45 @@ HIDDEN void CREATEPROCESS(state_PTR exState){
 		tim -> p_semAdd = NULL;
 		tim -> p_time = 0;
 		/*tim -> p_s = *newState; tim -> p_s = *newState; is memcpy error*/
-		tim -> p_supportStruct = supportP;
+		
 		
 		insertChild(currentProc, tim);
 		insertProcQ(&(readyQueue), tim);
 		
 		
 		moveState(newState, &(tim -> p_s));
-		processCnt ++;
+		if(supportP != 0 || supportP != NULL){
+			tim -> p_supportStruct = supportP;
+		}else{tim -> p_supportStruct = NULL;}
+		processCnt++;
 		currentProc -> p_s.s_v0 = 0;
 	}
 	switchContext(exState);
+}
+
+HIDDEN void TERMPROC(pcb_PTR proc){
+	if(currentProc == NULL){
+		scheduler();
+	}else{
+		while(!emptyChild(proc)){
+			TERMPROC(removeChild(proc));
+		}
+		if(currentProc == proc){outChild(proc);}
+		if(proc->p_semAdd == NULL){
+			outProcQ(&readyQueue, proc);
+		}else{/*sem*/
+			int* semA = proc -> p_semAdd;
+			pcb_PTR p = outBlocked(proc);
+			if(p != NULL){
+				if((semA >= &deviceSema4s[0]) && (semA <= &deviceSema4s[MAXDEVCNT])){
+					softBlockCnt--;
+				}else{(*semA)++;}
+				
+			}
+		}
+		freePcb(proc);
+		processCnt--;
+	}
 }
 
 /*recursive helper for TERMINATEPROCESS*/
@@ -128,12 +156,13 @@ HIDDEN void TERMINATEPROCESS(){
 HIDDEN void PASSEREN1(state_PTR exState){
 	int* sema4 = &(exState -> s_a1);
 	(*sema4)--;
-	if(sema4<0){
+	if(*sema4<0){
+		moveState(exState, &(currentProc->p_s));
 		insertBlocked(sema4, currentProc);
 		scheduler();
-	}else{
-		switchContext(exState);
 	}
+	switchContext(exState);
+	
 }
 
 /*sys4*//*done*/
@@ -143,7 +172,9 @@ HIDDEN void VERHOGEN1(state_PTR exState){
 	pcb_PTR p;
 	if((*sema4) <= 0){
 		p = removeBlocked(sema4);
-		insertProcQ(&readyQueue, p);
+		if(p != NULL){
+			insertProcQ(&readyQueue, p);
+		}
 	}
 	switchContext(exState);/*return to current proccess*/
 }
@@ -167,6 +198,7 @@ HIDDEN void WAIT_FOR_IO_DEVICE(state_PTR exState){
 	if(deviceSema4s[device]<0){
 		softBlockCnt++;
 		insertBlocked(&(deviceSema4s[device]), currentProc);
+		currentProc = NULL;
 		scheduler();
 	}else{
 		switchContext(exState);
@@ -245,7 +277,7 @@ void passUpOrDie(state_t *exState, int exType){
 		LDCXT(stackP, statusN, pc); 
 	}else{
 		/*die*/
-		TERMINATEPROCESS();
+		TERMPROC(currentProc);
 		currentProc = NULL;
 		scheduler();
 	}
@@ -263,7 +295,7 @@ void SYS(){/*unsigned int num, unsigned int arg1, unsigned int arg2, unsigned in
 	if(((exState -> s_a0) & CAUSESHIFT) != ALLBITSOFF){
 		passUpOrDie(exState, 1);
 	}
-	int sysNum = (exState -> s_a0);
+	sysNum = (exState -> s_a0);
 	
 	
 	
@@ -272,7 +304,8 @@ void SYS(){/*unsigned int num, unsigned int arg1, unsigned int arg2, unsigned in
 			CREATEPROCESS(exState);
 			break;}
 		case(TERMINATETHREAD):{/*terminatethread*/
-			TERMINATEPROCESS();
+			TERMPROC(currentProc);
+			scheduler();
 			break;}
 		case(PASSERN):{
 			PASSEREN1(exState);
