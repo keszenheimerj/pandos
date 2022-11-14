@@ -192,17 +192,21 @@ HIDDEN void WAIT_FOR_IO_DEVICE(state_PTR exState){
 		insertBlocked
 		scheduler();
 		*/
-	int device = ((lineN - 3 + wait) * DEVPERINT + devN);
-	deviceSema4s[device]--;
+	int device = (((lineN - 3 + wait) * DEVPERINT) + devN);
+	(deviceSema4s[device])--;
 	
-	if(deviceSema4s[device]<0){
+	softBlockCnt++;
+	insertBlocked(&(deviceSema4s[device]), currentProc);
+	currentProc = NULL;
+	scheduler();
+	/*if(deviceSema4s[device]<0){
 		softBlockCnt++;
 		insertBlocked(&(deviceSema4s[device]), currentProc);
 		currentProc = NULL;
 		scheduler();
 	}else{
 		switchContext(exState);
-	}
+	}*/
 }
 
 /*sys6*//*done*/
