@@ -37,6 +37,9 @@ cpu_t interruptStop;
 int intLineN;
 int intDevN;
 int ip;
+int check = 0;
+int status;
+int devP;
 
 /*HIDDEN int getDevice(int line){
 	
@@ -63,45 +66,58 @@ void nonTimerInt(int dev, int intDevN, int intLineN){
 	/*delcare variables*/
 	/* devaddrBase */
 
-	int devP = (intLineN-3) * DEVPERINT + intDevN;
+	devP = (intLineN-3) * DEVPERINT + intDevN;
 	
 	int devAddrBase = 0x10000054 + ((intLineN - 3) * 0x80) + (intDevN * 0x10); /*r28*/ /* first part is magic should be LOWMEM but this creates issues */
 
 	device_PTR device = (device_PTR) devAddrBase;
 	
-	int status;
-	
-	if(intLineN < 7){
+	status = 0;
+	check = 0;
+	if(intLineN != 7){
 		status = device -> d_status;
 		device->d_command = ACK;
+		check = 1;
 	}else{/*device is is 7*/
 		if(device -> t_transm_command & TRANSON){
 			status = device ->t_transm_status;
 			device -> t_transm_command = ACK;
+			device->d_command = ACK;
+			check = 2;
+			/*status = device -> d_status;
+			device->d_command = ACK;*/
 		}else{
 			status = device -> t_recv_status;
 			device -> t_recv_command = ACK;
 			devP = devP + DEVPERINT;
+			check = 3;
+			/*status = device -> d_status;
+			device->d_command = ACK;*/
 		}
 		
 	}
 
 
 	/*do the V*/
-	int semad_PTR = deviceSema4s[devP];
-	semad_PTR++;
+	int *sem = &deviceSema4s[devP];
+	(*sem)++;
 
-	if(semad_PTR >= 0){
-		int* s = &semad_PTR;
-		pcb_PTR p = removeBlocked((s));
+	if((*sem) >= 0){
+		/*int* s = (sem);*/
+		pcb_PTR p = removeBlocked((sem));
 
-		if(p != NULL){
+		/*if(p != NULL){
 			STCK(interruptStop);
 			p -> p_time = (p -> p_time) + (interruptStop - startTime);
 			p -> p_s.s_v0 = status;
 			softBlockCnt--;
 			insertProcQ(&readyQueue, p);
-		}
+		}*/
+		STCK(interruptStop);
+		p -> p_time = (p -> p_time) + (interruptStop - startTime);
+		p -> p_s.s_v0 = status;
+		softBlockCnt--;
+		insertProcQ(&readyQueue, p);
 	}
 	prepForSwitch();
 	

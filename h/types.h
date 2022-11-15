@@ -24,10 +24,10 @@ typedef struct {
 	unsigned int d_data1;
 } device_t, *device_PTR;
 
-#define t_recv_status		d_status
-#define t_recv_command		d_command
-#define t_transm_status		d_data0
-#define t_transm_command	d_data1
+#define t_recv_status		d_status /*field 0*/
+#define t_recv_command		d_command /*field 1*/
+#define t_transm_status		d_data0 /*field 2*/
+#define t_transm_command	d_data1 /*field 3*/
 
 
 /* Bus Register Area */
