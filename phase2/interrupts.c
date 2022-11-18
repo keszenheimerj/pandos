@@ -40,6 +40,7 @@ int ip;
 int check = 0;
 int status;
 int devP;
+int *semC;
 
 /*HIDDEN int getDevice(int line){
 	
@@ -99,13 +100,16 @@ void nonTimerInt(int dev, int intDevN, int intLineN){
 
 
 	/*do the V*/
-	int *sem = &deviceSema4s[devP];
+	/*int *sem = &deviceSema4s[devP];
 	(*sem)++;
-
-	if((*sem) >= 0){
+	semC = sem;*/
+	deviceSema4s[devP] = deviceSema4s[devP] + 1;
+	
+	
+	if((deviceSema4s[devP]) <= 0){/**sem  >=*/
 		/*int* s = (sem);*/
-		pcb_PTR p = removeBlocked((sem));
-
+		pcb_PTR p = removeBlocked(&(deviceSema4s[devP]));
+		softBlockCnt--;
 		/*if(p != NULL){
 			STCK(interruptStop);
 			p -> p_time = (p -> p_time) + (interruptStop - startTime);
@@ -116,7 +120,7 @@ void nonTimerInt(int dev, int intDevN, int intLineN){
 		STCK(interruptStop);
 		p -> p_time = (p -> p_time) + (interruptStop - startTime);
 		p -> p_s.s_v0 = status;
-		softBlockCnt--;
+		
 		insertProcQ(&readyQueue, p);
 	}
 	prepForSwitch();

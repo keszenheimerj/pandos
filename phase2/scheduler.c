@@ -53,6 +53,21 @@ void moveState(state_PTR source, state_PTR destination){ /*copy the source state
 	switchContext(destination);
 }
 
+void copyState(state_PTR source, state_PTR destination){ /*copy the source state */
+	/*do stuff with all 35 regs in a for*/
+	int i = 0;
+	while(i < STATEREGNUM){
+		destination -> s_reg[i] = source -> s_reg[i];
+		i++;
+	}
+	
+	/*four other lines to init fields of state*/
+	destination -> s_entryHI = source -> s_entryHI;
+	destination -> s_cause = source -> s_cause;
+	destination -> s_status = source -> s_status;
+	destination -> s_pc = source -> s_pc;
+}
+
 void scheduler(){
 	startT = 0;
 	/*if(currentProc != NULL){emptyProcQ(readyQueue)

@@ -30,6 +30,7 @@ extern void moveState(state_PTR source, state_PTR destination);
 extern void switchContext(state_PTR s);
 extern void scheduler();
 extern void LDCXT(unsigned int stackPTR, unsigned int status, unsigned int pc);
+extern void copyState(state_PTR source, state_PTR destination);
 int sysNum;
 
 /*state_PTR exState;*/
@@ -101,7 +102,7 @@ HIDDEN void TERMPROC(pcb_PTR proc){
 			int* semA = proc -> p_semAdd;
 			pcb_PTR p = outBlocked(proc);
 			if(p != NULL){
-				if((semA >= &deviceSema4s[0]) && (semA <= &deviceSema4s[MAXDEVCNT])){
+				if((semA >= &deviceSema4s[0]) && (semA <= &deviceSema4s[MAXDEVCNT-1])){
 					softBlockCnt--;
 				}else{(*semA)++;}
 				
@@ -181,7 +182,7 @@ HIDDEN void VERHOGEN1(state_PTR exState){
 
 /*sys5*//*done*/
 HIDDEN void WAIT_FOR_IO_DEVICE(state_PTR exState){
-	moveState(exState, &(currentProc -> p_s));
+	copyState(exState, &(currentProc -> p_s));
 	int lineN = exState -> s_a1;
 	int devN = exState -> s_a2;
 	
@@ -192,10 +193,11 @@ HIDDEN void WAIT_FOR_IO_DEVICE(state_PTR exState){
 		insertBlocked
 		scheduler();
 		*/
-	int device = (((lineN - 3 + wait) * DEVPERINT) + devN);
+	int device = (((lineN - 3 + wait) * DEVPERINT) + devN);/*wait addresses whether we need the offset of 8(devperint)*/
 	(deviceSema4s[device])--;
 	
 	softBlockCnt++;
+	
 	insertBlocked(&(deviceSema4s[device]), currentProc);
 	currentProc = NULL;
 	scheduler();
@@ -238,10 +240,17 @@ HIDDEN void WAIT_FOR_CLOCK(state_PTR exState){
 		example sys7 request from book: SYS (WAITCLOCK, 0, 0, 0); 
 		Where the mnemonic constant WAITCLOCK has the value of 7.
 		*/
-		moveState(exState, &(currentProc -> p_s));
+		/*moveState(exState, &(currentProc -> p_s));
 		softBlockCnt ++;
 		exState -> s_a1 = (deviceSema4s[MAXDEVCNT-1]);
-		PASSEREN1(exState);/*on interval timer semaphore*/
+		PASSEREN1(exState)*on interval timer semaphore*/
+		
+		deviceSema4s[MAXDEVCNT-1]--;
+		if(deviceSema4s[MAXDEVCNT-1] < 0){
+			softBlockCnt++;
+			insertBlocked(&(deviceSema4s[MAXDEVCNT-1]), currentProc);
+		}
+		switchContext(&currentProc->p_s);
 }
 
 /*sys8*/
