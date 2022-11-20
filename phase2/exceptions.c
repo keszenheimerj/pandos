@@ -249,7 +249,7 @@ HIDDEN void GET_CPU_TIME(state_PTR exState){
 	cpu_t calcTime;
 	STCK(calcTime);
 	currentProc -> p_s.s_v0 = currentProc -> p_time = currentProc -> p_time + (calcTime-sTOD);/* current time - sTOD */ /* getTimer from r129 */
-	
+	STCK(sTOD);
 	switchContext(&currentProc->p_s); /*swap for switchContect*/
 }
 
