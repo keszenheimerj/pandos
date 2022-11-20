@@ -89,28 +89,30 @@ HIDDEN void CREATEPROCESS(state_PTR exState){
 }
 
 HIDDEN void TERMPROC(pcb_PTR proc){
-	if(currentProc == NULL){
+	/*if(currentProc == NULL){
 		scheduler();
-	}else{
+	}else{*/
 		while(!emptyChild(proc)){
 			TERMPROC(removeChild(proc));
 		}
-		if(currentProc == proc){outChild(proc);}
-		if(proc->p_semAdd == NULL){
+		if(currentProc == proc){outChild(proc);}/*running*//*if it has a parent say goodbye*/
+		else if(proc->p_semAdd == NULL){/*ready*/
 			outProcQ(&readyQueue, proc);
-		}else{/*sem*/
+		}else{/*sem*//*waiting queue*/
 			int* semA = proc -> p_semAdd;
 			pcb_PTR p = outBlocked(proc);
 			if(p != NULL){
-				if((semA >= &deviceSema4s[0]) && (semA <= &deviceSema4s[MAXDEVCNT-1])){
+				/*if((semA >= &deviceSema4s[0]) && (semA <= &deviceSema4s[MAXDEVCNT-1])){
 					softBlockCnt--;
-				}else{(*semA)++;}
+				}else{(*semA)++;}*/
 				
 			}
+			softBlockCnt++;
+			(*semA)++;
 		}
 		freePcb(proc);
 		processCnt--;
-	}
+	/*}*/
 }
 
 /*recursive helper for TERMINATEPROCESS*/
@@ -122,7 +124,7 @@ HIDDEN void terminateChild(pcb_PTR child){
 			while(!emptyChild(child)){
 				terminateChild(removeChild(child));
 			}
-			processCnt --;
+			processCnt--;
 			outProcQ(&readyQueue, child);
 			
 			/*check if free, active, asl*/
