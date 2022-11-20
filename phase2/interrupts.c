@@ -25,11 +25,12 @@ extern pcb_PTR readyQueue;
 extern int processCnt;
 extern int softBlockCnt;
 extern int deviceSema4s[MAXDEVCNT];
-extern cpu_t startTime;
+extern cpu_t sTOD;
 
 extern pcb_PTR removeBlocked(int *semAdd);
 extern void prepForSwitch();
 void moveState(state_PTR source, state_PTR destination);
+void copyState(state_PTR source, state_PTR destination);
 void scheduler();
 /* ------------------------------------ */
 cpu_t interruptStart;/*dont use*/
@@ -112,13 +113,13 @@ void nonTimerInt(int dev, int intDevN, int intLineN){
 		softBlockCnt--;
 		/*if(p != NULL){
 			STCK(interruptStop);
-			p -> p_time = (p -> p_time) + (interruptStop - startTime);
+			p -> p_time = (p -> p_time) + (interruptStop - sTOD);
 			p -> p_s.s_v0 = status;
 			softBlockCnt--;
 			insertProcQ(&readyQueue, p);
 		}*/
 		STCK(interruptStop);
-		p -> p_time = (p -> p_time) + (interruptStop - startTime);
+		p -> p_time = (p -> p_time) + (interruptStop - sTOD);
 		p -> p_s.s_v0 = status;
 		
 		insertProcQ(&readyQueue, p);
@@ -182,12 +183,18 @@ void pltInt(state_PTR eState){/*process local timer interrupt*/
 			/* call the scheduler */
 		/*LDIT(QUANTUM);*/
 		setTIMER(IO);
-		/*currentProc -> p_time += (interruptStop - startTime);*/
+		/*currentProc -> p_time += (interruptStop - sTOD);*/
 		if(currentProc != NULL){
-			moveState(eState, &(currentProc -> p_s));
+			
 			/*insertBlocked(&readyQueue, currentProc);*/
+			
+			/*moveState(eState, &(currentProc -> p_s));/*17.11moveState*/
+			/*insertProcQ(&readyQueue, currentProc);*/
+			
+			moveState(eState, &(currentProc -> p_s));/*17.11moveState*/
 			insertProcQ(&readyQueue, currentProc);
 		}
+		
 		scheduler();
 }
 
@@ -232,15 +239,15 @@ void intHandler(){
 	}else 
 	if((ip & LINEONEON) != 0){
 		/*in progress*/
-		pltInt(exState);
-		/*prepForSwitch(); laast*/
+		pltInt(exState); /*17.11*/
+		/*prepForSwitch();*/ /*laast*/
 	}else if((ip & LINETWOON) != 0){/*pg 34*/
 		LDIT(IO);
 		STCK(interruptStop);
 		int *clockS = &deviceSema4s[MAXDEVCNT-1];
 		pcb_PTR p = (removeBlocked(clockS));/*store process */
 		while(p != NULL){
-			p->p_time = (p -> p_time) + (interruptStop - startTime);
+			p->p_time = (p -> p_time) + (interruptStop - sTOD);
 			insertProcQ(&readyQueue, p);
 			p = removeBlocked(clockS);
 			softBlockCnt--;

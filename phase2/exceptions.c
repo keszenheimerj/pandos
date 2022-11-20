@@ -24,7 +24,7 @@ extern pcb_PTR readyQueue;
 extern int processCnt;
 extern int softBlockCnt;
 extern int deviceSema4s[MAXDEVCNT];
-extern cpu_t startTime;
+extern cpu_t sTOD;
 extern void prepForSwitch();
 extern void moveState(state_PTR source, state_PTR destination);
 extern void switchContext(state_PTR s);
@@ -78,7 +78,7 @@ HIDDEN void CREATEPROCESS(state_PTR exState){
 		insertProcQ(&(readyQueue), tim);
 		
 		
-		moveState(newState, &(tim -> p_s));
+		copyState(newState, &(tim -> p_s));/*17.11 moveState*/
 		if(supportP != 0 || supportP != NULL){
 			tim -> p_supportStruct = supportP;
 		}else{tim -> p_supportStruct = NULL;}
@@ -155,25 +155,48 @@ HIDDEN void TERMINATEPROCESS(){
 
 /*sys3*//*done*/
 HIDDEN void PASSEREN1(state_PTR exState){
-	int* sema4 = &(exState -> s_a1);
+	int *sema4 = (int*) (exState -> s_a1);
 	(*sema4)--;
 	if(*sema4<0){
-		moveState(exState, &(currentProc->p_s));
+		copyState(exState, &(currentProc->p_s));/*17.11moveState*/
 		insertBlocked(sema4, currentProc);
+		softBlockCnt++;/*17.11*//*iffy*/
 		scheduler();
 	}
 	switchContext(exState);
 	
+	/*
+	(exState -> s_a1) = (exState -> s_a1)- 1;
+	if((exState -> s_a1)<0){
+		copyState(exState, &(currentProc->p_s));/*17.11moveState*/
+		/*insertBlocked(&(exState -> s_a1), currentProc);
+		softBlockCnt++;/*17.11*//*iffy*/
+		/*scheduler();
+	}
+	switchContext(exState);*/
 }
 
 /*sys4*//*done*/
 HIDDEN void VERHOGEN1(state_PTR exState){
-	int* sema4 = &(exState->s_a1);
+	int* sema4 = (int*) (exState->s_a1);
 	(*sema4)++;
 	pcb_PTR p;
 	if((*sema4) <= 0){
 		p = removeBlocked(sema4);
 		if(p != NULL){
+			/*softBlockCnt--;*/
+			insertProcQ(&readyQueue, p);
+		}
+	}
+	switchContext(exState);/*return to current proccess
+	
+	
+	/*((exState->s_a1))++;
+	pcb_PTR p;
+	if(((exState->s_a1)) <= 0){
+		p = removeBlocked(&(exState->s_a1));
+		if(p != NULL){
+			softBlockCnt--;
 			insertProcQ(&readyQueue, p);
 		}
 	}
@@ -222,10 +245,10 @@ HIDDEN void GET_CPU_TIME(state_PTR exState){
 		use register s_v0
 		*/
 	/*copy old state to current process*/
-	moveState(exState, &(currentProc->p_s));
+	copyState(exState, &(currentProc->p_s));/*17.11moveState*/
 	cpu_t calcTime;
 	STCK(calcTime);
-	currentProc -> p_s.s_v0 = currentProc -> p_time = currentProc -> p_time + (calcTime-startTime);/* current time - startTime */ /* getTimer from r129 */
+	currentProc -> p_s.s_v0 = currentProc -> p_time = currentProc -> p_time + (calcTime-sTOD);/* current time - sTOD */ /* getTimer from r129 */
 	
 	switchContext(&currentProc->p_s); /*swap for switchContect*/
 }
@@ -244,11 +267,13 @@ HIDDEN void WAIT_FOR_CLOCK(state_PTR exState){
 		softBlockCnt ++;
 		exState -> s_a1 = (deviceSema4s[MAXDEVCNT-1]);
 		PASSEREN1(exState)*on interval timer semaphore*/
-		
+		copyState(exState, &(currentProc -> p_s));/*17.11*/
 		deviceSema4s[MAXDEVCNT-1]--;
 		if(deviceSema4s[MAXDEVCNT-1] < 0){
 			softBlockCnt++;
 			insertBlocked(&(deviceSema4s[MAXDEVCNT-1]), currentProc);
+			currentProc = NULL;/*17.11*/
+			scheduler();/*17.11*/
 		}
 		switchContext(&currentProc->p_s);
 }
@@ -261,7 +286,7 @@ HIDDEN void GET_SUPPORT_DATA(state_PTR exState){
 		example sys8 from book: support_t *sPtr = SYS (GETSUPPORTPTR, 0, 0, 0);
 		Where the mnemonic constant GETSUPPORTPTR has the value of 8.
 		*/
-		moveState(exState, &(currentProc->p_s));
+		copyState(exState, &(currentProc->p_s));/*17.11moveState*/
 		currentProc -> p_s.s_v0 = (int)(currentProc -> p_supportStruct);/*check whether to add -> sup_asid */
 		switchContext(&(currentProc -> p_s)); /*swap for switch context*/
 }
@@ -280,7 +305,7 @@ void pseudoClockTick(){
 void passUpOrDie(state_t *exState, int exType){
 	if(currentProc -> p_supportStruct != NULL){
 		/*pass up*/
-		moveState(exState,&(currentProc -> p_supportStruct -> sup_exceptState[exType]));
+		copyState(exState,&(currentProc -> p_supportStruct -> sup_exceptState[exType]));/*17.11moveState*/
 		
 		/*r129 seems liked we need to change execution state*/
 		
@@ -305,7 +330,7 @@ void SYS(){/*unsigned int num, unsigned int arg1, unsigned int arg2, unsigned in
 	exState -> s_pc = exState -> s_t9 = exState -> s_pc + 4;
 	
 	/*int sysNum = ;*//*&UM 0x0...2*/
-	/*if(((exState -> s_a0) & STAT) != ALLBITSOFF){
+	/*if(((exState -> s_status) & STAT) != ALLBITSOFF){
 		passUpOrDie(exState, 1);
 	}*/
 	sysNum = (exState -> s_a0);

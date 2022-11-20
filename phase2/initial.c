@@ -39,7 +39,7 @@ pcb_PTR currentProc; 	/*scaler to the running Proc*/
 int processCnt;		/*int indicating the started but not terminated processes*/
 int softBlockCnt;		/*a process can either be ready, running, blocked(waiting) state and this int is the number of started, but not terminated processes*/
 int deviceSema4s[MAXDEVCNT]; /*42 | 49; =0??*/
-cpu_t startTime;
+cpu_t sTOD;
 int causeNum;
 /*
 ************end global variables**************
@@ -131,7 +131,7 @@ int main(){
 	processCnt = processCnt + 1;
 	LDIT(IO); /*loading the interval timer with 100 milisec*/
 	p = NULL;/*testing theory*/
-	STCK(startTime);
+	STCK(sTOD);
 	scheduler();/*gets called*/			/*dequeue remove PRocQ*/
 	
 	return 0;

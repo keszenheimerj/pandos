@@ -19,14 +19,14 @@
 /* #include "../phase2/initial.c" */
 #include "/usr/include/umps3/umps/libumps.h"
 
-cpu_t startT;
+cpu_t elapsed;
 
 /* ---------Global Variables----------- */
 extern pcb_PTR currentProc;
 extern pcb_PTR readyQueue;
 extern int processCnt;
 extern int softBlockCnt;
-extern cpu_t startTime;
+extern cpu_t sTOD;
 extern cpu_t interruptStart;
 /* ------------------------------------ */
 
@@ -69,7 +69,7 @@ void copyState(state_PTR source, state_PTR destination){ /*copy the source state
 }
 
 void scheduler(){
-	startT = 0;
+	elapsed = 0;
 	/*if(currentProc != NULL){emptyProcQ(readyQueue)
 		if(processCnt == 0){
 			HALT();
@@ -87,14 +87,14 @@ void scheduler(){
 			WAIT();
 		}
 		
-		/*currentProc -> p_time = currentProc -> p_time + (current time- startT);
+		/*currentProc -> p_time = currentProc -> p_time + (current time- elapsed);
 		currentProc = removeProcQ(&readyQueue);  get who is next
 		
 		if not empty
 			store a value on the timer
 			
 		if(emptyQueue(&readyQueue)){
-			STCK(startT);
+			STCK(elapsed);
 			PLT = .5;
 		}
 		length of a quantom
@@ -122,7 +122,7 @@ void scheduler(){
 			/*set timer
 			/*double PLT = .5;	unused
 		
-			STCK(startT);
+			STCK(elapsed);
 			LDST(&currentProc -> p_s);
 		}else{
 			panic ?
@@ -131,22 +131,22 @@ void scheduler(){
 	}*/
 	
 	if(currentProc != NULL){
-		STCK(startT);
-		currentProc -> p_time = currentProc -> p_time + (startT - startTime);
+		STCK(elapsed);
+		currentProc -> p_time = currentProc -> p_time + (elapsed - sTOD);
 		LDIT(IO);
 		
 	}
 	pcb_PTR nProc = removeProcQ(&readyQueue);/*reached*/
 	if(nProc != NULL){
 		currentProc = nProc;
-		STCK(startTime);
+		STCK(sTOD);
 		setTIMER(QUANTUM);
 		switchContext(&(currentProc -> p_s));
 	}else{
 		if(processCnt == 0){
 			HALT();
 		}
-		if(softBlockCnt > 0){
+		if(processCnt > 0 && softBlockCnt > 0){
 			/*currentProc -> p_s.s_status = */
 			setSTATUS((int) ALLBITSOFF | IECON | IMON);
 			WAIT();
@@ -156,8 +156,8 @@ void scheduler(){
 	}
 	
 	/*is currentP null
-		STCK(startT)
-		currentProc -> p_time = currentProc->p_time + (startT - startTime)
+		STCK(elapsed)
+		currentProc -> p_time = currentProc->p_time + (elapsed - sTOD)
 		LDIT(IOCLOCK)
 	else
 		no process in ready queue 
@@ -177,7 +177,7 @@ void prepForSwitch(){
 	state_PTR exState = (state_PTR) BIOSDATAPAGE;
 		/*goto ready*/
 	if(currentProc != NULL){
-		moveState(exState, &(currentProc -> p_s));
+		copyState(exState, &(currentProc -> p_s));/*17.11moveState*/
 		insertProcQ(&readyQueue, currentProc);
 	}
 	scheduler();
