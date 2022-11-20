@@ -107,7 +107,7 @@
 #define TEON       	  0x08000000
 #define IECON	  	      0x00000001
 #define KUPON	  	      0x00000008
-#define STAT		      0x00000007
+#define STAT		      0x00000002/*7*/
 
 #define DEVLINEZEROON	      0x1
 #define DEVLINEONEON	      0x2
