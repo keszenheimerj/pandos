@@ -7,4 +7,8 @@ p3 is started
 p3 - WAITCLOCK OK
 p3 - CPU time correctly maintained
 first incarnation of p4 starts
-p
+p6 starts
+p7 starts
+p5 starts
+second incarnation of p4 starts
+Bus Error: Access non-existent memory

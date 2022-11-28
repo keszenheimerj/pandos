@@ -62,14 +62,15 @@ void genExceptionHandler(){
 	if(causeNum == 0){
 		/*pass proccessing to nucleus dev interupt handler*/
 		intHandler();
-	}else if(causeNum == 8){
+	}
+	if(causeNum == 8){
 		SYS();/*previousStatePTR could be passed but unneccessary previousStatePTR -> s_a0, previousStatePTR -> s_a1, previousStatePTR -> s_a2, previousStatePTR -> s_a3*/
 	}else{
 		/*tlb execption, pass proccessing to tlb-exception handler*/
 		if(causeNum < 4){
-			passUpOrDie((state_PTR) BIOSDATAPAGE, 0); /*PGF*/
+			passUpOrDie((state_PTR) BIOSDATAPAGE, PGFAULTEXCEPT); /*PGF*/
 		}else{
-			passUpOrDie((state_PTR) BIOSDATAPAGE, 1); /*general*/
+			passUpOrDie((state_PTR) BIOSDATAPAGE, GENERALEXCEPT); /*general*/
 		}
 		/*programTrap*/
 	}
@@ -117,15 +118,15 @@ int main(){
 	
 	/*done*/
 	
-	/*p -> p_time = 0;
-	p -> p_semAdd = NULL;*/
+	p -> p_time = 0;
+	p -> p_semAdd = NULL;
 	p -> p_supportStruct = NULL;
 	/*turn kernal mode on?*/
 	/*init interupts as enabled
 	procLocal timer enabled
 	kernel mode on*/
 	p -> p_s.s_status = ALLBITSOFF | TEON | IMON | IEPON;
-
+	/*p -> p_s.s_status = ALLBITSOFF | TEON | IMON | IEPON;*/
 	
 	insertProcQ(&readyQueue, p); /*statis is ready*/
 	processCnt = processCnt + 1;

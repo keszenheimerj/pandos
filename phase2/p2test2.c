@@ -151,8 +151,7 @@ void uTLB_RefillHandler () {
 /*                                                                   */
 /*                 p1 -- the root process                            */
 /*                                                                   */
-void test() {	
-	
+void test() {
 	SYSCALL(VERHOGEN, (int)&testsem, 0, 0);					/* V(testsem)   */
 
 	print("p1 v(testsem)\n");
@@ -255,23 +254,16 @@ void test() {
 	SYSCALL(PASSERN, (int)&endp3, 0, 0);								/* P(endp3)     */
 
 	SYSCALL(CREATETHREAD, (int)&p4state, (int) NULL, 0);				/* start p4     */
-
-	/*pFiveSupport.sup_exceptContext[GENERALEXCEPT].c_stackPtr = (int) p5Stack;*/
 	pFiveSupport.sup_exceptContext[GENERALEXCEPT].c_stackPtr = (int) p5Stack;
 	pFiveSupport.sup_exceptContext[GENERALEXCEPT].c_status = ALLOFF | IEPBITON | CAUSEINTMASK | TEBITON;
 	pFiveSupport.sup_exceptContext[GENERALEXCEPT].c_pc =  (memaddr) p5gen;
 	pFiveSupport.sup_exceptContext[PGFAULTEXCEPT].c_stackPtr = p5Stack;
 	pFiveSupport.sup_exceptContext[PGFAULTEXCEPT].c_status = ALLOFF | IEPBITON | CAUSEINTMASK | TEBITON;
 	pFiveSupport.sup_exceptContext[PGFAULTEXCEPT].c_pc =  (memaddr) p5mm;
-	
 	SYSCALL(CREATETHREAD, (int)&p5state, (int) &(pFiveSupport), 0); 	/* start p5     */
-
 	SYSCALL(CREATETHREAD, (int)&p6state, (int) NULL, 0);				/* start p6		*/
-
 	SYSCALL(CREATETHREAD, (int)&p7state, (int) NULL, 0);				/* start p7		*/
-
 	SYSCALL(PASSERN, (int)&endp5, 0, 0);								/* P(endp5)		*/ 
-
 	print("p1 knows p5 ended\n");
 
 	SYSCALL(PASSERN, (int)&blkp4, 0, 0);								/* P(blkp4)		*/
@@ -325,14 +317,17 @@ void p2() {
 
 	STCK(now1);				/* time of day   */
 	cpu_t1 = SYSCALL(GETCPUTIME, 0, 0, 0);			/* CPU time used */
-
+	
 	/* delay for several milliseconds */
 	for (i=1; i < LOOPNUM; i++)
 		;
 
 	cpu_t2 = SYSCALL(GETCPUTIME, 0, 0, 0);			/* CPU time used */
 	STCK(now2);				/* time of day  */
-
+	
+	
+	
+	
 	if (((now2 - now1) >= (cpu_t2 - cpu_t1)) &&
 			((cpu_t2 - cpu_t1) >= (MINLOOPTIME / (* ((cpu_t *)TIMESCALEADDR)))))
 		print("p2 is OK\n");
@@ -343,9 +338,7 @@ void p2() {
 			print ("error: not enough cpu time went by\n");
 		print("p2 blew it!\n");
 	}
-
 	p1p2synch = 1;				/* p1 will check this */
-
 	SYSCALL(VERHOGEN, (int)&endp2, 0, 0);				/* V(endp2)     */
 
 	SYSCALL(TERMINATETHREAD, 0, 0, 0);			/* terminate p2 */
@@ -388,11 +381,11 @@ void p3() {
 	else
 		print("p3 - CPU time correctly maintained\n");
 
-
+	
 	SYSCALL(VERHOGEN, (int)&endp3, 0, 0);				/* V(endp3)        */
-
+	/*hit*/
 	SYSCALL(TERMINATETHREAD, 0, 0, 0);			/* terminate p3    */
-
+	
 	/* just did a SYS2, so should not get to this point */
 	print("error: p3 didn't terminate\n");
 	PANIC();					/* PANIC            */
@@ -425,7 +418,7 @@ void p4() {
 	p4state.s_sp -= QPAGE;		/* give another page  */
 
 	SYSCALL(CREATETHREAD, (int)&p4state, 0, 0);			/* start a new p4    */
-	
+
 	SYSCALL(PASSERN, (int)&synp4, 0, 0);				/* wait for it       */
 
 	print("p4 is OK\n");

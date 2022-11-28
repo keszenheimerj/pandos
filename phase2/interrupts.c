@@ -29,6 +29,7 @@ extern cpu_t sTOD;
 
 extern pcb_PTR removeBlocked(int *semAdd);
 extern void prepForSwitch();
+extern void switchContext(state_PTR s);
 void moveState(state_PTR source, state_PTR destination);
 void copyState(state_PTR source, state_PTR destination);
 void scheduler();
@@ -157,6 +158,7 @@ void nonTimerInt(int dev, int intDevN, int intLineN){
 }
 
 void pltInt(state_PTR eState){/*process local timer interrupt*/
+	/*prepForSwitch();
 	/* Process Local Timer Interrupts (PLT) */
 
 			/* syscall2 (terminating) cause or exception without having set a support structure address */
@@ -182,7 +184,8 @@ void pltInt(state_PTR eState){/*process local timer interrupt*/
 			
 			/* call the scheduler */
 		/*LDIT(QUANTUM);*/
-		setTIMER(IO);
+		setTIMER(IO);			/*bring back*/
+		/*prepForSwitch();*/
 		/*currentProc -> p_time += (interruptStop - sTOD);*/
 		if(currentProc != NULL){
 			
@@ -193,6 +196,9 @@ void pltInt(state_PTR eState){/*process local timer interrupt*/
 			
 			moveState(eState, &(currentProc -> p_s));/*17.11moveState*/
 			insertProcQ(&readyQueue, currentProc);
+			/*moveState(eState, &(currentProc -> p_s));
+			/*maybe*/
+			/*switchContext(&(currentProc -> p_s));*/
 		}
 		
 		scheduler();
@@ -236,8 +242,7 @@ void intHandler(){
 	/*find line number */
 	if(ip & LINEZEROON){
 		PANIC();
-	}else 
-	if((ip & LINEONEON) != 0){
+	}else if((ip & LINEONEON) != 0){
 		/*in progress*/
 		pltInt(exState); /*17.11*/
 		/*prepForSwitch();*/ /*laast*/

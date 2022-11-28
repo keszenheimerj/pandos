@@ -102,13 +102,14 @@ HIDDEN void TERMPROC(pcb_PTR proc){
 			int* semA = proc -> p_semAdd;
 			pcb_PTR p = outBlocked(proc);
 			if(p != NULL){
-				/*if((semA >= &deviceSema4s[0]) && (semA <= &deviceSema4s[MAXDEVCNT-1])){
+				if((semA >= &deviceSema4s[0]) && (semA <= &deviceSema4s[MAXDEVCNT-1])){
 					softBlockCnt--;
-				}else{(*semA)++;}*/
+				}else{(*semA)++;}
 				
 			}
-			softBlockCnt++;
-			(*semA)++;
+			/*softBlockCnt++;*/
+			
+			/*(*semA)++;*/
 		}
 		freePcb(proc);
 		processCnt--;
@@ -307,18 +308,19 @@ void pseudoClockTick(){
 void passUpOrDie(state_t *exState, int exType){
 	if(currentProc -> p_supportStruct != NULL){
 		/*pass up*/
-		copyState(exState,&(currentProc -> p_supportStruct -> sup_exceptState[exType]));/*17.11moveState*/
+		copyState(exState, &(currentProc -> p_supportStruct -> sup_exceptState[exType]));/*17.11moveState*/
 		
 		/*r129 seems liked we need to change execution state*/
-		
+		/*context_t context = currentProc -> p_supportStruct -> sup_exceptContext[exType];
 		unsigned int stackP = currentProc -> p_supportStruct -> sup_exceptContext[exType].c_stackPtr;
 		unsigned int statusN = currentProc -> p_supportStruct -> sup_exceptContext[exType].c_status;
 		unsigned int pc = currentProc-> p_supportStruct -> sup_exceptContext[exType].c_pc;
-		LDCXT(stackP, statusN, pc); 
+		LDCXT(context.c_stackPtr, context.c_status, context.c_pc); */
+		LDCXT(currentProc -> p_supportStruct -> sup_exceptContext[exType].c_stackPtr, currentProc -> p_supportStruct -> sup_exceptContext[exType].c_status, currentProc -> p_supportStruct -> sup_exceptContext[exType].c_pc);
 	}else{
 		/*die*/
 		TERMPROC(currentProc);
-		currentProc = NULL;
+		/*currentProc = NULL;*/
 		scheduler();
 	}
 }
@@ -332,9 +334,9 @@ void SYS(){/*unsigned int num, unsigned int arg1, unsigned int arg2, unsigned in
 	exState -> s_pc = exState -> s_t9 = exState -> s_pc + 4;
 	
 	/*int sysNum = ;*//*&UM 0x0...2*/
-	/*if(((exState -> s_status) & STAT) != ALLBITSOFF){
-		passUpOrDie(exState, 1);
-	}*/
+	if(((exState -> s_status) & KERNALMODE) != ALLBITSOFF){
+		passUpOrDie(exState, GENERALEXCEPT);
+	}
 	sysNum = (exState -> s_a0);
 	
 	
@@ -366,7 +368,7 @@ void SYS(){/*unsigned int num, unsigned int arg1, unsigned int arg2, unsigned in
 			GET_SUPPORT_DATA(exState);
 			break;}
 		default:{
-			passUpOrDie(exState, 1);/*generalException*/
+			passUpOrDie(exState, GENERALEXCEPT);/*generalException*/
 			break;}
 	}
 }

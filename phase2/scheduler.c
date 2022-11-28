@@ -19,7 +19,7 @@
 /* #include "../phase2/initial.c" */
 #include "/usr/include/umps3/umps/libumps.h"
 
-cpu_t elapsed;
+/*cpu_t elapsed;*/
 
 /* ---------Global Variables----------- */
 extern pcb_PTR currentProc;
@@ -29,6 +29,8 @@ extern int softBlockCnt;
 extern cpu_t sTOD;
 extern cpu_t interruptStart;
 /* ------------------------------------ */
+state_PTR sour;
+state_PTR dest;
 
 /*void switchContext(pcb_PTR current){
 	LDST(&(current -> p_s));
@@ -55,6 +57,8 @@ void moveState(state_PTR source, state_PTR destination){ /*copy the source state
 
 void copyState(state_PTR source, state_PTR destination){ /*copy the source state */
 	/*do stuff with all 35 regs in a for*/
+	sour = source;
+	dest = destination;
 	int i = 0;
 	while(i < STATEREGNUM){
 		destination -> s_reg[i] = source -> s_reg[i];
@@ -69,7 +73,7 @@ void copyState(state_PTR source, state_PTR destination){ /*copy the source state
 }
 
 void scheduler(){
-	elapsed = 0;
+	cpu_t elapsed = 0;
 	/*if(currentProc != NULL){emptyProcQ(readyQueue)
 		if(processCnt == 0){
 			HALT();
@@ -148,6 +152,7 @@ void scheduler(){
 		}
 		if(processCnt > 0 && softBlockCnt > 0){
 			/*currentProc -> p_s.s_status = */
+			setTIMER((unsigned int)100000000000000000);
 			setSTATUS((int) ALLBITSOFF | IECON | IMON);
 			WAIT();
 		}/*else if(softBlockCnt == 0){getting stuck on

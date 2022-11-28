@@ -34,6 +34,9 @@
 #include "../h/asl.h"
 #include "../h/const.h"
 
+int nullHit;
+int semTest;
+
 HIDDEN	semd_t *semdActive_h, *semdFree_h;
 
 /*Functions*/
@@ -43,12 +46,25 @@ HIDDEN	semd_t *semdActive_h, *semdFree_h;
 */
 semd_t*		searchAdd(int* checkVal){
 	semd_t *loopingSem = semdActive_h;
+	
 	while((loopingSem -> s_next -> s_semAdd) < checkVal){
 		loopingSem = loopingSem -> s_next;
 	}
 	return loopingSem;
 }
 
+semd_t	*search(int *semAdd){
+	semd_t *temp = semdActive_h -> s_next;
+	semd_t *prnt = semdActive_h;
+	while(temp -> s_semAdd <= semAdd){
+		if(temp->s_semAdd == semAdd){
+			return prnt;
+		}
+		prnt = temp;
+		temp = temp -> s_next;
+	}
+	return prnt;
+}
 /*
 * Function: Allocates a semd_t from the semd_t
 * free list and returns a pointer to it.
@@ -84,7 +100,7 @@ void 	freeSemd(semd_t *free) {
 * semdFree list is empty, return TRUE. In all other cases return FALSE.
 */
 int 	insertBlocked(int *semAdd, pcb_t *p){
-	semd_t *insertP = searchAdd(semAdd); 					/*Find parent of semAdd. insertP = parent of semAdd*/
+	semd_t *insertP = search(semAdd); 					/*Find parent of semAdd. insertP = parent of semAdd*/
 	if(insertP -> s_next -> s_semAdd == semAdd){ 			/*Is semAdd already in the active list? If Found*/
 		pcb_PTR *tproc = &(insertP -> s_next -> s_procQ);
 		insertProcQ(tproc, p); 
@@ -117,15 +133,23 @@ int 	insertBlocked(int *semAdd, pcb_t *p){
 * scriptor from the ASL and return it to the semdFree list.
 */
 pcb_t 	*removeBlocked(int *semAdd){
-	semd_t *child = searchAdd(semAdd) -> s_next;
+	nullHit = 0;
+	semd_t *prnt = searchAdd(semAdd);
+	semd_t *child = prnt -> s_next;/*error line */
+	
 	if(child -> s_semAdd != semAdd){
+		nullHit = 1;/*this method doesn't work!!!!*/
 		return NULL;
 	}
-	pcb_t *outP = removeProcQ(&(child -> s_procQ));
+	pcb_t* outP = removeProcQ(&(child -> s_procQ));
+	semd_t *off;
 	if(emptyProcQ(child -> s_procQ)){
+		off = child;
+		prnt -> s_next = child -> s_next;
 		
-		freeSemd(allocSemd(semAdd));
 	}
+	freeSemd(off);
+	outP -> p_semAdd = NULL;
 	return outP;
 }
 
@@ -190,4 +214,3 @@ void 	initASL(){
 	semdActive_h -> s_next -> s_next = NULL;
 	return;
 }
-
