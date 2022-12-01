@@ -59,7 +59,7 @@ void genExceptionHandler(){
 	/*make ptr to from bios*/
 	causeNum = (int) (((previousStatePTR -> s_cause) & genExMask) >> 2);/* & used to grab just the five bits desired*/
 	/*do bitwise stuff*/
-	if(causeNum == 0){
+	if(causeNum == ZERO){
 		/*pass proccessing to nucleus dev interupt handler*/
 		intHandler();
 	}
@@ -93,11 +93,11 @@ int main(){
 	
 	readyQueue = mkEmptyProcQ();
 	currentProc = NULL;
-	processCnt = 0;
-	softBlockCnt = 0;
-	int i = 0;
+	processCnt = ZERO;
+	softBlockCnt = ZERO;
+	int i = ZERO;
 	while(i < MAXDEVCNT){
-		deviceSema4s[i] = 0;
+		deviceSema4s[i] = ZERO;
 		i++;
 	}
 
@@ -118,7 +118,7 @@ int main(){
 	
 	/*done*/
 	
-	p -> p_time = 0;
+	p -> p_time = ZERO;
 	p -> p_semAdd = NULL;
 	p -> p_supportStruct = NULL;
 	/*turn kernal mode on?*/
@@ -135,6 +135,6 @@ int main(){
 	STCK(sTOD);
 	scheduler();/*gets called*/			/*dequeue remove PRocQ*/
 	
-	return 0;
+	return ZERO;
 }
 

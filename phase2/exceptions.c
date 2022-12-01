@@ -70,7 +70,7 @@ HIDDEN void CREATEPROCESS(state_PTR exState){
 	}else{
 		
 		tim -> p_semAdd = NULL;
-		tim -> p_time = 0;
+		tim -> p_time = ZERO;
 		/*tim -> p_s = *newState; tim -> p_s = *newState; is memcpy error*/
 		
 		
@@ -79,7 +79,7 @@ HIDDEN void CREATEPROCESS(state_PTR exState){
 		
 		
 		copyState(newState, &(tim -> p_s));/*17.11 moveState*/
-		if(supportP != 0 || supportP != NULL){
+		if(supportP != ZERO || supportP != NULL){
 			tim -> p_supportStruct = supportP;
 		}else{tim -> p_supportStruct = NULL;}
 		processCnt++;
@@ -102,7 +102,7 @@ HIDDEN void TERMPROC(pcb_PTR proc){
 			int* semA = proc -> p_semAdd;
 			pcb_PTR p = outBlocked(proc);
 			if(p != NULL){
-				if((semA >= &deviceSema4s[0]) && (semA <= &deviceSema4s[MAXDEVCNT-1])){
+				if((semA >= &deviceSema4s[ZERO]) && (semA <= &deviceSema4s[MAXDEVCNT-1])){
 					softBlockCnt--;
 				}else{(*semA)++;}
 				
@@ -160,7 +160,7 @@ HIDDEN void TERMINATEPROCESS(){
 HIDDEN void PASSEREN1(state_PTR exState){
 	int *sema4 = (int*) (exState -> s_a1);
 	(*sema4)--;
-	if(*sema4<0){
+	if(*sema4<ZERO){
 		copyState(exState, &(currentProc->p_s));/*17.11moveState*/
 		insertBlocked(sema4, currentProc);
 		softBlockCnt++;/*17.11*//*iffy*/
@@ -184,7 +184,7 @@ HIDDEN void VERHOGEN1(state_PTR exState){
 	int* sema4 = (int*) (exState->s_a1);
 	(*sema4)++;
 	pcb_PTR p;
-	if((*sema4) <= 0){
+	if((*sema4) <= ZERO){
 		p = removeBlocked(sema4);
 		if(p != NULL){
 			/*softBlockCnt--;*/
@@ -219,7 +219,7 @@ HIDDEN void WAIT_FOR_IO_DEVICE(state_PTR exState){
 		insertBlocked
 		scheduler();
 		*/
-	int device = (((lineN - 3 + wait) * DEVPERINT) + devN);/*wait addresses whether we need the offset of 8(devperint)*/
+	int device = (((lineN - DEVICEOFFSET + wait) * DEVPERINT) + devN);/*wait addresses whether we need the offset of 8(devperint)*/
 	(deviceSema4s[device])--;
 	
 	softBlockCnt++;
@@ -272,7 +272,7 @@ HIDDEN void WAIT_FOR_CLOCK(state_PTR exState){
 		PASSEREN1(exState)*on interval timer semaphore*/
 		copyState(exState, &(currentProc -> p_s));/*17.11*/
 		deviceSema4s[MAXDEVCNT-1]--;
-		if(deviceSema4s[MAXDEVCNT-1] < 0){
+		if(deviceSema4s[MAXDEVCNT-1] < ZERO){
 			softBlockCnt++;
 			insertBlocked(&(deviceSema4s[MAXDEVCNT-1]), currentProc);
 			currentProc = NULL;/*17.11*/

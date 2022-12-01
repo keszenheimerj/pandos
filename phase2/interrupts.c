@@ -39,7 +39,7 @@ cpu_t interruptStop;
 int intLineN;
 int intDevN;
 int ip;
-int check = 0;
+int check = ZERO;
 int status;
 int devP;
 int *semC;
@@ -69,14 +69,14 @@ void nonTimerInt(int dev, int intDevN, int intLineN){
 	/*delcare variables*/
 	/* devaddrBase */
 
-	devP = (intLineN-3) * DEVPERINT + intDevN;
+	devP = (intLineN-DEVICEOFFSET) * DEVPERINT + intDevN;
 	
-	int devAddrBase = 0x10000054 + ((intLineN - 3) * 0x80) + (intDevN * 0x10); /*r28*/ /* first part is magic should be LOWMEM but this creates issues */
+	int devAddrBase = 0x10000054 + ((intLineN - DEVICEOFFSET) * 0x80) + (intDevN * 0x10); /*r28*/ /* first part is magic should be LOWMEM but this creates issues */
 
 	device_PTR device = (device_PTR) devAddrBase;
 	
-	status = 0;
-	check = 0;
+	status = ZERO;
+	check = ZERO;
 	if(intLineN != 7){
 		status = device -> d_status;
 		device->d_command = ACK;
@@ -108,7 +108,7 @@ void nonTimerInt(int dev, int intDevN, int intLineN){
 	deviceSema4s[devP] = deviceSema4s[devP] + 1;
 	
 	
-	if((deviceSema4s[devP]) <= 0){/**sem  >=*/
+	if((deviceSema4s[devP]) <= ZERO){/**sem  >=*/
 		/*int* s = (sem);*/
 		pcb_PTR p = removeBlocked(&(deviceSema4s[devP]));
 		softBlockCnt--;
@@ -215,10 +215,10 @@ int getLineN(unsigned int cause){
     unsigned int devices[SEMDEVICE] = {DISKINT, FLASHINT, NETWINT, PRNTINT, TERMINT};
     int i;
     /* what was our line number? */
-    int found = 0;
+    int found = ZERO;
     /* loop through each possible device */
-    for (i = 0; i < SEMDEVICE; i++) {
-        if(((cause) & (lineNumbers[i])) != 0) {
+    for (i = ZERO; i < SEMDEVICE; i++) {
+        if(((cause) & (lineNumbers[i])) != ZERO) {
             /* match the line number with the device */
             found = devices[i];
         }
@@ -242,11 +242,11 @@ void intHandler(){
 	/*find line number */
 	if(ip & LINEZEROON){
 		PANIC();
-	}else if((ip & LINEONEON) != 0){
+	}else if((ip & LINEONEON) != ZERO){
 		/*in progress*/
 		pltInt(exState); /*17.11*/
 		/*prepForSwitch();*/ /*laast*/
-	}else if((ip & LINETWOON) != 0){/*pg 34*/
+	}else if((ip & LINETWOON) != ZERO){/*pg 34*/
 		LDIT(IO);
 		STCK(interruptStop);
 		int *clockS = &deviceSema4s[MAXDEVCNT-1];
@@ -258,15 +258,15 @@ void intHandler(){
 			softBlockCnt--;
 		}
 		
-		*clockS = 0;
+		*clockS = ZERO;
 		prepForSwitch();
 	}
 	
 	unsigned int lines[8] = {LINEZEROON, LINEONEON, LINETWOON, LINETHREEON, LINEFOURON, LINEFIVEON, LINESIXON, LINESEVENON};
-	int i = 3;
-	intLineN = 0;
-	while((i < 8 && intLineN == 0)){
-		if((ip & lines[(i)]) != 0){
+	int i = DEVICEOFFSET;
+	intLineN = ZERO;
+	while((i < 8 && intLineN == ZERO)){
+		if((ip & lines[(i)]) != ZERO){
 			intLineN = i;
 		}
 		/*
@@ -277,18 +277,18 @@ void intHandler(){
 	}
 
 	devregarea_t * ram = (devregarea_t *) RAMBASEADDR;
-	int dev = ram -> interrupt_dev[intLineN-3]; /*devBits*/
+	int dev = ram -> interrupt_dev[intLineN-DEVICEOFFSET]; /*devBits*/
 	unsigned int devlines[8] = {DEVLINEZEROON, DEVLINEONEON, DEVLINETWOON, DEVLINETHREEON, DEVLINEFOURON, DEVLINEFIVEON, DEVLINESIXON, DEVINESEVENON};
 	/*locate device number */
 	intDevN = -1;
-	i = 0;
+	i = ZERO;
 	while((i < 8 && intDevN == -1)){
-		if((dev & devlines[(i)]) != 0){
+		if((dev & devlines[(i)]) != ZERO){
 			intDevN = i;
 		}
 		i++;
 	}
-	if(intLineN >= 3){
+	if(intLineN >= DEVICEOFFSET){
 		nonTimerInt(dev, intDevN, intLineN);
 	}else{
 		/*pltInt(exState);*/
