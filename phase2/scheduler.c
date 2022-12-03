@@ -14,12 +14,7 @@
 #include "../h/asl.h"
 #include "../h/types.h"
 #include "../h/const.h"
-/* #include "../phase2/exceptions.c" */
-/* #include "../phase2/interrupts.c" */
-/* #include "../phase2/initial.c" */
 #include "/usr/include/umps3/umps/libumps.h"
-
-/*cpu_t elapsed;*/
 
 /* ---------Global Variables----------- */
 extern pcb_PTR currentProc;
@@ -28,12 +23,10 @@ extern int processCnt;
 extern int softBlockCnt;
 extern cpu_t sTOD;
 /* ------------------------------------ */
+
 state_PTR sour;
 state_PTR dest;
 
-/*void switchContext(pcb_PTR current){
-	LDST(&(current -> p_s));
-}*/
 void switchContext(state_PTR s){
 	LDST(s);
 }
