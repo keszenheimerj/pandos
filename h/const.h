@@ -30,10 +30,10 @@
 /* timer, timescale, TOD-LO and other bus regs */
 #define RAMBASEADDR		  0x10000000
 #define RAMBASESIZE		  0x10000004
-#define  EXENTRY		  0x20001000 /*0x2000.1000*/
+#define EXENTRY		  	  0x20001000 /*0x2000.1000*/
 #define TODLOADDR		  0x1000001C
 #define INTERVALTMR		  0x10000020	
-#define TIMESCALEADDR     0x10000024
+#define TIMESCALEADDR     	  0x10000024
 #define IO			  100000
 
 
@@ -43,6 +43,7 @@
 #define HIDDEN			  static
 #define EOS				  '\0'
 #define NULL 			  ((void *)0xFFFFFFFF)
+#define ZERO			  0
 
 /* masks */
 #define IPMASK            	  0xFF00/*8*/
@@ -107,7 +108,7 @@
 #define TEON       	  0x08000000
 #define IECON	  	      0x00000001
 #define KUPON	  	      0x00000008
-#define STAT		      0x00000002/*7*/
+#define KERNALMODE	      0x00000002/*7*/
 
 #define DEVLINEZEROON	      0x1
 #define DEVLINEONEON	      0x2
@@ -141,6 +142,9 @@
 /* Exceptions related constants */
 #define	PGFAULTEXCEPT	  0
 #define GENERALEXCEPT	  1
+
+/*device stuff*/
+#define DEVICEOFFSET	  3
 
 
 /* operations */
