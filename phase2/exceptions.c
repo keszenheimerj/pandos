@@ -141,7 +141,7 @@ HIDDEN void VERHOGEN1(state_PTR exState){
 
 /*sys5 - Wait for IO Device
 *This service performs a P operation on the semaphore requested 
-	by a device indicated by the values in a1, a2, and optionally a3.......................
+	by a device indicated by the values in a1, a2, and optionally a3
 */
 HIDDEN void WAIT_FOR_IO_DEVICE(state_PTR exState){
 	copyState(exState, &(currentProc -> p_s));
@@ -211,12 +211,13 @@ HIDDEN void GET_SUPPORT_DATA(state_PTR exState){
 	check if a new exception vector has been set up for that particular
 	exception. If so, that processes is "passed up" to the appropriate 
 	handler, copys into the processor's state the old exception, and 
-	performs a context switch. Otherwise, the process dies.............................
+	performs a context switch. Otherwise, the terminate process
 */
 void passUpOrDie(state_t *exState, int exType){
 	if(currentProc -> p_supportStruct != NULL){
-		/*pass up*/
-		copyState(exState, &(currentProc -> p_supportStruct -> sup_exceptState[exType]));/*17.11moveState*/
+		/*pass up to appropriate handler*/
+		
+		copyState(exState, &(currentProc -> p_supportStruct -> sup_exceptState[exType]));
 		LDCXT(currentProc -> p_supportStruct -> sup_exceptContext[exType].c_stackPtr, 
 			currentProc -> p_supportStruct -> sup_exceptContext[exType].c_status, 
 			currentProc -> p_supportStruct -> sup_exceptContext[exType].c_pc);
