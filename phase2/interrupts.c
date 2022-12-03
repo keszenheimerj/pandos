@@ -34,7 +34,6 @@ void moveState(state_PTR source, state_PTR destination);
 void copyState(state_PTR source, state_PTR destination);
 void scheduler();
 /* ------------------------------------ */
-cpu_t interruptStart;/*dont use*/
 cpu_t interruptStop;
 int intLineN;
 int intDevN;
@@ -65,7 +64,7 @@ int *semC;
 	}
 }*/
 
-void nonTimerInt(int dev, int intDevN, int intLineN){
+void deviceInterrupt(int dev, int intDevN, int intLineN){
 	/*delcare variables*/
 	/* devaddrBase */
 
@@ -105,7 +104,7 @@ void nonTimerInt(int dev, int intDevN, int intLineN){
 	/*int *sem = &deviceSema4s[devP];
 	(*sem)++;
 	semC = sem;*/
-	deviceSema4s[devP] = deviceSema4s[devP] + 1;
+	deviceSema4s[devP]++;
 	
 	
 	if((deviceSema4s[devP]) <= ZERO){/**sem  >=*/
@@ -120,7 +119,7 @@ void nonTimerInt(int dev, int intDevN, int intLineN){
 			insertProcQ(&readyQueue, p);
 		}*/
 		STCK(interruptStop);
-		p -> p_time = (p -> p_time) + (interruptStop - sTOD);
+		p -> p_time += (interruptStop - sTOD);
 		p -> p_s.s_v0 = status;
 		
 		insertProcQ(&readyQueue, p);
@@ -158,108 +157,44 @@ void nonTimerInt(int dev, int intDevN, int intLineN){
 }
 
 void pltInt(state_PTR eState){/*process local timer interrupt*/
-	/*prepForSwitch();
-	/* Process Local Timer Interrupts (PLT) */
+	/*Current process has used up its time quantum/slice without compltIntng it CPU Burst, change from running to ready state */
+		
+	/*Ack the PLT interrupt by loading the timer with a new value */
+	setTIMER(IO);
+	if(currentProc != NULL){
+		/* copy the processor state at the time of exception; located at the start of the BIOS data pg
+			copy prrocesser state at the time of the exception into the Current processess's pcb (P_s) */
+		moveState(eState, &(currentProc -> p_s));/*17.11moveState*/
+		/* place current process on the ready queue , tranisitioning current process from running state to the ready state */
+		insertProcQ(&readyQueue, currentProc);
+	}
+	scheduler();
+}
 
-			/* syscall2 (terminating) cause or exception without having set a support structure address */
-
-			/* SYS2 (terminating) cause or exception without having set a support structure address */
-
+void intervalTimerInterrupt(){
+	LDIT(IO);
+	STCK(interruptStop);
+	int *clockS = &deviceSema4s[MAXDEVCNT-1];
+	pcb_PTR p = (removeBlocked(clockS));/*store process */
+	while(p != NULL){
+		p->p_time += (interruptStop - sTOD);
+		insertProcQ(&readyQueue, p);
+		p = removeBlocked(clockS);
+		softBlockCnt--;
+	}
+	*clockS = ZERO;
+	prepForSwitch();	
 	
-			/* transition from running to blocked state; 
-			then execute 
-				a sys3,
-				sys5,
-				or sys7 */
-			
-			/* Be interrupted by a PLT Interrupt */
-				/*Current process has used up its time quantum/slice without compltIntng it CPU Burst, change from running to ready state */
-				
-			/*Ach the PLT interrupt by loading the timer with a new value */
-			
-			/* copy the processor state at the time of exception; located at the start of the BIOS data pg
-				copy prrocesser state at the time of the exception into the Current processess's pcb (P_s) */
-			
-			/* place current process on the ready queue , tranisitioning current process from running state to the ready state */
-			
-			/* call the scheduler */
-		/*LDIT(QUANTUM);*/
-		setTIMER(IO);			/*bring back*/
-		/*prepForSwitch();*/
-		/*currentProc -> p_time += (interruptStop - sTOD);*/
-		if(currentProc != NULL){
-			
-			/*insertBlocked(&readyQueue, currentProc);*/
-			
-			/*moveState(eState, &(currentProc -> p_s));/*17.11moveState*/
-			/*insertProcQ(&readyQueue, currentProc);*/
-			
-			moveState(eState, &(currentProc -> p_s));/*17.11moveState*/
-			insertProcQ(&readyQueue, currentProc);
-			/*moveState(eState, &(currentProc -> p_s));
-			/*maybe*/
-			/*switchContext(&(currentProc -> p_s));*/
-		}
-		
-		scheduler();
 }
 
-/*void intTimerInt(){
 
-}*/
-
-int getLineN(unsigned int cause){
-	/* declare the array of possible line numbers */
-    unsigned int lineNumbers[SEMDEVICE] = {4, 5, 6, 7, 8};
-    /* declare the array of possible device numbers */
-    unsigned int devices[SEMDEVICE] = {DISKINT, FLASHINT, NETWINT, PRNTINT, TERMINT};
-    int i;
-    /* what was our line number? */
-    int found = ZERO;
-    /* loop through each possible device */
-    for (i = ZERO; i < SEMDEVICE; i++) {
-        if(((cause) & (lineNumbers[i])) != ZERO) {
-            /* match the line number with the device */
-            found = devices[i];
-        }
-    }
-    /* we found it */
-    return found;
-
-
-	/* (state_t)BIOSDATAPAGE s_cause
-	for(int i = 0; i < 8; i++){
-		if( (LOWMEM + (i  * 0x80))  ){
-			
-		}
-	} */
-}
-
-void intHandler(){
-	state_PTR exState = (state_PTR) BIOSDATAPAGE;
-	ip = ((exState -> s_cause))>>8;/* & IPMASK) >> IPSHIFT*/
-	/*int ip = (exState -> s_cause);*/
-	/*find line number */
+int getLine(int ip){
 	if(ip & LINEZEROON){
-		PANIC();
+		return 0;
 	}else if((ip & LINEONEON) != ZERO){
-		/*in progress*/
-		pltInt(exState); /*17.11*/
-		/*prepForSwitch();*/ /*laast*/
-	}else if((ip & LINETWOON) != ZERO){/*pg 34*/
-		LDIT(IO);
-		STCK(interruptStop);
-		int *clockS = &deviceSema4s[MAXDEVCNT-1];
-		pcb_PTR p = (removeBlocked(clockS));/*store process */
-		while(p != NULL){
-			p->p_time = (p -> p_time) + (interruptStop - sTOD);
-			insertProcQ(&readyQueue, p);
-			p = removeBlocked(clockS);
-			softBlockCnt--;
-		}
-		
-		*clockS = ZERO;
-		prepForSwitch();
+		return 1;
+	}else if((ip & LINETWOON) != ZERO){
+		return 2;
 	}
 	
 	unsigned int lines[8] = {LINEZEROON, LINEONEON, LINETWOON, LINETHREEON, LINEFOURON, LINEFIVEON, LINESIXON, LINESEVENON};
@@ -269,28 +204,54 @@ void intHandler(){
 		if((ip & lines[(i)]) != ZERO){
 			intLineN = i;
 		}
-		/*
-		if(ip & lines[(i)]){
-			intLineN = i;
-		}*/
 		i++;
 	}
+	return intLineN;
+}
 
-	devregarea_t * ram = (devregarea_t *) RAMBASEADDR;
-	int dev = ram -> interrupt_dev[intLineN-DEVICEOFFSET]; /*devBits*/
+int getDevLine(int dev){
 	unsigned int devlines[8] = {DEVLINEZEROON, DEVLINEONEON, DEVLINETWOON, DEVLINETHREEON, DEVLINEFOURON, DEVLINEFIVEON, DEVLINESIXON, DEVINESEVENON};
 	/*locate device number */
 	intDevN = -1;
-	i = ZERO;
+	int i = ZERO;
 	while((i < 8 && intDevN == -1)){
 		if((dev & devlines[(i)]) != ZERO){
 			intDevN = i;
 		}
 		i++;
 	}
+	return intDevN;
+}
+void intHandler(){
+	state_PTR exState = (state_PTR) BIOSDATAPAGE;
+	ip = ((exState -> s_cause))>>IPSHIFT;/* & IPMASK) >> IPSHIFT*/
+	/*find line number */
+	int line = getLine(ip);
+	if(line == 0){
+		PANIC();
+	}else if(line == 1){
+		pltInt(exState);
+	}else if(line == 2){/*pg 34*/
+		/*intervalTimerInterrupt*/
+		LDIT(IO);
+		STCK(interruptStop);
+		int *clockS = &deviceSema4s[MAXDEVCNT-1];
+		pcb_PTR p = (removeBlocked(clockS));/*store process */
+		while(p != NULL){
+			p->p_time += (interruptStop - sTOD);
+			insertProcQ(&readyQueue, p);
+			p = removeBlocked(clockS);
+			softBlockCnt--;
+		}
+		*clockS = ZERO;
+		prepForSwitch();
+	}
+	
+	devregarea_t * ram = (devregarea_t *) RAMBASEADDR;
+	int dev = ram -> interrupt_dev[intLineN-DEVICEOFFSET]; /*devBits*/
+	int intDevN = getDevLine(dev);
+	
 	if(intLineN >= DEVICEOFFSET){
-		nonTimerInt(dev, intDevN, intLineN);
-	}else{
-		/*pltInt(exState);*/
+		deviceInterrupt(dev, intDevN, line);
 	}
 }
