@@ -14,15 +14,16 @@
 #include "../h/asl.h"
 #include "../h/types.h"
 #include "../h/const.h"
-/*#include "../phase2/exceptions.c" 
-#include "../phase2/interrupts.c"*/
-/*#include "../phase2/p2test.c"*/
-/* #include "../phase2/scheduler.c" */
 #include "/usr/include/umps3/umps/libumps.h"
 
+/*
+*****************global functions*******************
+*/
 extern void test();
 extern void passUpOrDie(state_t *exState, int exType);
-
+/*
+**************end global functions*******************
+*/
 
 /*
 *****************global variables*****************
@@ -34,24 +35,19 @@ extern void scheduler();
 extern void prepForSwitch();
 extern void uTLB_RefillHandler();
 
+
+
 pcb_PTR readyQueue;
-pcb_PTR currentProc; 	/*scaler to the running Proc*/
-int processCnt;		/*int indicating the started but not terminated processes*/
+pcb_PTR currentProc; 		/*scaler to the running Proc*/
+int processCnt;			/*int indicating the started but not terminated processes*/
 int softBlockCnt;		/*a process can either be ready, running, blocked(waiting) state and this int is the number of started, but not terminated processes*/
-int deviceSema4s[MAXDEVCNT]; /*42 | 49; =0??*/
+int deviceSema4s[MAXDEVCNT]; 	/*49; last is sudo clock*/
 cpu_t sTOD;
 int causeNum;
 /*
 ************end global variables**************
 */
 
-
-/*void uTLB_RefillHandler2() {
-	setENTRYHI(0x80000000);
-	setENTRYLO(0x00000000);
-	TLBWR();
-	LDST ((state_PTR) 0x0FFFF000);
-}exists in p2test*/
 
 void genExceptionHandler(){
 	/*save state*/
@@ -64,15 +60,14 @@ void genExceptionHandler(){
 		intHandler();
 	}
 	if(causeNum == 8){
-		SYS();/*previousStatePTR could be passed but unneccessary previousStatePTR -> s_a0, previousStatePTR -> s_a1, previousStatePTR -> s_a2, previousStatePTR -> s_a3*/
+		SYS();
 	}else{
 		/*tlb execption, pass proccessing to tlb-exception handler*/
 		if(causeNum < 4){
-			passUpOrDie((state_PTR) BIOSDATAPAGE, PGFAULTEXCEPT); /*PGF*/
+			passUpOrDie((state_PTR) BIOSDATAPAGE, PGFAULTEXCEPT);
 		}else{
-			passUpOrDie((state_PTR) BIOSDATAPAGE, GENERALEXCEPT); /*general*/
+			passUpOrDie((state_PTR) BIOSDATAPAGE, GENERALEXCEPT); 
 		}
-		/*programTrap*/
 	}
 }
 
@@ -100,40 +95,30 @@ int main(){
 		deviceSema4s[i] = ZERO;
 		i++;
 	}
-
 	
-	
-	
-	pcb_PTR p = allocPcb();/*reached*/
+	pcb_PTR p = allocPcb();
 	if(p == NULL){
 		PANIC();
 	}
-	/*
-	sp = RAMTOP
-	pc is set to address of test*/
 	p -> p_s.s_sp = RAMTOP;	/*set to ram top which is installed ram size + ram base address*/
 	p -> p_s.s_pc = p -> p_s.s_t9 = (memaddr) test;
 	/*process tree fields to NULL*/
 	
-	
-	/*done*/
-	
 	p -> p_time = ZERO;
 	p -> p_semAdd = NULL;
 	p -> p_supportStruct = NULL;
-	/*turn kernal mode on?*/
+	
 	/*init interupts as enabled
 	procLocal timer enabled
 	kernel mode on*/
 	p -> p_s.s_status = ALLBITSOFF | TEON | IMON | IEPON;
-	/*p -> p_s.s_status = ALLBITSOFF | TEON | IMON | IEPON;*/
 	
-	insertProcQ(&readyQueue, p); /*statis is ready*/
-	processCnt = processCnt + 1;
+	insertProcQ(&readyQueue, p);
+	processCnt++;
 	LDIT(IO); /*loading the interval timer with 100 milisec*/
 	p = NULL;/*testing theory*/
 	STCK(sTOD);
-	scheduler();/*gets called*/			/*dequeue remove PRocQ*/
+	scheduler();
 	
 	return ZERO;
 }

@@ -27,7 +27,6 @@ extern pcb_PTR readyQueue;
 extern int processCnt;
 extern int softBlockCnt;
 extern cpu_t sTOD;
-extern cpu_t interruptStart;
 /* ------------------------------------ */
 state_PTR sour;
 state_PTR dest;
@@ -151,30 +150,11 @@ void scheduler(){
 			HALT();
 		}
 		if(processCnt > 0 && softBlockCnt > 0){
-			/*currentProc -> p_s.s_status = */
-			setTIMER((unsigned int)100000000000000000);
+			setTIMER((unsigned int)100000000000000000);/*not needed but repeated*/
 			setSTATUS((int) ALLBITSOFF | IECON | IMON);
 			WAIT();
-		}/*else if(softBlockCnt == 0){getting stuck on
-			PANIC();
-		}*/
+		}
 	}
-	
-	/*is currentP null
-		STCK(elapsed)
-		currentProc -> p_time = currentProc->p_time + (elapsed - sTOD)
-		LDIT(IOCLOCK)
-	else
-		no process in ready queue 
-		if(proccess are 0
-			halt
-		if softblock gt 0
-			mask = all off + iecon + imon
-			set statius(mask)
-			wait
-		elseif(softblock is 0
-			panic*/
-			
 	
 }
 
