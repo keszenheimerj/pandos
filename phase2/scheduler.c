@@ -2,7 +2,7 @@
 * FILENAME :	scheduler.c
 *
 * DESCRIPTION :	
-*	implements a round-robin scheduling algoithm whenever a new process is needed.
+*	Implements a round-robin scheduling algorithm whenever a new process is needed.
 *
 * PUBLIC FUNCTIONS : 
 *	
@@ -27,10 +27,16 @@ extern cpu_t sTOD;
 state_PTR sour;
 state_PTR dest;
 
+/*switchContext
+*Loads a new state. BANG!
+*/
 void switchContext(state_PTR s){
 	LDST(s);
 }
 
+/*moveState
+*Copies the current state using all 35 registers.
+*/
 void moveState(state_PTR source, state_PTR destination){ /*copy the source state */
 	/*do stuff with all 35 regs in a for*/
 	int i = 0;
@@ -47,6 +53,9 @@ void moveState(state_PTR source, state_PTR destination){ /*copy the source state
 	switchContext(destination);
 }
 
+/*copyState
+*Copies the current state using all 35 registers.
+*/
 void copyState(state_PTR source, state_PTR destination){ /*copy the source state */
 	/*do stuff with all 35 regs in a for*/
 	sour = source;
@@ -64,67 +73,12 @@ void copyState(state_PTR source, state_PTR destination){ /*copy the source state
 	destination -> s_pc = source -> s_pc;
 }
 
+/*Scheduler
+*Invokes the scheduler which implements a round-robin 
+	scheduling algorithm whenever a new process is needed.
+*/
 void scheduler(){
 	cpu_t elapsed = 0;
-	/*if(currentProc != NULL){emptyProcQ(readyQueue)
-		if(processCnt == 0){
-			HALT();
-		}
-		else if(softBlockCnt == 0){
-			PANIC();
-		}
-		
-		else if(softBlockCnt > 0){
-			currentProc = 0;
-			
-			/*set state*/	/* iec and im on 
-			currentProc -> p_s.s_status = ALLBITSOFF | IECON | IMON;
-			/*set status
-			WAIT();
-		}
-		
-		/*currentProc -> p_time = currentProc -> p_time + (current time- elapsed);
-		currentProc = removeProcQ(&readyQueue);  get who is next
-		
-		if not empty
-			store a value on the timer
-			
-		if(emptyQueue(&readyQueue)){
-			STCK(elapsed);
-			PLT = .5;
-		}
-		length of a quantom
-		when at 0 call an interupt
-		LoadState privaledged instruction
-
-		loads all 35 registers
-		moveState(source, destination);
-		if empty
-		....
-		
-		if(pcCount == 0){
-			invoke halt 
-		}else if(pcCount > 0 && softBlockCnt > 0){
-			set status to enable interrupts
-			d_status = TRUE;
-			disable PLT; || Load it with  a very large value
-			enter wait state
-		}*
-	}else{
-		pcb_PTR nextProc = removeProcQ(&readyQueue);
-		
-		if(nextProc != NULL){
-			currentProc = nextProc;
-			/*set timer
-			/*double PLT = .5;	unused
-		
-			STCK(elapsed);
-			LDST(&currentProc -> p_s);
-		}else{
-			panic ?
-		}
-		
-	}*/
 	
 	if(currentProc != NULL){
 		STCK(elapsed);
@@ -151,9 +105,12 @@ void scheduler(){
 	
 }
 
+/*prepForSwitch
+*
+*/
 void prepForSwitch(){
 	state_PTR exState = (state_PTR) BIOSDATAPAGE;
-		/*goto ready*/
+		/*go to ready*/
 	if(currentProc != NULL){
 		copyState(exState, &(currentProc -> p_s));/*17.11moveState*/
 		insertProcQ(&readyQueue, currentProc);

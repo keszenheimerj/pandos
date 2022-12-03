@@ -2,15 +2,7 @@
 * FILENAME :	exceptions.c
 *
 * DESCRIPTION :	
-*	Handles the exceptions that occur. Provides the appropriate handlers for program traps, 
-	translation lookaside buffer (TLB) exceptions, as well as syscalls. For program traps and TLB exceptions, if the offending 
-    process does not have its appropriate handler set up to manage the exception, the processes dies in a technique 
-    known as "passing up or dying." For syscalls, a variety of helper functions exist to assist in program execution, 
-    such as the copy state function, which will transfer the copies of one state to another, terminate progeny, which 
-    will perform tail recursion on a process and all its children, a handler for requesting a syscall while in 
-    user mode, the afformentioned pass up or die function, as well as global function for context switching. If
-    a syscall is requested in user mode, a reserved instruction will be placed in the state's cause register and 
-    will enter a program trap. Otherwise, the corresponding syscall will take control of execution.
+*	Handles the exceptions that occur.
 *
 * PUBLIC FUNCTIONS : 
 *	
