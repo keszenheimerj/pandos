@@ -188,7 +188,9 @@ void intervalTimerInterrupt(){
 }
 
 
-int getLine(int ip){
+int getLine(state_PTR exState){
+	/*find where an interrupt is pending*/
+	ip = ((exState -> s_cause))>>IPSHIFT;
 	if(ip & LINEZEROON){
 		return 0;
 	}else if((ip & LINEONEON) != ZERO){
@@ -222,14 +224,26 @@ int getDevLine(int dev){
 	}
 	return intDevN;
 }
+/*
+*the interrupt handler is called by the generalExceptionHandler anytime an interrupt line is on somewhere
+*The 0th line should never be on for our uniprocessor environment, but another line should always be on when this function is called
+*we will find the line
+*if a device line then find which device
+*ensure the line is acknowledged
+*/
 void intHandler(){
+	/*find exception state*/
 	state_PTR exState = (state_PTR) BIOSDATAPAGE;
-	ip = ((exState -> s_cause))>>IPSHIFT;/* & IPMASK) >> IPSHIFT*/
+	
 	/*find line number */
-	int line = getLine(ip);
+	int line = getLine(exState);
+	
+	/*decide what to de based on line number*/
 	if(line == 0){
+		/*intended for uniprocessor environments only*/
 		PANIC();
 	}else if(line == 1){
+		/*process local timer interrupt*/
 		pltInt(exState);
 	}else if(line == 2){/*pg 34*/
 		/*intervalTimerInterrupt*/

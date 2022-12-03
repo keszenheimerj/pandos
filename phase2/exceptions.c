@@ -30,6 +30,75 @@ extern void LDCXT(unsigned int stackPTR, unsigned int status, unsigned int pc);
 extern void copyState(state_PTR source, state_PTR destination);
 int sysNum;
 /* ------------------------------------ */
+HIDDEN void verifyKernalMode(state_PTR exState);
+HIDDEN void CREATEPROCESS(state_PTR exState);
+HIDDEN void TERMPROC(pcb_PTR proc);
+HIDDEN void PASSEREN1(state_PTR exState);
+HIDDEN void VERHOGEN1(state_PTR exState);
+HIDDEN void WAIT_FOR_IO_DEVICE(state_PTR exState);
+HIDDEN void GET_CPU_TIME(state_PTR exState);
+HIDDEN void WAIT_FOR_CLOCK(state_PTR exState);
+HIDDEN void GET_SUPPORT_DATA(state_PTR exState);
+
+void passUpOrDie(state_t *exState, int exType);
+void SYS();
+/*SYS
+*The handler for syscalls 1-8 when the user is
+ 	in kernel mode. If the user is not in kernel mode,
+ 	PassUpOrDie is called.
+*/
+void SYS(){/*unsigned int num, unsigned int arg1, unsigned int arg2, unsigned int arg3*/
+	/*get info from BIOSDATABAGE*/
+	
+	state_PTR exState;
+	exState = (state_PTR) BIOSDATAPAGE;
+	
+	exState -> s_pc = exState -> s_t9 = exState -> s_pc + 4;
+	
+	verifyKernalMode(exState);
+	
+	sysNum = (exState -> s_a0);
+	
+	
+	
+	switch(sysNum){
+		case(CREATETHREAD):{/*createthread*/
+			CREATEPROCESS(exState);
+			break;}
+		case(TERMINATETHREAD):{/*terminatethread*/
+			TERMPROC(currentProc);
+			scheduler();
+			break;}
+		case(PASSERN):{
+			PASSEREN1(exState);
+			break;}
+		case(VERHOGEN):{
+			VERHOGEN1(exState);
+			break;}
+		case(WAITIO):{
+			WAIT_FOR_IO_DEVICE(exState);
+			break;}
+		case(GETCPUTIME):{
+			GET_CPU_TIME(exState);
+			break;}
+		case(WAITCLOCK):{
+			WAIT_FOR_CLOCK(exState);
+			break;}
+		case(GETSPTPTR):{
+			GET_SUPPORT_DATA(exState);
+			break;}
+		default:{
+			passUpOrDie(exState, GENERALEXCEPT);/*generalException*/
+			break;}
+	}
+}
+
+HIDDEN void verifyKernalMode(state_PTR exState){
+	/*int sysNum = ;*//*&UM 0x0...2*/
+	if(((exState -> s_status) & KERNALMODE) != ALLBITSOFF){
+		passUpOrDie(exState, GENERALEXCEPT);
+	}
+}
 
 /*sys1 - Create Process
 *Creates a new process by allocating a new pcb_t.
@@ -220,56 +289,5 @@ void passUpOrDie(state_t *exState, int exType){
 	}
 }
 
-/*SYS
-*The handler for syscalls 1-8 when the user is
- 	in kernel mode. If the user is not in kernel mode,
- 	PassUpOrDie is called.
-*/
-void SYS(){/*unsigned int num, unsigned int arg1, unsigned int arg2, unsigned int arg3*/
-	/*get info from BIOSDATABAGE*/
-	
-	state_PTR exState;
-	exState = (state_PTR) BIOSDATAPAGE;
-	
-	exState -> s_pc = exState -> s_t9 = exState -> s_pc + 4;
-	
-	/*int sysNum = ;*//*&UM 0x0...2*/
-	if(((exState -> s_status) & KERNALMODE) != ALLBITSOFF){
-		passUpOrDie(exState, GENERALEXCEPT);
-	}
-	sysNum = (exState -> s_a0);
-	
-	
-	
-	switch(sysNum){
-		case(CREATETHREAD):{/*createthread*/
-			CREATEPROCESS(exState);
-			break;}
-		case(TERMINATETHREAD):{/*terminatethread*/
-			TERMPROC(currentProc);
-			scheduler();
-			break;}
-		case(PASSERN):{
-			PASSEREN1(exState);
-			break;}
-		case(VERHOGEN):{
-			VERHOGEN1(exState);
-			break;}
-		case(WAITIO):{
-			WAIT_FOR_IO_DEVICE(exState);
-			break;}
-		case(GETCPUTIME):{
-			GET_CPU_TIME(exState);
-			break;}
-		case(WAITCLOCK):{
-			WAIT_FOR_CLOCK(exState);
-			break;}
-		case(GETSPTPTR):{
-			GET_SUPPORT_DATA(exState);
-			break;}
-		default:{
-			passUpOrDie(exState, GENERALEXCEPT);/*generalException*/
-			break;}
-	}
-}
+
 
