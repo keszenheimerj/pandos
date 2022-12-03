@@ -2,7 +2,15 @@
 * FILENAME :	exceptions.c
 *
 * DESCRIPTION :	
-*	example
+*	Handles the exceptions that occur. Provides the appropriate handlers for program traps, 
+	translation lookaside buffer (TLB) exceptions, as well as syscalls. For program traps and TLB exceptions, if the offending 
+    process does not have its appropriate handler set up to manage the exception, the processes dies in a technique 
+    known as "passing up or dying." For syscalls, a variety of helper functions exist to assist in program execution, 
+    such as the copy state function, which will transfer the copies of one state to another, terminate progeny, which 
+    will perform tail recursion on a process and all its children, a handler for requesting a syscall while in 
+    user mode, the afformentioned pass up or die function, as well as global function for context switching. If
+    a syscall is requested in user mode, a reserved instruction will be placed in the state's cause register and 
+    will enter a program trap. Otherwise, the corresponding syscall will take control of execution.
 *
 * PUBLIC FUNCTIONS : 
 *	
@@ -14,9 +22,6 @@
 #include "../h/asl.h"
 #include "../h/types.h"
 #include "../h/const.h"
-/* #include "../phase2/initial.c" */
-/* #include "../phase2/interrupts.c" */
-/*#include "/usr/include/umps3/umps/libumps.h"*/
 
 /* ---------Global Variables----------- */
 extern pcb_PTR currentProc;
@@ -32,33 +37,16 @@ extern void scheduler();
 extern void LDCXT(unsigned int stackPTR, unsigned int status, unsigned int pc);
 extern void copyState(state_PTR source, state_PTR destination);
 int sysNum;
-
-/*state_PTR exState;*/
 /* ------------------------------------ */
 
-
-
-/* I think the TLBTrapHandler and the ProgramTrapHandler goes in the passUpOrDie()  - evan*/
-
-/*tlbTrapHandler*/
-/*HIDDEN void TLBTrapHandler(){
-
-}*/
-
-/*sysTrapHandler*/
-/*HIDDEN void sysTrapHandler(){
-	
-}*/
-
-/*state_PTR firstHalf(){
-	support_t *supportP = (support_t*) exState -> s_a2;
-	return s;
-}*/
-
-/*sys1*//*done*/
+/*sys1 - Create Process
+*Creates a new process by allocating a new pcb_t.
+	If the pcb_t is not null, then processCnt is 
+	incremented by 1, it is inserted into ready 
+	queue. If the pcb_t is either null or not, 
+	a switchContect occurs.
+*/
 HIDDEN void CREATEPROCESS(state_PTR exState){
-	/*state_PTR newState = (state_PTR) BIOSDATAPAGE; just filling for init
-	moveState( ( (state_PTR) exState -> s_a1), newState);*/
 	state_PTR newState = (state_PTR) exState -> s_a1;
 
 	support_t *supportP = (support_t*) exState -> s_a2;
@@ -70,9 +58,7 @@ HIDDEN void CREATEPROCESS(state_PTR exState){
 	}else{
 		
 		tim -> p_semAdd = NULL;
-		tim -> p_time = ZERO;
-		/*tim -> p_s = *newState; tim -> p_s = *newState; is memcpy error*/
-		
+		tim -> p_time = ZERO;	
 		
 		insertChild(currentProc, tim);
 		insertProcQ(&(readyQueue), tim);
@@ -83,15 +69,18 @@ HIDDEN void CREATEPROCESS(state_PTR exState){
 			tim -> p_supportStruct = supportP;
 		}else{tim -> p_supportStruct = NULL;}
 		processCnt++;
-		currentProc -> p_s.s_v0 = 0;
+		currentProc -> p_s.s_v0 = ZERO;
 	}
 	switchContext(exState);
 }
 
+/*sys2 - Terminate Process
+*This services causes the executing process to terminate.
+	This function is recursivly called in order for 
+	all children to terminate too. Then, a new job 
+	is acquired.
+*/
 HIDDEN void TERMPROC(pcb_PTR proc){
-	/*if(currentProc == NULL){
-		scheduler();
-	}else{*/
 		while(!emptyChild(proc)){
 			TERMPROC(removeChild(proc));
 		}
@@ -105,81 +94,37 @@ HIDDEN void TERMPROC(pcb_PTR proc){
 				if((semA >= &deviceSema4s[ZERO]) && (semA <= &deviceSema4s[MAXDEVCNT-1])){
 					softBlockCnt--;
 				}else{(*semA)++;}
-				
 			}
-			/*softBlockCnt++;*/
-			
-			/*(*semA)++;*/
 		}
 		freePcb(proc);
 		processCnt--;
-	/*}*/
 }
 
-/*recursive helper for TERMINATEPROCESS*/
-HIDDEN void terminateChild(pcb_PTR child){
-	if(currentProc == NULL){
-		scheduler();
-	}else{
-		if(child != NULL){
-			while(!emptyChild(child)){
-				terminateChild(removeChild(child));
-			}
-			processCnt--;
-			outProcQ(&readyQueue, child);
-			
-			/*check if free, active, asl*/
-			
-		freePcb(child);
-		}
-	}
-}
-
-/*sys2*//*done*/
-HIDDEN void TERMINATEPROCESS(){
-	/*
-	this service causes the executing process to cease to exist
-	reccursively call children and terminate their processes as well
-	*/
-	/*if(emptyChild(p)){
-		removerProc(p);
-	}else{
-	
-		while(!emptyChild(p)){
-			TERMINATEPROCESS(p -> p_child);
-		}
-	}*/
-	outChild(currentProc);
-	terminateChild(currentProc);
-	currentProc = NULL;
-	/*call scheduler*/
-	scheduler();
-}
-
-/*sys3*//*done*/
+/*sys3 - Passeren
+*Perfroms a P operation on a specified synchronization semaphore in the
+	$a1 reg of the old state. If the semaphore is less than zero, 
+	the currrent processes is blocked, the old state is copied, and 
+	a new job is retrieved via scheduler call. Otherwise, a context 
+	switch occurs on the old state.
+*/
 HIDDEN void PASSEREN1(state_PTR exState){
 	int *sema4 = (int*) (exState -> s_a1);
 	(*sema4)--;
 	if(*sema4<ZERO){
 		copyState(exState, &(currentProc->p_s));/*17.11moveState*/
 		insertBlocked(sema4, currentProc);
-		softBlockCnt++;/*17.11*//*iffy*/
+		softBlockCnt++;
 		scheduler();
 	}
 	switchContext(exState);
-	
-	/*
-	(exState -> s_a1) = (exState -> s_a1)- 1;
-	if((exState -> s_a1)<0){
-		copyState(exState, &(currentProc->p_s));/*17.11moveState*/
-		/*insertBlocked(&(exState -> s_a1), currentProc);
-		softBlockCnt++;/*17.11*//*iffy*/
-		/*scheduler();
-	}
-	switchContext(exState);*/
 }
 
-/*sys4*//*done*/
+/*sys4 - Verhogen
+*Perfroms a V operation on a specified synchronization semaphore in the
+	$a1 reg of the old state. If the semaphore is greater than zero, 
+	a new processes is unblocked and placed in the ready queue. 
+	No matter what, there is a switchContect to return to current process.
+*/
 HIDDEN void VERHOGEN1(state_PTR exState){
 	int* sema4 = (int*) (exState->s_a1);
 	(*sema4)++;
@@ -192,34 +137,20 @@ HIDDEN void VERHOGEN1(state_PTR exState){
 		}
 	}
 	switchContext(exState);/*return to current proccess
-	
-	
-	/*((exState->s_a1))++;
-	pcb_PTR p;
-	if(((exState->s_a1)) <= 0){
-		p = removeBlocked(&(exState->s_a1));
-		if(p != NULL){
-			softBlockCnt--;
-			insertProcQ(&readyQueue, p);
-		}
-	}
-	switchContext(exState);/*return to current proccess*/
 }
 
-/*sys5*//*done*/
+/*sys5 - Wait for IO Device
+*This service performs a P operation on the semaphore requested 
+	by a device indicated by the values in a1, a2, and optionally a3.......................
+*/
 HIDDEN void WAIT_FOR_IO_DEVICE(state_PTR exState){
 	copyState(exState, &(currentProc -> p_s));
 	int lineN = exState -> s_a1;
 	int devN = exState -> s_a2;
-	
-	/*a3*/
 	int wait = exState-> s_a3;
-	/*find which device
-	test value
-		insertBlocked
-		scheduler();
-		*/
-	int device = (((lineN - DEVICEOFFSET + wait) * DEVPERINT) + devN);/*wait addresses whether we need the offset of 8(devperint)*/
+
+	/*wait addresses whether we need the offset of 8(devperint)*/
+	int device = (((lineN - DEVICEOFFSET + wait) * DEVPERINT) + devN);
 	(deviceSema4s[device])--;
 	
 	softBlockCnt++;
@@ -227,49 +158,31 @@ HIDDEN void WAIT_FOR_IO_DEVICE(state_PTR exState){
 	insertBlocked(&(deviceSema4s[device]), currentProc);
 	currentProc = NULL;
 	scheduler();
-	/*if(deviceSema4s[device]<0){
-		softBlockCnt++;
-		insertBlocked(&(deviceSema4s[device]), currentProc);
-		currentProc = NULL;
-		scheduler();
-	}else{
-		switchContext(exState);
-	}*/
 }
 
-/*sys6*//*done*/
+/*sys6 - Get CPU Time
+*This service causes the processor time used by the 
+	requesting process to be placed/returned in the 
+	caller’s v0. 
+*/
 HIDDEN void GET_CPU_TIME(state_PTR exState){
-	/*Bookeeping and management
-		look for a call called "CPU Time" maybe...
-		Write down time of day clock
-		Do subtraction to figure out how much time was used
-		Return time
-		How much is there plus how much current time slice.
-		use register s_v0
-		*/
 	/*copy old state to current process*/
 	copyState(exState, &(currentProc->p_s));/*17.11moveState*/
 	cpu_t calcTime;
 	STCK(calcTime);
-	currentProc -> p_s.s_v0 = currentProc -> p_time = currentProc -> p_time + (calcTime-sTOD);/* current time - sTOD */ /* getTimer from r129 */
+	/* current time - sTOD */ /* getTimer from r129 */
+	currentProc -> p_s.s_v0 = currentProc -> p_time = currentProc -> p_time + (calcTime-sTOD);
 	STCK(sTOD);
-	switchContext(&currentProc->p_s); /*swap for switchContect*/
+	switchContext(&currentProc->p_s);
 }
 
-/*sys7*/
+/*sys7 - Wait for Clock
+*This instruction performs a P operation on the 
+	pseudo-clock timer semaphore. This semaphore 
+	is V’ed every 100 milliseconds automatically. 
+	Then, a new job is retrieved. 
+*/
 HIDDEN void WAIT_FOR_CLOCK(state_PTR exState){
-	/*Preforms a P oporations on the Nucleus.
-		This semaphore is V'ed every 100 milliseconds by the Nucleus.
-		This call should always clock the Current Process on the ASL, after the scheduler is called.
-		sys7 is used to transition the Current Process frim the "running" state to a "blocked" state.
-		sys7 is called by placing the value 7 in a0 and then exectuting SYS.
-		example sys7 request from book: SYS (WAITCLOCK, 0, 0, 0); 
-		Where the mnemonic constant WAITCLOCK has the value of 7.
-		*/
-		/*moveState(exState, &(currentProc -> p_s));
-		softBlockCnt ++;
-		exState -> s_a1 = (deviceSema4s[MAXDEVCNT-1]);
-		PASSEREN1(exState)*on interval timer semaphore*/
 		copyState(exState, &(currentProc -> p_s));/*17.11*/
 		deviceSema4s[MAXDEVCNT-1]--;
 		if(deviceSema4s[MAXDEVCNT-1] < ZERO){
@@ -281,50 +194,44 @@ HIDDEN void WAIT_FOR_CLOCK(state_PTR exState){
 		switchContext(&currentProc->p_s);
 }
 
-/*sys8*/
+/*sys8 - Get Support Data
+*This service requests a pointer to the Current Process's
+	Support Structure. Hence, this service returns the
+	value of p_supportStruct was provided for the Current
+	Proccess when it was created, return null.
+*/
 HIDDEN void GET_SUPPORT_DATA(state_PTR exState){
-	/*requests a pointer to the Current Process's Support Structure. 
-		returns the value of p_supportStruct from the Current Process's pcb.
-		if no value for p_support Struct, then return NULL.
-		example sys8 from book: support_t *sPtr = SYS (GETSUPPORTPTR, 0, 0, 0);
-		Where the mnemonic constant GETSUPPORTPTR has the value of 8.
-		*/
 		copyState(exState, &(currentProc->p_s));/*17.11moveState*/
-		currentProc -> p_s.s_v0 = (int)(currentProc -> p_supportStruct);/*check whether to add -> sup_asid */
-		switchContext(&(currentProc -> p_s)); /*swap for switch context*/
+		currentProc -> p_s.s_v0 = (int)(currentProc -> p_supportStruct);
+		switchContext(&(currentProc -> p_s));
 }
 
-void pseudoClockTick(){
-	/*1. acknowledge the interrupt by loading the Interval Timer with a new value: 100 milliseconds
-		2. Unblock ALL pcbs blocked on the Pseudo-clock semaphore. Hence, the semantics of this 
-		semaphore are a bit different than traditional sycronization semaphores.
-		3. Reset the Pseudo-clock semaphore to zero. This insures that all SYS7 calls block and that 
-		the Pseudo-clock semaphoredoes not grow positiv.
-		4. Return control to the Current Process: Preform a LDST on the saved exception state
-		(located at the start of the BIOS Data Page).
-		*/
-}
-
+/*PassUpOrDie
+*A syscall 5 (specify state exceptions vector) helper that will
+	check if a new exception vector has been set up for that particular
+	exception. If so, that processes is "passed up" to the appropriate 
+	handler, copys into the processor's state the old exception, and 
+	performs a context switch. Otherwise, the process dies.............................
+*/
 void passUpOrDie(state_t *exState, int exType){
 	if(currentProc -> p_supportStruct != NULL){
 		/*pass up*/
 		copyState(exState, &(currentProc -> p_supportStruct -> sup_exceptState[exType]));/*17.11moveState*/
-		
-		/*r129 seems liked we need to change execution state*/
-		/*context_t context = currentProc -> p_supportStruct -> sup_exceptContext[exType];
-		unsigned int stackP = currentProc -> p_supportStruct -> sup_exceptContext[exType].c_stackPtr;
-		unsigned int statusN = currentProc -> p_supportStruct -> sup_exceptContext[exType].c_status;
-		unsigned int pc = currentProc-> p_supportStruct -> sup_exceptContext[exType].c_pc;
-		LDCXT(context.c_stackPtr, context.c_status, context.c_pc); */
-		LDCXT(currentProc -> p_supportStruct -> sup_exceptContext[exType].c_stackPtr, currentProc -> p_supportStruct -> sup_exceptContext[exType].c_status, currentProc -> p_supportStruct -> sup_exceptContext[exType].c_pc);
+		LDCXT(currentProc -> p_supportStruct -> sup_exceptContext[exType].c_stackPtr, 
+			currentProc -> p_supportStruct -> sup_exceptContext[exType].c_status, 
+			currentProc -> p_supportStruct -> sup_exceptContext[exType].c_pc);
 	}else{
 		/*die*/
 		TERMPROC(currentProc);
-		/*currentProc = NULL;*/
 		scheduler();
 	}
 }
 
+/*SYS
+*The handler for syscalls 1-8 when the user is
+ 	in kernel mode. If the user is not in kernel mode,
+ 	PassUpOrDie is called.
+*/
 void SYS(){/*unsigned int num, unsigned int arg1, unsigned int arg2, unsigned int arg3*/
 	/*get info from BIOSDATABAGE*/
 	
