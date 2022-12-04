@@ -42,6 +42,7 @@ HIDDEN void GET_SUPPORT_DATA(state_PTR exState);
 
 void passUpOrDie(state_t *exState, int exType);
 void SYS();
+
 /*SYS
 *The handler for syscalls 1-8 when the user is
  	in kernel mode. If the user is not in kernel mode,

@@ -2,7 +2,7 @@
 * FILENAME :	initial.c
 *
 * DESCRIPTION :	
-*	PcbQueues file management of queues of structures: pcb’s.
+*	Initializes the main() function and runs the bootcode for Pandos OS.
 *
 * PUBLIC FUNCTIONS : 
 *	
@@ -16,39 +16,31 @@
 #include "../h/const.h"
 #include "/usr/include/umps3/umps/libumps.h"
 
-/*
-*****************global functions*******************
-*/
+/* ---------Global Functions----------- */
 extern void test();
 extern void passUpOrDie(state_t *exState, int exType);
-/*
-**************end global functions*******************
-*/
+/* ------------------------------------ */
 
-/*
-*****************global variables*****************
-*/
-
+/* ---------Global Variables----------- */
 extern void intHandler();
 extern unsigned int SYS();
 extern void scheduler();
 extern void prepForSwitch();
 extern void uTLB_RefillHandler();
 
-
-
 pcb_PTR readyQueue;
-pcb_PTR currentProc; 		/*scaler to the running Proc*/
-int processCnt;			/*int indicating the started but not terminated processes*/
-int softBlockCnt;		/*a process can either be ready, running, blocked(waiting) state and this int is the number of started, but not terminated processes*/
+pcb_PTR currentProc; 			/*scaler to the running Proc*/
+int processCnt;					/*int indicating the started but not terminated processes*/
+int softBlockCnt;				/*a process can either be ready, running, blocked(waiting) state 
+									and this int is the number of started, but not terminated processes*/
 int deviceSema4s[MAXDEVCNT]; 	/*49; last is sudo clock*/
 cpu_t sTOD;
 int causeNum;
-/*
-************end global variables**************
+/* ------------------------------------ */
+
+/*genExceptionHandler
+*Handles exceptions.
 */
-
-
 void genExceptionHandler(){
 	/*save state*/
 	state_PTR previousStatePTR = (state_PTR) (BIOSDATAPAGE);
@@ -71,7 +63,12 @@ void genExceptionHandler(){
 	}
 }
 
-/*main*/
+/*Main
+*Runs the boot code for the OS. it will initalize pcbs and will initialize 
+	the active semaphore list. It will also populate low areas of memory
+	as well as setting the ground work for context switching. Finally, it 
+	will call the scheduler.
+*/
 int main(){
 	initPcbs();
 	initASL();

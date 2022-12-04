@@ -14,9 +14,6 @@
 #include "../h/asl.h"
 #include "../h/types.h"
 #include "../h/const.h"
-/*#include "../h/scheduler.h"*/
-/* #include "../phase2/exceptions.c" */
-/* #include "../phase2/scheduler.c" */
 #include "/usr/include/umps3/umps/libumps.h"
 
 /* ---------Global Variables----------- */
