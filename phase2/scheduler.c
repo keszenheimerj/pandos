@@ -5,6 +5,10 @@
 *	Implements a round-robin scheduling algorithm whenever a new process is needed.
 *
 * PUBLIC FUNCTIONS : 
+*	switchContect;	takes a state pointer to load
+*	copyState;	pass state pointers for source and destination to do deep copy of state
+*	scheduler;	called to continue round robin scheduling
+*	prepForSwitch;	called to prep ready queue by adding current process before scheduler gets called
 *	
 * AUTHORS :	James Keszenheimer, Evan Hanson		START DATE : 31 Aug 22
 *

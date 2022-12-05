@@ -15,7 +15,7 @@ pcbFree_h                        :OBJ:0x20007B20:0x00000004:LOC
 pool.0                           :OBJ:0x20007B24:0x00000DC0:LOC
 INITCPU                          :FUN:0x20005E3C:0x00000040:GLB
 p4state                          :OBJ:0x200071A4:0x0000008C:GLB
-pltInt                           :FUN:0x200033B8:0x0000009C:GLB
+pltInt                           :FUN:0x200035F8:0x0000009C:GLB
 currentProc                      :OBJ:0x200078F4:0x00000004:GLB
 semC                             :OBJ:0x200079EC:0x00000004:GLB
 print                            :FUN:0x200010F0:0x0000011C:GLB
@@ -35,9 +35,9 @@ sTOD                             :OBJ:0x200079C4:0x00000004:GLB
 getENTRYHI                       :FUN:0x20005B88:0x00000014:GLB
 emptyProcQ                       :FUN:0x200051F4:0x00000038:GLB
 p5gen                            :FUN:0x20002414:0x000001EC:GLB
-intHandler                       :FUN:0x2000382C:0x00000240:GLB
+intHandler                       :FUN:0x200030D0:0x00000240:GLB
 p2                               :FUN:0x20001C48:0x000003E0:GLB
-deviceInterrupt                  :FUN:0x200030D0:0x000002E8:GLB
+deviceInterrupt                  :FUN:0x20003310:0x000002E8:GLB
 endp8                            :OBJ:0x20007080:0x00000004:GLB
 endp2                            :OBJ:0x2000706C:0x00000004:GLB
 p7                               :FUN:0x20002A54:0x0000005C:GLB
@@ -62,7 +62,7 @@ p5sys                            :FUN:0x200026EC:0x000000D0:GLB
 removeProcQ                      :FUN:0x20005548:0x000000F8:GLB
 processCnt                       :OBJ:0x200078F8:0x00000004:GLB
 LDCXT                            :FUN:0x20005D1C:0x00000020:GLB
-getLine                          :FUN:0x200035B4:0x00000184:GLB
+getLine                          :FUN:0x200037F4:0x00000184:GLB
 getENTRYLO                       :FUN:0x20005B4C:0x00000014:GLB
 sysNum                           :OBJ:0x20007A00:0x00000004:GLB
 setENTRYHI                       :FUN:0x20005C40:0x0000001C:GLB
@@ -73,7 +73,7 @@ removeBlocked                    :FUN:0x20004E28:0x000000C8:GLB
 softBlockCnt                     :OBJ:0x200078FC:0x00000004:GLB
 p3state                          :OBJ:0x20007118:0x0000008C:GLB
 emptyChild                       :FUN:0x20005854:0x00000040:GLB
-intervalTimerInterrupt           :FUN:0x20003454:0x00000160:GLB
+intervalTimerInterrupt           :FUN:0x20003694:0x00000160:GLB
 p5MemLocation                    :OBJ:0x200078EC:0x00000004:GLB
 intLineN                         :OBJ:0x200079D4:0x00000004:GLB
 removeChild                      :FUN:0x20005910:0x000000D0:GLB
@@ -147,5 +147,5 @@ blkp4                            :OBJ:0x20007004:0x00000004:GLB
 causeNum                         :OBJ:0x200079C8:0x00000004:GLB
 p4                               :FUN:0x2000225C:0x000001B8:GLB
 status                           :OBJ:0x200079E4:0x00000004:GLB
-getDevLine                       :FUN:0x20003738:0x000000F4:GLB
+getDevLine                       :FUN:0x20003978:0x000000F4:GLB
 gchild1state                     :OBJ:0x20007578:0x0000008C:GLB

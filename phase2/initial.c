@@ -5,6 +5,8 @@
 *	Initializes the main() function and runs the bootcode for Pandos OS.
 *
 * PUBLIC FUNCTIONS : 
+*	genExceptionHandler;	called when a general exception occurs and uses the BIOS data page to find cause and call either:
+*					SYS():cause 8, interruptHandler():cause 0, passUpOrDie(..): cause else
 *	
 * AUTHORS :	James Keszenheimer, Evan Hanson		START DATE : 31 Aug 22
 *
@@ -28,12 +30,12 @@ extern void scheduler();
 extern void prepForSwitch();
 extern void uTLB_RefillHandler();
 
-pcb_PTR readyQueue;
-pcb_PTR currentProc; 			/*scaler to the running Proc*/
+pcb_PTR readyQueue;		/*pointer to queue of pcbs that are waiting*/
+pcb_PTR currentProc; 			/*pointer to the running Proc*/
 int processCnt;					/*int indicating the started but not terminated processes*/
 int softBlockCnt;				/*a process can either be ready, running, blocked(waiting) state 
 									and this int is the number of started, but not terminated processes*/
-int deviceSema4s[MAXDEVCNT]; 	/*49; last is sudo clock*/
+int deviceSema4s[MAXDEVCNT]; 	/*a sema4 for each device so 49; last is sudo clock*/
 cpu_t sTOD;
 int causeNum;
 /* ------------------------------------ */

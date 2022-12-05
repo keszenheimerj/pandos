@@ -5,6 +5,7 @@
 *	example
 *
 * PUBLIC FUNCTIONS : 
+*	intHandler(); called when the general exceptionhandler decides cause is 0 and a line interrupt is occuring
 *	
 * AUTHORS :	James Keszenheimer, Evan Hanson		START DATE : 31 Aug 22
 *
@@ -40,26 +41,57 @@ int status;
 int devP;
 int *semC;
 
-/*HIDDEN int getDevice(int line){
+void deviceInterrupt(int dev, int intDevN, int intLineN);
+void pltInt(state_PTR eState);
+void intervalTimerInterrupt();
+int getLine(state_PTR exState);
+int getDevLine(int dev);
+
+/*
+*the interrupt handler is called by the generalExceptionHandler anytime an interrupt line is on somewhere
+*The 0th line should never be on for our uniprocessor environment, but another line should always be on when this function is called
+*we will find the line
+*if a device line then find which device
+*ensure the line is acknowledged
+*/
+void intHandler(){
+	/*find exception state*/
+	state_PTR exState = (state_PTR) BIOSDATAPAGE;
 	
-	return device;
-}*/
-
-/*void interruptLineHandler(int line){
-	non timer interrupt 
-	if(line >2){
+	/*find line number */
+	int line = getLine(exState);
 	
-	}
-}*/
-
-/*returns index of highest priority device*/
-/*int getIndexHPriority(int line){
-	for(int i = 0; i < 8; i++){
-		if(devAddrBase + ){
-
+	/*decide what to de based on line number*/
+	if(line == 0){
+		/*intended for uniprocessor environments only*/
+		PANIC();
+	}else if(line == 1){
+		/*process local timer interrupt*/
+		pltInt(exState);
+	}else if(line == 2){/*pg 34*/
+		/*intervalTimerInterrupt*/
+		LDIT(IO);
+		STCK(interruptStop);
+		int *clockS = &deviceSema4s[MAXDEVCNT-1];
+		pcb_PTR p = (removeBlocked(clockS));/*store process */
+		while(p != NULL){
+			p->p_time += (interruptStop - sTOD);
+			insertProcQ(&readyQueue, p);
+			p = removeBlocked(clockS);
+			softBlockCnt--;
 		}
+		*clockS = ZERO;
+		prepForSwitch();
 	}
-}*/
+	
+	devregarea_t * ram = (devregarea_t *) RAMBASEADDR;
+	int dev = ram -> interrupt_dev[intLineN-DEVICEOFFSET]; /*devBits*/
+	int intDevN = getDevLine(dev);
+	
+	if(intLineN >= DEVICEOFFSET){
+		deviceInterrupt(dev, intDevN, line);
+	}
+}
 
 void deviceInterrupt(int dev, int intDevN, int intLineN){
 	/*delcare variables*/
@@ -221,48 +253,4 @@ int getDevLine(int dev){
 	}
 	return intDevN;
 }
-/*
-*the interrupt handler is called by the generalExceptionHandler anytime an interrupt line is on somewhere
-*The 0th line should never be on for our uniprocessor environment, but another line should always be on when this function is called
-*we will find the line
-*if a device line then find which device
-*ensure the line is acknowledged
-*/
-void intHandler(){
-	/*find exception state*/
-	state_PTR exState = (state_PTR) BIOSDATAPAGE;
-	
-	/*find line number */
-	int line = getLine(exState);
-	
-	/*decide what to de based on line number*/
-	if(line == 0){
-		/*intended for uniprocessor environments only*/
-		PANIC();
-	}else if(line == 1){
-		/*process local timer interrupt*/
-		pltInt(exState);
-	}else if(line == 2){/*pg 34*/
-		/*intervalTimerInterrupt*/
-		LDIT(IO);
-		STCK(interruptStop);
-		int *clockS = &deviceSema4s[MAXDEVCNT-1];
-		pcb_PTR p = (removeBlocked(clockS));/*store process */
-		while(p != NULL){
-			p->p_time += (interruptStop - sTOD);
-			insertProcQ(&readyQueue, p);
-			p = removeBlocked(clockS);
-			softBlockCnt--;
-		}
-		*clockS = ZERO;
-		prepForSwitch();
-	}
-	
-	devregarea_t * ram = (devregarea_t *) RAMBASEADDR;
-	int dev = ram -> interrupt_dev[intLineN-DEVICEOFFSET]; /*devBits*/
-	int intDevN = getDevLine(dev);
-	
-	if(intLineN >= DEVICEOFFSET){
-		deviceInterrupt(dev, intDevN, line);
-	}
-}
+

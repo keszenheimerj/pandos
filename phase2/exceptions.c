@@ -5,6 +5,11 @@
 *	Handles the exceptions that occur.
 *
 * PUBLIC FUNCTIONS : 
+*	SYS()
+*		called when an syscall exception occurs and handle by using the a0-a3 registers
+*	passUpOrDie(state_t *exState, int exType)
+*		called by passing the BIOS exception state and the type of exception PGFAULT or GENERAL
+*		if current process doeshn't have a support struct kill it; else pass up in support struct
 *	
 * AUTHORS :	James Keszenheimer, Evan Hanson		START DATE : 31 Aug 22
 *
